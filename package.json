@@ -51,7 +51,7 @@
 		"chalk": "^6.0.0",
 		"chokidar": "^5.0.0",
 		"commander": "^15.0.0",
-		"cssnano": "7.1.9",
+		"cssnano": "8.0.2",
 		"postcss": "^8.5.25",
 		"prettier": "^3.9.6",
 		"tailwindcss": "^4.3.3",
