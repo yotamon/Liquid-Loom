@@ -1,0 +1,52 @@
+name: Bug report
+description: Report a reproducible problem in the framework or reference theme.
+title: "[Bug]: "
+labels:
+  - bug
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping make Liquid Loom more dependable.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Provide the smallest source tree, commands, or repository that reproduces the issue.
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include your operating system, Node.js version, pnpm version, and Shopify CLI version.
+      placeholder: Windows 11, Node 24.x, pnpm 11.x, Shopify CLI 4.x
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Paste logs without credentials, customer information, or private store data.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I searched existing issues for duplicates.
+          required: true
+        - label: I removed credentials, customer information, and private storefront data.
+          required: true

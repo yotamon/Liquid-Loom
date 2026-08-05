@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/yotamon/Liquid-Loom/security/advisories/new
+    about: Report vulnerabilities privately instead of opening a public issue.
+  - name: Documentation
+    url: https://github.com/yotamon/Liquid-Loom#readme
+    about: Review setup, architecture, commands, and contribution guidance.
