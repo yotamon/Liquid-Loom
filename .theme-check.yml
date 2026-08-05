@@ -1,0 +1,8 @@
+extends: theme-check:recommended
+
+ignore:
+  - node_modules/**
+  - src/**
+
+JSONMissingBlock:
+  enabled: false

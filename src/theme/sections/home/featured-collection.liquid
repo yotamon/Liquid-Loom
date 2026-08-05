@@ -1,0 +1,64 @@
+{%- assign featured_collection = section.settings.collection -%}
+
+<section class="section">
+	<div class="page-width">
+		<div class="section-header">
+			<div>
+				<p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>
+				<h2 class="heading heading--medium">{{ section.settings.heading | escape }}</h2>
+			</div>
+			{%- if featured_collection != blank -%}
+				<a href="{{ featured_collection.url }}">{{ 'actions.view_all' | t }}</a>
+			{%- endif -%}
+		</div>
+
+		<div class="product-grid">
+			{%- if featured_collection != blank -%}
+				{%- for product in featured_collection.products limit: section.settings.products_to_show -%}
+					<article class="product-card">
+						<a class="product-card__media" href="{{ product.url }}">
+							{%- if product.featured_image != blank -%}
+								{{
+									product.featured_image
+									| image_url: width: 900
+									| image_tag: loading: 'lazy', widths: '320, 480, 640, 900', sizes: '(min-width: 900px) 25vw, 50vw'
+								}}
+							{%- else -%}
+								{{ 'product-1' | placeholder_svg_tag }}
+							{%- endif -%}
+						</a>
+						<div class="product-card__content">
+							<h3 class="product-card__title">
+								<a href="{{ product.url }}">{{ product.title | escape }}</a>
+							</h3>
+							{% render 'price', product: product %}
+						</div>
+					</article>
+				{%- endfor -%}
+			{%- else -%}
+				{%- for index in (1..4) -%}
+					<article class="product-card">
+						<div class="product-card__media">{{ 'product-' | append: index | placeholder_svg_tag }}</div>
+						<div class="product-card__content">
+							<h3 class="product-card__title">Example product</h3>
+							<span class="price">{{ 2400 | money }}</span>
+						</div>
+					</article>
+				{%- endfor -%}
+			{%- endif -%}
+		</div>
+	</div>
+</section>
+
+{% schema %}
+{
+	"name": "Featured collection",
+	"settings": [
+		{ "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Selected for you" },
+		{ "type": "text", "id": "heading", "label": "Heading", "default": "Products worth a closer look" },
+		{ "type": "collection", "id": "collection", "label": "Collection" },
+		{ "type": "range", "id": "products_to_show", "min": 2, "max": 8, "step": 1, "label": "Products", "default": 4 }
+	],
+	"presets": [{ "name": "Featured collection" }]
+}
+{% endschema %}

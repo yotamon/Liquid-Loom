@@ -1,0 +1,52 @@
+{
+	"name": "liquid-loom",
+	"version": "1.0.0",
+	"private": true,
+	"description": "A source-first Shopify theme development framework with deterministic builds, incremental caching, Vite, and Tailwind CSS.",
+	"type": "module",
+	"license": "MIT",
+	"engines": {
+		"node": ">=22.12.0"
+	},
+	"packageManager": "pnpm@11.11.0",
+	"keywords": [
+		"shopify",
+		"liquid",
+		"theme-development",
+		"vite",
+		"tailwindcss",
+		"ecommerce"
+	],
+	"scripts": {
+		"analyze": "node build-scripts/cli.js analyze",
+		"build": "node build-scripts/cli.js build",
+		"build:clean": "node build-scripts/cli.js build --clean",
+		"check": "node build-scripts/cli.js check",
+		"clean": "node build-scripts/cli.js clean",
+		"dev": "node build-scripts/cli.js dev",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"public-ready": "node build-scripts/cli.js public-ready",
+		"shopify:dev": "shopify theme dev --path dist/theme",
+		"shopify:push": "shopify theme push --path dist/theme",
+		"test": "node --test",
+		"test:coverage": "node --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-functions=80 --test-coverage-branches=80",
+		"theme-check": "shopify theme check --path dist/theme",
+		"validate": "pnpm test:coverage && pnpm format:check && pnpm build:clean && pnpm check && pnpm theme-check && pnpm public-ready",
+		"watch": "node build-scripts/cli.js watch"
+	},
+	"devDependencies": {
+		"@shopify/cli": "^4.6.0",
+		"@shopify/prettier-plugin-liquid": "^1.11.0",
+		"@tailwindcss/postcss": "^4.3.3",
+		"autoprefixer": "^10.5.4",
+		"chalk": "^6.0.0",
+		"chokidar": "^5.0.0",
+		"commander": "^15.0.0",
+		"cssnano": "7.1.9",
+		"postcss": "^8.5.25",
+		"prettier": "^3.9.6",
+		"tailwindcss": "^4.3.3",
+		"vite": "^8.2.0"
+	}
+}

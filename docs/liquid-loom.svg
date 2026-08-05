@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title description" viewBox="0 0 960 260">
+  <title id="title">Liquid Loom</title>
+  <description id="description">Liquid Loom logo and the tagline Structured source. Shopify-ready output.</description>
+  <rect width="960" height="260" rx="24" fill="#0b0f14"/>
+  <g transform="translate(54 40)">
+    <rect x="0" y="76" width="160" height="18" rx="9" fill="#4de3c1"/>
+    <path d="M38 24h24v112h72v24H38z" fill="#f4f0e6"/>
+    <path d="M78 8h24v88h58v24H78z" fill="#f4f0e6"/>
+    <circle cx="160" cy="85" r="9" fill="#ff6b5e"/>
+  </g>
+  <text x="266" y="116" fill="#f4f0e6" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="64" font-weight="750" letter-spacing="-2">LIQUID LOOM</text>
+  <text x="270" y="162" fill="#4de3c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="21">Structured source. Shopify-ready output.</text>
+  <path d="M270 190h512" stroke="#25303a" stroke-width="2"/>
+  <text x="270" y="222" fill="#7d8994" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" letter-spacing="2">OPEN SOURCE THEME TOOLING</text>
+</svg>

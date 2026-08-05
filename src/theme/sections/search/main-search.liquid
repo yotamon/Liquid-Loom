@@ -1,0 +1,43 @@
+<section class="section">
+	<div class="page-width">
+		<header class="collection-header">
+			<p class="eyebrow">Search</p>
+			<h1 class="heading heading--medium">Find what you need</h1>
+			<form action="{{ routes.search_url }}" method="get" role="search">
+				<div class="field">
+					<label for="SearchInput">Search the store</label>
+					<input id="SearchInput" type="search" name="q" value="{{ search.terms | escape }}">
+				</div>
+				<button class="button" type="submit">{{ 'actions.search' | t }}</button>
+			</form>
+		</header>
+
+		{%- if search.performed -%}
+			<div class="product-grid">
+				{%- for item in search.results -%}
+					<article class="product-card">
+						<a class="product-card__media" href="{{ item.url }}">
+							{%- if item.featured_image -%}
+								{{ item.featured_image | image_url: width: 700 | image_tag: loading: 'lazy' }}
+							{%- endif -%}
+						</a>
+						<div class="product-card__content">
+							<h2 class="product-card__title">
+								<a href="{{ item.url }}">{{ item.title | escape }}</a>
+							</h2>
+						</div>
+					</article>
+				{%- else -%}
+					<p>No results for “{{ search.terms | escape }}”.</p>
+				{%- endfor -%}
+			</div>
+		{%- endif -%}
+	</div>
+</section>
+
+{% schema %}
+{
+	"name": "Main search",
+	"settings": []
+}
+{% endschema %}

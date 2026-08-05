@@ -1,0 +1,27 @@
+[
+	{
+		"name": "Layout",
+		"settings": [
+			{
+				"type": "range",
+				"id": "page_width",
+				"min": 960,
+				"max": 1600,
+				"step": 40,
+				"unit": "px",
+				"label": "Page width",
+				"default": 1200
+			}
+		]
+	},
+	{
+		"name": "Colors",
+		"settings": [
+			{ "type": "color", "id": "color_background", "label": "Background", "default": "#f8f7f2" },
+			{ "type": "color", "id": "color_foreground", "label": "Text", "default": "#111820" },
+			{ "type": "color", "id": "color_surface", "label": "Surface", "default": "#ffffff" },
+			{ "type": "color", "id": "color_accent", "label": "Accent", "default": "#176c5b" },
+			{ "type": "color", "id": "color_accent_contrast", "label": "Accent text", "default": "#ffffff" }
+		]
+	}
+]

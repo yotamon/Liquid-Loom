@@ -1,0 +1,13 @@
+<article class="page-width section">
+	<header class="collection-header">
+		<h1 class="heading heading--medium">{{ page.title | escape }}</h1>
+	</header>
+	<div class="rte">{{ page.content }}</div>
+</article>
+
+{% schema %}
+{
+	"name": "Main page",
+	"settings": []
+}
+{% endschema %}

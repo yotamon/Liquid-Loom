@@ -1,0 +1,56 @@
+<footer class="site-footer">
+	<div class="page-width section--compact">
+		<div class="site-footer__grid">
+			<div class="site-footer__about">
+				<p class="eyebrow">{{ shop.name | escape }}</p>
+				<div class="rte">{{ section.settings.about }}</div>
+			</div>
+
+			<div>
+				<h2 class="site-footer__title">{{ section.settings.menu_one.title | default: 'Explore' }}</h2>
+				<ul>
+					{%- for link in section.settings.menu_one.links -%}
+						<li>
+							<a href="{{ link.url }}">{{ link.title | escape }}</a>
+						</li>
+					{%- endfor -%}
+				</ul>
+			</div>
+
+			<div>
+				<h2 class="site-footer__title">{{ section.settings.menu_two.title | default: 'Information' }}</h2>
+				<ul>
+					{%- for link in section.settings.menu_two.links -%}
+						<li>
+							<a href="{{ link.url }}">{{ link.title | escape }}</a>
+						</li>
+					{%- endfor -%}
+				</ul>
+			</div>
+		</div>
+
+		<div class="site-footer__bottom">
+			<span
+				>&copy; {{ 'now' | date: '%Y' }}
+				{{ shop.name | escape -}}
+			</span>
+			<span>{{ powered_by_link }}</span>
+		</div>
+	</div>
+</footer>
+
+{% schema %}
+{
+	"name": "Footer",
+	"settings": [
+		{
+			"type": "richtext",
+			"id": "about",
+			"label": "About",
+			"default": "<p>Use this space to share what makes your store worth remembering.</p>"
+		},
+		{ "type": "link_list", "id": "menu_one", "label": "First menu", "default": "footer" },
+		{ "type": "link_list", "id": "menu_two", "label": "Second menu" }
+	]
+}
+{% endschema %}

@@ -1,0 +1,60 @@
+<section class="section">
+	<div class="page-width">
+		<header class="collection-header">
+			<p class="eyebrow">Collection</p>
+			<h1 class="heading heading--medium">{{ collection.title | escape }}</h1>
+			{%- if collection.description != blank -%}
+				<div class="rte muted">{{ collection.description }}</div>
+			{%- endif -%}
+		</header>
+
+		{%- paginate collection.products by section.settings.products_per_page -%}
+			<div class="product-grid">
+				{%- for product in collection.products -%}
+					<article class="product-card">
+						<a class="product-card__media" href="{{ product.url }}">
+							{%- if product.featured_image != blank -%}
+								{{
+									product.featured_image
+									| image_url: width: 900
+									| image_tag: loading: 'lazy', widths: '320, 480, 640, 900'
+								}}
+							{%- else -%}
+								{{ 'product-1' | placeholder_svg_tag }}
+							{%- endif -%}
+						</a>
+						<div class="product-card__content">
+							<h2 class="product-card__title">
+								<a href="{{ product.url }}">{{ product.title | escape }}</a>
+							</h2>
+							{% render 'price', product: product %}
+						</div>
+					</article>
+				{%- else -%}
+					<p>No products found.</p>
+				{%- endfor -%}
+			</div>
+
+			{%- if paginate.pages > 1 -%}
+				<div class="section--compact">{{ paginate | default_pagination }}</div>
+			{%- endif -%}
+		{%- endpaginate -%}
+	</div>
+</section>
+
+{% schema %}
+{
+	"name": "Main collection",
+	"settings": [
+		{
+			"type": "range",
+			"id": "products_per_page",
+			"min": 8,
+			"max": 32,
+			"step": 4,
+			"label": "Products per page",
+			"default": 16
+		}
+	]
+}
+{% endschema %}
