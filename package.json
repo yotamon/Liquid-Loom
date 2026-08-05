@@ -5,6 +5,14 @@
 	"description": "A source-first Shopify theme development framework with deterministic builds, incremental caching, Vite, and Tailwind CSS.",
 	"type": "module",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/yotamon/Liquid-Loom.git"
+	},
+	"bugs": {
+		"url": "https://github.com/yotamon/Liquid-Loom/issues"
+	},
+	"homepage": "https://github.com/yotamon/Liquid-Loom#readme",
 	"engines": {
 		"node": ">=22.12.0"
 	},

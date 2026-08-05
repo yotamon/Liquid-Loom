@@ -1,0 +1,38 @@
+name: Feature request
+description: Propose a focused improvement to the development framework.
+title: "[Feature]: "
+labels:
+  - enhancement
+  - triage
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: What workflow is difficult today, and who benefits from improving it?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach
+      description: Explain the behavior, source contract, or developer experience you would introduce.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Note workarounds or smaller approaches you considered.
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This remains merchant-neutral and does not introduce private business logic.
+          required: true
+        - label: I searched existing issues and discussions for similar proposals.
+          required: true

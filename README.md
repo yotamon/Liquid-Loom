@@ -38,7 +38,7 @@ Requirements:
 - A Shopify development store for live preview and deployment
 
 ```bash
-git clone <your-repository-url> liquid-loom
+git clone https://github.com/yotamon/Liquid-Loom.git liquid-loom
 cd liquid-loom
 
 corepack enable
