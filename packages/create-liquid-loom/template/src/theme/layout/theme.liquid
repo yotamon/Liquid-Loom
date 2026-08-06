@@ -1,0 +1,40 @@
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta name="theme-color" content="{{ settings.color_accent }}">
+		<link rel="canonical" href="{{ canonical_url }}">
+		<link rel="icon" href="{{ 'favicon.svg' | asset_url }}" type="image/svg+xml">
+
+		{% render 'meta-tags' %}
+
+		{{ 'style.css' | asset_url | stylesheet_tag: preload: true }}
+		<script src="{{ 'theme.js' | asset_url }}" defer></script>
+
+		<style>
+			:root {
+			  --color-background: {{ settings.color_background }};
+			  --color-foreground: {{ settings.color_foreground }};
+			  --color-surface: {{ settings.color_surface }};
+			  --color-accent: {{ settings.color_accent }};
+			  --color-accent-contrast: {{ settings.color_accent_contrast }};
+			  --page-width: {{ settings.page_width }}px;
+			}
+		</style>
+
+		{{ content_for_header }}
+	</head>
+
+	<body>
+		<a class="skip-link" href="#MainContent">{{ 'accessibility.skip_to_content' | t }}</a>
+
+		{% sections 'header-group' %}
+
+		<main id="MainContent" role="main" tabindex="-1">
+			{{ content_for_layout }}
+		</main>
+
+		{% sections 'footer-group' %}
+	</body>
+</html>

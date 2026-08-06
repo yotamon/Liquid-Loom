@@ -21,14 +21,6 @@ const TEXT_EXTENSIONS = new Set([
 ]);
 const TEXT_FILENAMES = new Set([".editorconfig", ".gitignore", ".prettierignore", ".shopifyignore"]);
 
-const DEFAULT_FORBIDDEN_TERMS = [
-	["cura", "life"].join(""),
-	["cura", "lin"].join(""),
-	["cura", "eats"].join(""),
-	["tele", "medicine"].join(""),
-	["bel", "ugahealth"].join("")
-];
-
 function isTextFile(fileName) {
 	return TEXT_FILENAMES.has(fileName) || TEXT_EXTENSIONS.has(path.extname(fileName).toLowerCase());
 }
@@ -55,7 +47,7 @@ async function listRepositoryFiles(directory, root = directory) {
 	return files;
 }
 
-export async function scanForbiddenContent(root, forbiddenTerms = DEFAULT_FORBIDDEN_TERMS) {
+export async function scanForbiddenContent(root, forbiddenTerms = []) {
 	const normalizedTerms = forbiddenTerms.map((term) => term.toLowerCase());
 	const findings = [];
 

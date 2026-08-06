@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"noEmit": true,
+		"strict": true,
+		"target": "ES2023"
+	},
+	"include": ["liquid-loom.config.ts"]
+}

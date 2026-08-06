@@ -1,0 +1,24 @@
+<{{ block.settings.level }} class="heading heading--medium" {{ block.shopify_attributes }}>
+	{{ block.settings.text | escape }}
+</{{ block.settings.level }}>
+
+{% schema %}
+{
+	"name": "Heading",
+	"settings": [
+		{ "type": "text", "id": "text", "label": "Text", "default": "Tell your story" },
+		{
+			"type": "select",
+			"id": "level",
+			"label": "Heading level",
+			"options": [
+				{ "value": "h2", "label": "H2" },
+				{ "value": "h3", "label": "H3" },
+				{ "value": "h4", "label": "H4" }
+			],
+			"default": "h2"
+		}
+	],
+	"presets": [{ "name": "Heading" }]
+}
+{% endschema %}

@@ -20,4 +20,4 @@ Avoid including real store credentials, customer information, access tokens, or 
 
 Useful reports include unsafe filesystem behavior, path traversal, accidental secret inclusion, build-output corruption, dependency compromise, or storefront code that creates a meaningful client-side security risk.
 
-Liquid Loom never needs Shopify credentials for `build`, `check`, `analyze`, `test`, or `public-ready`. Authentication is handled by Shopify CLI only when previewing or pushing a theme.
+Liquid Loom never needs Shopify credentials for `build`, `check`, `doctor`, `analyze`, `test`, or `public-ready`. Authentication is handled by Shopify CLI only when previewing or pushing a theme. npm publication uses GitHub OIDC trusted publishing rather than repository secrets or long-lived automation tokens.

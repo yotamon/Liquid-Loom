@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: npm
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: corepack enable
+      - run: npm install --global npm@latest
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm validate
+      - name: Verify release version contract
+        run: node build-scripts/release-check.js "${{ github.ref_name }}"
+      - name: Pack release artifacts
+        run: |
+          mkdir -p .artifacts
+          pnpm pack --pack-destination .artifacts
+          pnpm --filter create-liquid-loom pack --pack-destination .artifacts
+      - name: Attest packages
+        uses: actions/attest@v4
+        with:
+          subject-path: .artifacts/*.tgz
+      - name: Publish packages through npm trusted publishing
+        run: |
+          npm publish .artifacts/liquid-loom-*.tgz
+          npm publish .artifacts/create-liquid-loom-*.tgz
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" .artifacts/*.tgz --generate-notes --verify-tag

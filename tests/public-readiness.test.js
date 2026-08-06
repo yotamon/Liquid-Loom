@@ -23,15 +23,15 @@ describe("scanForbiddenContent", () => {
 		const root = await createFixture();
 		await writeFile(path.join(root, "README.md"), "A clean open-source project.\n");
 
-		assert.deepEqual(await scanForbiddenContent(root), []);
+		assert.deepEqual(await scanForbiddenContent(root, ["private-client"]), []);
 	});
 
-	it("reports legacy brand terms without embedding them in the scanner output", async () => {
+	it("reports project-configured private terms without embedding them in scanner output", async () => {
 		const root = await createFixture();
-		const legacyBrand = ["cura", "life"].join("");
-		await writeFile(path.join(root, "legacy.txt"), `Remove ${legacyBrand} before publishing.\n`);
+		const privateTerm = ["private", "-client"].join("");
+		await writeFile(path.join(root, "legacy.txt"), `Remove ${privateTerm} before publishing.\n`);
 
-		const findings = await scanForbiddenContent(root);
+		const findings = await scanForbiddenContent(root, [privateTerm]);
 
 		assert.equal(findings.length, 1);
 		assert.equal(findings[0].file, "legacy.txt");
@@ -40,10 +40,10 @@ describe("scanForbiddenContent", () => {
 
 	it("checks binary filenames as well as text contents", async () => {
 		const root = await createFixture();
-		const legacyProduct = ["cura", "lin"].join("");
-		await writeFile(path.join(root, `${legacyProduct}-logo.png`), Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+		const privateTerm = ["private", "-client"].join("");
+		await writeFile(path.join(root, `${privateTerm}-logo.png`), Buffer.from([0x89, 0x50, 0x4e, 0x47]));
 
-		const findings = await scanForbiddenContent(root);
+		const findings = await scanForbiddenContent(root, [privateTerm]);
 
 		assert.equal(findings.length, 1);
 		assert.equal(findings[0].category, "legacy-path");
@@ -51,12 +51,12 @@ describe("scanForbiddenContent", () => {
 
 	it("ignores generated and dependency directories", async () => {
 		const root = await createFixture();
-		const legacyProduct = ["cura", "lin"].join("");
+		const privateTerm = ["private", "-client"].join("");
 		await mkdir(path.join(root, "dist"), { recursive: true });
 		await mkdir(path.join(root, "node_modules", "fixture"), { recursive: true });
-		await writeFile(path.join(root, "dist", "theme.txt"), legacyProduct);
-		await writeFile(path.join(root, "node_modules", "fixture", "index.js"), legacyProduct);
+		await writeFile(path.join(root, "dist", "theme.txt"), privateTerm);
+		await writeFile(path.join(root, "node_modules", "fixture", "index.js"), privateTerm);
 
-		assert.deepEqual(await scanForbiddenContent(root), []);
+		assert.deepEqual(await scanForbiddenContent(root, [privateTerm]), []);
 	});
 });

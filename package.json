@@ -1,10 +1,32 @@
 {
 	"name": "liquid-loom",
-	"version": "1.0.0",
-	"private": true,
+	"version": "0.1.0",
 	"description": "A source-first Shopify theme development framework with deterministic builds, incremental caching, Vite, and Tailwind CSS.",
 	"type": "module",
 	"license": "MIT",
+	"bin": {
+		"liquid-loom": "./build-scripts/cli.js"
+	},
+	"exports": {
+		".": {
+			"types": "./types/index.d.ts",
+			"import": "./build-scripts/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"types": "./types/index.d.ts",
+	"files": [
+		"build-scripts/cli.js",
+		"build-scripts/index.js",
+		"build-scripts/lib/config.js",
+		"build-scripts/lib/doctor.js",
+		"build-scripts/lib/performance.js",
+		"build-scripts/lib/public-readiness.js",
+		"build-scripts/lib/theme-builder.js",
+		"types",
+		"LICENSE",
+		"README.md"
+	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/yotamon/Liquid-Loom.git"
@@ -17,6 +39,10 @@
 		"node": ">=22.12.0"
 	},
 	"packageManager": "pnpm@11.11.0",
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
 	"keywords": [
 		"shopify",
 		"liquid",
@@ -32,29 +58,36 @@
 		"check": "node build-scripts/cli.js check",
 		"clean": "node build-scripts/cli.js clean",
 		"dev": "node build-scripts/cli.js dev",
+		"doctor": "node build-scripts/cli.js doctor",
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
+		"pack:check": "pnpm pack --pack-destination .artifacts && pnpm --filter create-liquid-loom pack --pack-destination .artifacts && node tests/package-smoke.js",
 		"public-ready": "node build-scripts/cli.js public-ready",
 		"shopify:dev": "shopify theme dev --path dist/theme",
 		"shopify:push": "shopify theme push --path dist/theme",
 		"test": "node --test",
 		"test:coverage": "node --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-functions=80 --test-coverage-branches=80",
+		"typecheck": "tsc --noEmit",
 		"theme-check": "shopify theme check --path dist/theme",
-		"validate": "pnpm test:coverage && pnpm format:check && pnpm build:clean && pnpm check && pnpm theme-check && pnpm public-ready",
+		"validate": "pnpm test:coverage && pnpm typecheck && pnpm format:check && pnpm build:clean && pnpm check && pnpm theme-check && pnpm doctor && pnpm public-ready",
 		"watch": "node build-scripts/cli.js watch"
+	},
+	"dependencies": {
+		"chalk": "^6.0.0",
+		"chokidar": "^5.0.0",
+		"commander": "^15.0.0",
+		"vite": "^8.2.0"
+	},
+	"peerDependencies": {
+		"@tailwindcss/vite": "^4.3.3",
+		"tailwindcss": "^4.3.3"
 	},
 	"devDependencies": {
 		"@shopify/cli": "^4.6.0",
 		"@shopify/prettier-plugin-liquid": "^1.11.0",
-		"@tailwindcss/postcss": "^4.3.3",
-		"autoprefixer": "^10.5.4",
-		"chalk": "^6.0.0",
-		"chokidar": "^5.0.0",
-		"commander": "^15.0.0",
-		"cssnano": "8.0.2",
-		"postcss": "^8.5.25",
+		"@tailwindcss/vite": "^4.3.3",
 		"prettier": "^3.9.6",
 		"tailwindcss": "^4.3.3",
-		"vite": "^8.2.0"
+		"typescript": "latest"
 	}
 }

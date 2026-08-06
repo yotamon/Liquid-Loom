@@ -1,0 +1,25 @@
+{%- if predictive_search.performed -%}
+	<div class="predictive-search__results">
+		{%- if predictive_search.resources.products.size > 0 -%}
+			<p class="eyebrow">Products</p>
+			<ul role="listbox">
+				{%- for product in predictive_search.resources.products limit: 5 -%}
+					<li role="option">
+						<a href="{{ product.url }}">
+							{{ product.title | escape }}
+							<span class="muted">{{ product.price | money }}</span>
+						</a>
+					</li>
+				{%- endfor -%}
+			</ul>
+		{%- else -%}
+			<p>No matching products.</p>
+		{%- endif -%}
+	</div>
+{%- endif -%}
+
+{% schema %}
+{
+	"name": "Predictive search"
+}
+{% endschema %}

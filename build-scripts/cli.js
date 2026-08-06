@@ -12,14 +12,22 @@ import { Command } from "commander";
 import { build as viteBuild } from "vite";
 
 import { scanForbiddenContent } from "./lib/public-readiness.js";
-import { assertSafeOutput, buildTheme, validateThemeSource } from "./lib/theme-builder.js";
+import { loadProjectConfig } from "./lib/config.js";
+import { diagnoseProject } from "./lib/doctor.js";
+import { validatePerformanceBudgets } from "./lib/performance.js";
+import { assertSafeOutput, buildProject, validateThemeSource } from "./lib/theme-builder.js";
 
-const PROJECT_ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const SOURCE_ROOT = path.join(PROJECT_ROOT, "src");
-const OUTPUT_ROOT = path.join(PROJECT_ROOT, "dist", "theme");
-const CACHE_ROOT = path.join(PROJECT_ROOT, ".cache");
-const CACHE_FILE = path.join(CACHE_ROOT, "manifest.json");
-const VITE_CONFIG = path.join(PROJECT_ROOT, "vite.config.js");
+const PACKAGE_ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const PACKAGE_METADATA = JSON.parse(await readFile(path.join(PACKAGE_ROOT, "package.json"), "utf8"));
+const PROJECT_CONFIG = await loadProjectConfig(process.cwd());
+const {
+	cacheFile: CACHE_FILE,
+	outputRoot: OUTPUT_ROOT,
+	projectRoot: PROJECT_ROOT,
+	sourceRoot: SOURCE_ROOT,
+	viteConfig: VITE_CONFIG
+} = PROJECT_CONFIG;
+const CACHE_ROOT = path.dirname(CACHE_FILE);
 
 const REQUIRED_OUTPUT_FILES = [
 	"assets/style.css",
@@ -43,18 +51,24 @@ async function runBuild({ clean = false, mode = "production", quiet = false } = 
 	const start = performance.now();
 	if (!quiet) printHeader(mode === "production" ? "production build" : "development build");
 
-	const summary = await buildTheme({
+	const summary = await buildProject({
 		projectRoot: PROJECT_ROOT,
 		sourceRoot: SOURCE_ROOT,
 		outputRoot: OUTPUT_ROOT,
 		cacheFile: CACHE_FILE,
-		clean
-	});
-
-	await viteBuild({
-		configFile: VITE_CONFIG,
-		logLevel: quiet ? "silent" : "warn",
-		mode
+		clean,
+		bundle: async ({ outputRoot }) => {
+			await viteBuild({
+				configFile: VITE_CONFIG,
+				logLevel: quiet ? "silent" : "warn",
+				mode,
+				build: {
+					emptyOutDir: false,
+					outDir: path.join(outputRoot, "assets")
+				}
+			});
+			await validatePerformanceBudgets(outputRoot, PROJECT_CONFIG.performance, performance.now() - start);
+		}
 	});
 
 	if (!quiet) {
@@ -164,7 +178,7 @@ async function analyzeProject() {
 
 async function checkPublicReadiness() {
 	printHeader("public-readiness scan");
-	const findings = await scanForbiddenContent(PROJECT_ROOT);
+	const findings = await scanForbiddenContent(PROJECT_ROOT, PROJECT_CONFIG.forbiddenTerms);
 
 	if (findings.length > 0) {
 		for (const finding of findings) {
@@ -174,7 +188,18 @@ async function checkPublicReadiness() {
 		throw new Error(`Public-readiness scan found ${findings.length} issue${findings.length === 1 ? "" : "s"}.`);
 	}
 
-	console.log(`${chalk.green("✓")} No excluded legacy brand or product terms found`);
+	console.log(`${chalk.green("✓")} No configured private terms found`);
+}
+
+async function doctorProject() {
+	printHeader("project doctor");
+	const result = await diagnoseProject(PROJECT_CONFIG);
+	for (const item of result.checks) {
+		const symbol = item.status === "pass" ? chalk.green("✓") : chalk.red("×");
+		console.log(`${symbol} ${item.name.padEnd(18)} ${item.message}`);
+	}
+	if (!result.healthy) throw new Error("Project doctor found blocking issues.");
+	console.log(`${chalk.green("✓")} Project is ready to build and contribute to`);
 }
 
 async function watchProject({ shopify = false } = {}) {
@@ -191,12 +216,9 @@ async function watchProject({ shopify = false } = {}) {
 				stdio: "inherit"
 			}
 		);
-		shopifyProcess.on("error", (error) => {
-			console.error(`${chalk.red("×")} Shopify CLI could not start: ${error.message}`);
-		});
 	}
 
-	const watcher = chokidar.watch([SOURCE_ROOT, VITE_CONFIG, path.join(PROJECT_ROOT, "postcss.config.mjs")], {
+	const watcher = chokidar.watch([SOURCE_ROOT, VITE_CONFIG, PROJECT_CONFIG.configFile].filter(Boolean), {
 		ignoreInitial: true
 	});
 	let timer;
@@ -233,19 +255,36 @@ async function watchProject({ shopify = false } = {}) {
 	console.log(`${chalk.green("●")} watching src/ for changes`);
 
 	await new Promise((resolve) => {
-		const shutdown = async () => {
+		let shuttingDown = false;
+		const shutdown = async (exitCode) => {
+			if (shuttingDown) return;
+			shuttingDown = true;
+			if (typeof exitCode === "number") process.exitCode = exitCode;
 			clearTimeout(timer);
 			await watcher.close();
 			shopifyProcess?.kill();
 			resolve();
 		};
-		process.once("SIGINT", shutdown);
-		process.once("SIGTERM", shutdown);
+		shopifyProcess?.once("error", (error) => {
+			console.error(`${chalk.red("×")} Shopify CLI could not start: ${error.message}`);
+			void shutdown(1);
+		});
+		shopifyProcess?.once("exit", (code, signal) => {
+			if (shuttingDown) return;
+			if (signal) console.error(`${chalk.red("×")} Shopify CLI stopped with ${signal}`);
+			void shutdown(code ?? 1);
+		});
+		watcher.once("error", (error) => {
+			console.error(`${chalk.red("×")} File watcher failed: ${error.message}`);
+			void shutdown(1);
+		});
+		process.once("SIGINT", () => void shutdown());
+		process.once("SIGTERM", () => void shutdown());
 	});
 }
 
 const program = new Command();
-program.name("liquid-loom").description("Source-first Shopify theme tooling").version("1.0.0");
+program.name("liquid-loom").description("Source-first Shopify theme tooling").version(PACKAGE_METADATA.version);
 
 program
 	.command("build")
@@ -265,6 +304,7 @@ program
 program.command("clean").description("Remove generated output and cache files").action(cleanProject);
 program.command("check").description("Validate source JSON and required build output").action(checkProject);
 program.command("analyze").description("Report output composition and largest files").action(analyzeProject);
+program.command("doctor").description("Diagnose setup, safety, metadata, and source readiness").action(doctorProject);
 program.command("public-ready").description("Scan for excluded legacy content").action(checkPublicReadiness);
 
 program.parseAsync().catch((error) => {

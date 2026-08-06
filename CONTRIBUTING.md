@@ -7,7 +7,6 @@ Thanks for helping make Shopify theme development calmer and more predictable.
 ```bash
 corepack enable
 pnpm install
-pnpm build
 pnpm validate
 ```
 
@@ -38,6 +37,8 @@ Nested folders under `layout`, `sections`, `snippets`, `blocks`, and `public` fl
 pnpm validate
 ```
 
-That command enforces coverage, formatting, a clean production build, project checks, Shopify Theme Check, and the public-readiness scan.
+That command enforces coverage, public type declarations, formatting, a clean transactional build, project diagnostics, Shopify Theme Check, performance budgets, and the configurable public-readiness scan. Use `pnpm pack:check` when changing package metadata, CLI resolution, or the embedded starter.
 
 Keep pull requests focused. Explain the user-facing outcome, note any source-to-output mapping change, and include tests for success and failure paths.
+
+By participating, you agree to [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Architecture-changing proposals should begin in GitHub Discussions; security reports follow [SECURITY.md](SECURITY.md).
