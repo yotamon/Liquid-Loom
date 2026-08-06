@@ -1,0 +1,35 @@
+{
+	"name": "__PROJECT_NAME__",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"engines": {
+		"node": ">=22.12.0"
+	},
+	"packageManager": "pnpm@11.11.0",
+	"scripts": {
+		"analyze": "liquid-loom analyze",
+		"build": "liquid-loom build",
+		"build:clean": "liquid-loom build --clean",
+		"check": "liquid-loom check",
+		"clean": "liquid-loom clean",
+		"dev": "liquid-loom dev",
+		"doctor": "liquid-loom doctor",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"shopify:push": "shopify theme push --path dist/theme",
+		"theme-check": "shopify theme check --path dist/theme",
+		"typecheck": "tsc --noEmit",
+		"validate": "liquid-loom build --clean && liquid-loom check && liquid-loom doctor && shopify theme check --path dist/theme && tsc --noEmit && prettier --check .",
+		"watch": "liquid-loom watch"
+	},
+	"devDependencies": {
+		"@shopify/cli": "^4.6.0",
+		"@shopify/prettier-plugin-liquid": "^1.11.0",
+		"@tailwindcss/vite": "^4.3.3",
+		"liquid-loom": "^0.1.0",
+		"prettier": "^3.9.6",
+		"tailwindcss": "^4.3.3",
+		"typescript": "^7.0.2"
+	}
+}

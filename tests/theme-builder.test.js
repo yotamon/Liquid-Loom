@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { afterEach, describe, it } from "node:test";
-import { mkdtemp, mkdir, readFile, rm, unlink, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, readdir, rm, unlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
 import {
 	BuildCollisionError,
 	assertSafeOutput,
+	buildProject,
 	buildTheme,
 	createBuildPlan,
 	mapThemePath,
@@ -68,6 +69,31 @@ describe("createBuildPlan", () => {
 		assert.throws(
 			() => createBuildPlan(["theme/sections/home/hero.liquid", "theme/sections/product/hero.liquid"]),
 			(error) => error instanceof BuildCollisionError && error.destination === "sections/hero.liquid"
+		);
+	});
+
+	it("treats destination paths as case-insensitive and Unicode-normalized", () => {
+		assert.throws(
+			() => createBuildPlan(["theme/sections/home/Hero.liquid", "theme/sections/product/hero.liquid"]),
+			(error) => error instanceof BuildCollisionError && error.destination === "sections/hero.liquid"
+		);
+
+		assert.throws(
+			() => createBuildPlan(["public/caf\u00e9.svg", "public/cafe\u0301.svg"]),
+			(error) => error instanceof BuildCollisionError && error.destination === "assets/caf\u00e9.svg"
+		);
+	});
+
+	it("rejects static files that overwrite generated bundle outputs", () => {
+		assert.throws(
+			() =>
+				createBuildPlan(["public/theme.js"], {
+					reservedOutputs: ["assets/theme.js", "assets/style.css"]
+				}),
+			(error) =>
+				error instanceof BuildCollisionError &&
+				error.destination === "assets/theme.js" &&
+				error.sources.includes("<generated:assets/theme.js>")
 		);
 	});
 });
@@ -173,5 +199,112 @@ describe("buildTheme", () => {
 
 		await assert.rejects(buildTheme({ projectRoot, sourceRoot, outputRoot, cacheFile }), /Unsafe manifest output path/);
 		assert.equal(await readFile(protectedFile, "utf8"), "keep me");
+	});
+});
+
+describe("buildProject", () => {
+	it("recovers an abandoned build lock from a terminated process", async () => {
+		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
+		await createMinimumTheme(sourceRoot);
+		await mkdir(path.dirname(cacheFile), { recursive: true });
+		await writeFile(`${cacheFile}.lock`, "999999999\n");
+
+		await buildProject({ projectRoot, sourceRoot, outputRoot, cacheFile, bundle: async () => {} });
+
+		await assert.rejects(readFile(`${cacheFile}.lock`, "utf8"), { code: "ENOENT" });
+	});
+
+	it("serializes concurrent builds that target the same project", async () => {
+		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
+		await createMinimumTheme(sourceRoot);
+		let activeBundles = 0;
+		let maximumConcurrency = 0;
+		const bundle = async () => {
+			activeBundles += 1;
+			maximumConcurrency = Math.max(maximumConcurrency, activeBundles);
+			await new Promise((resolve) => setTimeout(resolve, 60));
+			activeBundles -= 1;
+		};
+
+		await Promise.all([
+			buildProject({ projectRoot, sourceRoot, outputRoot, cacheFile, bundle }),
+			buildProject({ projectRoot, sourceRoot, outputRoot, cacheFile, bundle })
+		]);
+
+		assert.equal(maximumConcurrency, 1);
+	});
+
+	it("keeps the last successful output and cache when bundling fails", async () => {
+		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
+		await createMinimumTheme(sourceRoot);
+		await mkdir(outputRoot, { recursive: true });
+		await mkdir(path.dirname(cacheFile), { recursive: true });
+		await writeFile(path.join(outputRoot, "last-good.txt"), "stable");
+		await writeFile(cacheFile, '{"version":1,"files":{}}\n');
+
+		await assert.rejects(
+			buildProject({
+				projectRoot,
+				sourceRoot,
+				outputRoot,
+				cacheFile,
+				bundle: async ({ outputRoot: stagingRoot }) => {
+					await writeFile(path.join(stagingRoot, "partial.txt"), "incomplete");
+					throw new Error("bundle failed");
+				}
+			}),
+			/bundle failed/
+		);
+
+		assert.equal(await readFile(path.join(outputRoot, "last-good.txt"), "utf8"), "stable");
+		assert.equal(await readFile(cacheFile, "utf8"), '{"version":1,"files":{}}\n');
+		assert.equal(
+			(await readdir(path.dirname(outputRoot))).some((name) => name.includes("staging")),
+			false
+		);
+	});
+
+	it("publishes static and generated files together after a successful bundle", async () => {
+		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
+		await createMinimumTheme(sourceRoot);
+		await mkdir(outputRoot, { recursive: true });
+		await writeFile(path.join(outputRoot, "obsolete.txt"), "remove me");
+
+		await buildProject({
+			projectRoot,
+			sourceRoot,
+			outputRoot,
+			cacheFile,
+			clean: true,
+			bundle: async ({ outputRoot: stagingRoot }) => {
+				await mkdir(path.join(stagingRoot, "assets"), { recursive: true });
+				await writeFile(path.join(stagingRoot, "assets", "theme.js"), "export {};");
+				await writeFile(path.join(stagingRoot, "assets", "style.css"), "body{}");
+			}
+		});
+
+		assert.equal(await readFile(path.join(outputRoot, "assets", "theme.js"), "utf8"), "export {};");
+		await assert.rejects(readFile(path.join(outputRoot, "obsolete.txt"), "utf8"), { code: "ENOENT" });
+	});
+
+	it("removes stale generated bundles and source maps before bundling", async () => {
+		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
+		await createMinimumTheme(sourceRoot);
+		await mkdir(path.join(outputRoot, "assets"), { recursive: true });
+		await writeFile(path.join(outputRoot, "assets", "theme.js"), "old bundle");
+		await writeFile(path.join(outputRoot, "assets", "theme.js.map"), "old map");
+
+		await buildProject({
+			projectRoot,
+			sourceRoot,
+			outputRoot,
+			cacheFile,
+			bundle: async ({ outputRoot: stagingRoot }) => {
+				await writeFile(path.join(stagingRoot, "assets", "theme.js"), "new bundle");
+			}
+		});
+
+		assert.equal(await readFile(path.join(outputRoot, "assets", "theme.js"), "utf8"), "new bundle");
+		await assert.rejects(readFile(path.join(outputRoot, "assets", "theme.js.map"), "utf8"), { code: "ENOENT" });
 	});
 });

@@ -1,0 +1,30 @@
+{
+	"name": "create-liquid-loom",
+	"version": "0.1.0",
+	"description": "Create a production-ready Liquid Loom Shopify theme project.",
+	"type": "module",
+	"license": "MIT",
+	"bin": {
+		"create-liquid-loom": "./cli.js"
+	},
+	"exports": "./index.js",
+	"files": [
+		"cli.js",
+		"index.js",
+		"template",
+		"LICENSE",
+		"README.md"
+	],
+	"engines": {
+		"node": ">=22.12.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/yotamon/Liquid-Loom.git",
+		"directory": "packages/create-liquid-loom"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
+}

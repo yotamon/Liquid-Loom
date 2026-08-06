@@ -1,0 +1,59 @@
+<header class="site-header">
+	<menu-disclosure>
+		<div class="page-width site-header__inner">
+			<nav class="site-header__nav" aria-label="Primary navigation">
+				{%- for link in section.settings.menu.links -%}
+					<a href="{{ link.url }}">{{ link.title | escape }}</a>
+				{%- endfor -%}
+			</nav>
+
+			<button class="site-header__menu-button" type="button" aria-expanded="false" aria-controls="MobileMenu">
+				<span class="sr-only">Menu</span>
+				<svg
+					aria-hidden="true"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.8"
+				>
+					<path d="M4 7h16M4 12h16M4 17h16" />
+				</svg>
+			</button>
+
+			<a class="site-header__brand" href="{{ routes.root_url }}">
+				{%- if section.settings.logo != blank -%}
+					{{
+						section.settings.logo
+						| image_url: width: 320
+						| image_tag: class: 'site-header__logo', widths: '120, 180, 240, 320', alt: shop.name
+					}}
+				{%- else -%}
+					{{ shop.name | escape }}
+				{%- endif -%}
+			</a>
+
+			<div class="site-header__actions">
+				<a href="{{ routes.search_url }}">{{ 'actions.search' | t }}</a>
+				<a href="{{ routes.cart_url }}">{{ 'cart.title' | t }} ({{ cart.item_count }})</a>
+			</div>
+		</div>
+
+		<nav id="MobileMenu" class="mobile-menu" data-menu-panel hidden aria-label="Mobile navigation">
+			{%- for link in section.settings.menu.links -%}
+				<a href="{{ link.url }}">{{ link.title | escape }}</a>
+			{%- endfor -%}
+		</nav>
+	</menu-disclosure>
+</header>
+
+{% schema %}
+{
+	"name": "Header",
+	"settings": [
+		{ "type": "image_picker", "id": "logo", "label": "Logo" },
+		{ "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" }
+	]
+}
+{% endschema %}

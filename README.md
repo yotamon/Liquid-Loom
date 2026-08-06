@@ -1,238 +1,209 @@
 <p align="center">
-  <img src="docs/liquid-loom.svg" alt="Liquid Loom — Structured source. Shopify-ready output." width="960">
+  <img src="docs/liquid-loom.svg" alt="Liquid Loom — structured source, Shopify-ready output" width="960">
 </p>
+
+<p align="center"><strong>Organize Shopify themes like applications. Ship them like Shopify expects.</strong></p>
 
 <p align="center">
-  <strong>A source-first workshop for building fast, maintainable Shopify themes.</strong>
+  <a href="https://github.com/yotamon/Liquid-Loom/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/yotamon/Liquid-Loom/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/yotamon/Liquid-Loom/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/yotamon/Liquid-Loom/actions/workflows/codeql.yml/badge.svg"></a>
+  <img alt="Node 22 and 24" src="https://img.shields.io/badge/Node-22%20%7C%2024-339933?logo=nodedotjs&logoColor=white">
+  <img alt="Vite 8" src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white">
+  <img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-4DE3C1"></a>
 </p>
 
-<p align="center">
-  <img alt="Shopify Online Store 2.0" src="https://img.shields.io/badge/Shopify-Online_Store_2.0-95BF47?style=flat-square&logo=shopify&logoColor=white">
-  <img alt="Vite 8" src="https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white">
-  <img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white">
-  <img alt="Test coverage above 90 percent" src="https://img.shields.io/badge/coverage-90%25%2B-4DE3C1?style=flat-square">
-  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-F4F0E6?style=flat-square"></a>
-</p>
+Liquid Loom is a source-first toolchain for custom Shopify themes. It lets developers keep Liquid, blocks, snippets, scripts, and styles in a feature-oriented source tree, then produces the exact flat structure Shopify expects—with deterministic mapping, collision-safe builds, modern asset compilation, and release-grade validation.
 
-## Why Liquid Loom exists
+It includes two packages and one merchant-neutral reference storefront:
 
-Shopify wants a flat, deployment-ready theme with directories such as `sections/`, `snippets/`, and `assets/`. Developers want feature-oriented source code, modern bundling, fast feedback, and checks they can trust.
+- `liquid-loom`: the build, watch, doctor, check, and analysis CLI.
+- `create-liquid-loom`: an atomic project scaffolder.
+- A production-minded Online Store 2.0 starter with theme blocks, filtering, predictive search, variants, selling plans, accessibility, and progressive enhancement.
 
-Liquid Loom gives both sides what they need:
-
-- Author nested, readable source without fighting Shopify's output shape.
-- Compile JavaScript and CSS through Vite 8, PostCSS, and Tailwind CSS 4.
-- Skip unchanged static files through content-hash caching.
-- Catch flattened filename collisions before a build can overwrite anything.
-- Produce a clean `dist/theme/` directory that Shopify CLI can serve or push directly.
-- Validate the framework with unit tests, coverage thresholds, Prettier, build checks, Shopify Theme Check, and a public-readiness scan.
-
-This is not a repackaged production storefront. It is an intentionally small development framework plus a merchant-neutral reference theme: enough real commerce surface area to prove the workflow, without private integrations, store data, credentials, analytics, or business-specific code.
-
-## Quick start
-
-Requirements:
-
-- Node.js 22.12 or newer
-- Corepack (included with supported Node releases)
-- A Shopify development store for live preview and deployment
+## Start a theme
 
 ```bash
-git clone https://github.com/yotamon/Liquid-Loom.git liquid-loom
-cd liquid-loom
-
 corepack enable
-pnpm install
-pnpm build
-```
-
-Authenticate once, then start the combined build watcher and Shopify preview:
-
-```bash
-pnpm exec shopify auth login
+pnpm create liquid-loom@latest my-storefront
+cd my-storefront
 pnpm dev
 ```
 
-If you only want local compilation, use `pnpm watch`. If you prefer two terminals, run `pnpm watch` and `pnpm shopify:dev` separately.
+`pnpm dev` builds the deployable theme, watches source files, and launches `shopify theme dev`. A Shopify development store is only required for live preview; builds, tests, diagnostics, and Theme Check remain local.
 
-## The build in one picture
+To contribute to the framework itself:
+
+```bash
+git clone https://github.com/yotamon/Liquid-Loom.git
+cd Liquid-Loom
+corepack enable
+pnpm install
+pnpm validate
+```
+
+## Why it exists
+
+Shopify deploys a flat theme:
+
+```text
+sections/hero.liquid
+snippets/price.liquid
+assets/theme.js
+```
+
+Teams maintain software more comfortably by feature:
+
+```text
+src/theme/sections/home/hero.liquid
+src/theme/snippets/product/price.liquid
+src/entrypoints/theme.js
+```
+
+Liquid Loom makes that translation explicit and verifiable.
 
 ```mermaid
 flowchart LR
-  subgraph Authoring["Organized authoring source"]
-    L["src/theme/**\nLiquid + JSON"]
-    P["src/public/**\nstatic assets"]
-    J["src/entrypoints/theme.js"]
-    C["src/styles/theme.css"]
-  end
-
-  L --> M["Static mapper\nvalidate · flatten · hash"]
-  P --> M
-  J --> V["Vite 8\nJavaScript bundle"]
-  C --> V2["PostCSS + Tailwind CSS 4"]
-  M --> O["dist/theme"]
-  V --> O
-  V2 --> O
+  S["Feature-oriented source"] --> P["Validate + plan"]
+  P --> C["Portable collision check"]
+  C --> H["SHA-256 static cache"]
+  S --> V["Vite + Tailwind"]
+  H --> T["Transactional staging"]
+  V --> T
+  T --> B["Performance budgets"]
+  B --> O["dist/theme"]
   O --> Q["Project check + Theme Check"]
-  Q --> S["Shopify CLI\npreview or push"]
-  H[(".cache/manifest.json")] <--> M
+  Q --> D["Shopify CLI"]
 ```
 
-The static mapper and the asset compiler have deliberately separate responsibilities. Liquid, JSON, and public files follow the Shopify mapping contract; JavaScript and CSS stay in normal frontend source directories and are owned by Vite.
+## Guarantees that matter
 
-## Source-to-output contract
+### No silent overwrites
 
-| Author here                                  | Build result                                  | Behavior                                    |
-| -------------------------------------------- | --------------------------------------------- | ------------------------------------------- |
-| `src/theme/sections/home/hero.liquid`        | `dist/theme/sections/hero.liquid`             | Nested authoring path is flattened          |
-| `src/theme/snippets/product/price.liquid`    | `dist/theme/snippets/price.liquid`            | Nested authoring path is flattened          |
-| `src/theme/templates/customers/account.json` | `dist/theme/templates/customers/account.json` | Supported nested template path is preserved |
-| `src/theme/config/settings_schema.json`      | `dist/theme/config/settings_schema.json`      | Relative path is preserved                  |
-| `src/public/icons/cart.svg`                  | `dist/theme/assets/cart.svg`                  | Public asset path is flattened              |
-| `src/entrypoints/theme.js`                   | `dist/theme/assets/theme.js`                  | Bundled and minified by Vite                |
-| `src/styles/theme.css`                       | `dist/theme/assets/style.css`                 | Tailwind/PostCSS output                     |
+Nested `layout`, `sections`, `snippets`, `blocks`, and public assets flatten by filename. The complete build plan is checked before writes begin. Collisions are detected case-insensitively and with Unicode normalization, matching the portability constraints of Windows, macOS, and Shopify. Static files also cannot claim Vite-reserved outputs such as `assets/theme.js`.
 
-Shopify's `layout`, `sections`, `snippets`, `blocks`, and `assets` directories are flat. If two organized source files would resolve to the same destination, Liquid Loom raises a `BuildCollisionError` before copying either file. Silent last-write-wins behavior is never allowed.
+### Last-known-good output
 
-## Repository anatomy
+Static mapping and Vite bundling happen in an isolated staging directory. Output and cache are promoted together only after bundling and performance checks succeed. If Liquid mapping, Tailwind, Vite, or a budget fails, the previous deployable theme remains intact.
 
-```text
-liquid-loom/
-├── build-scripts/
-│   ├── cli.js                    # build, watch, dev, clean, check, analyze
-│   └── lib/
-│       ├── public-readiness.js   # legacy-content release gate
-│       └── theme-builder.js      # mapping, hashing, cache, safety guards
-├── docs/
-│   ├── brand-board.png           # visual identity direction
-│   └── liquid-loom.svg           # editable repository wordmark
-├── src/
-│   ├── entrypoints/theme.js      # browser behavior entrypoint
-│   ├── public/                   # static files copied to theme assets
-│   ├── styles/theme.css          # Tailwind + authored theme styles
-│   └── theme/
-│       ├── config/
-│       ├── layout/
-│       ├── locales/
-│       ├── sections/             # organize freely by feature
-│       ├── snippets/             # organize freely by feature
-│       └── templates/
-├── tests/                        # Node test runner, no test framework overhead
-├── dist/theme/                   # generated; never edit or commit
-└── .cache/manifest.json          # generated content-hash manifest
+### Safe under concurrency
+
+In-process changes are coalesced, and independent CLI processes serialize through a recoverable project lock. A crashed process cannot leave a permanent lock or a half-published build.
+
+### Fast by default
+
+The native Tailwind Vite plugin replaces the slower generic PostCSS chain. SHA-256 caching skips unchanged static files, while configurable budgets prevent accidental growth in build time, total theme size, or individual assets.
+
+### Consumer-first packaging
+
+The CLI resolves the consuming project from `process.cwd()`, not from its installed package directory. CI packs the actual npm tarball, installs it into a fresh scaffold, and performs a clean build before a release is allowed.
+
+## Source contract
+
+| Authoring path                                  | Deployable path                               | Rule                               |
+| ----------------------------------------------- | --------------------------------------------- | ---------------------------------- |
+| `src/theme/sections/home/hero.liquid`           | `dist/theme/sections/hero.liquid`             | Flatten by filename                |
+| `src/theme/blocks/content/heading.liquid`       | `dist/theme/blocks/heading.liquid`            | Flatten by filename                |
+| `src/theme/snippets/product/price.liquid`       | `dist/theme/snippets/price.liquid`            | Flatten by filename                |
+| `src/theme/templates/customers/account.json`    | `dist/theme/templates/customers/account.json` | Preserve supported nesting         |
+| `src/theme/config/settings_schema.json`         | `dist/theme/config/settings_schema.json`      | Preserve relative path             |
+| `src/public/icons/cart.svg`                     | `dist/theme/assets/cart.svg`                  | Flatten into assets                |
+| `src/entrypoints/theme.js` + `src/styles/*.css` | `dist/theme/assets/theme.js` + `style.css`    | Vite owns generated bundle outputs |
+
+Unsupported paths fail with an actionable error instead of being ignored.
+
+## Typed configuration
+
+Projects can use JavaScript or TypeScript configuration. TypeScript is bundled by Vite’s config loader, so no separate runtime loader is needed.
+
+```ts
+import { defineConfig } from "liquid-loom";
+
+export default defineConfig({
+	sourceDir: "src",
+	outputDir: "dist/theme",
+	forbiddenTerms: [],
+	performance: {
+		maxBuildMs: 10_000,
+		maxThemeBytes: 5_000_000,
+		maxAssetBytes: 500_000
+	}
+});
 ```
+
+`sourceDir`, `outputDir`, `cacheFile`, `viteConfig`, reserved output names, private-content terms, and budgets are all portable project-relative settings.
 
 ## Commands
 
-| Command              | Purpose                                                           |
-| -------------------- | ----------------------------------------------------------------- |
-| `pnpm dev`           | Clean development build, watch source, launch `shopify theme dev` |
-| `pnpm watch`         | Build and watch without launching Shopify CLI                     |
-| `pnpm build`         | Incremental production build                                      |
-| `pnpm build:clean`   | Production build from an empty output directory                   |
-| `pnpm clean`         | Remove `dist/theme` and `.cache` through guarded paths            |
-| `pnpm analyze`       | Report file counts, output size by type, and largest files        |
-| `pnpm check`         | Validate required source, JSON syntax, and required build output  |
-| `pnpm theme-check`   | Run Shopify's recommended Theme Check rules against the build     |
-| `pnpm public-ready`  | Scan filenames and source text for excluded legacy terms          |
-| `pnpm test`          | Run unit and integration tests with Node's built-in test runner   |
-| `pnpm test:coverage` | Enforce at least 80% line, branch, and function coverage          |
-| `pnpm format`        | Format JavaScript, JSON, Markdown, CSS, and Liquid                |
-| `pnpm validate`      | Reproduce the complete CI quality gate locally                    |
+| Command              | Purpose                                                               |
+| -------------------- | --------------------------------------------------------------------- |
+| `pnpm dev`           | Build, watch, and launch Shopify theme development                    |
+| `pnpm watch`         | Rebuild locally without Shopify CLI                                   |
+| `pnpm build`         | Incremental production build                                          |
+| `pnpm build:clean`   | Production build from empty staging                                   |
+| `pnpm doctor`        | Diagnose runtime, metadata, docs, source, config, safety, and privacy |
+| `pnpm check`         | Validate source JSON and required build output                        |
+| `pnpm analyze`       | Report output composition and largest files                           |
+| `pnpm theme-check`   | Run Shopify’s recommended Theme Check rules                           |
+| `pnpm test:coverage` | Enforce 80% line, branch, and function coverage                       |
+| `pnpm pack:check`    | Install the packed CLI into a clean generated project and build it    |
+| `pnpm validate`      | Reproduce the complete protected CI gate                              |
 
-The CLI reports useful work rather than noisy activity. A typical incremental build looks like this:
+## Reference storefront
 
-```text
-LIQUID LOOM · production build
-✓ 27 theme files · 0 copied · 27 cached · 0 removed · 21.4 KiB · 1.85s
-output dist/theme
-```
+The starter is deliberately merchant-neutral, but not a toy. It demonstrates:
 
-## What makes the build system dependable
+- Shopify theme blocks and app blocks inside a flexible content section;
+- JSON templates and editable header/footer section groups;
+- responsive images, product grids, pagination, and storefront filtering;
+- predictive product search with cancellation and an accessible live result region;
+- variant selection, shareable variant URLs, selling plans, quantities, and native product forms;
+- cart, product, collection, page, search, and 404 surfaces;
+- design tokens exposed as CSS custom properties;
+- semantic navigation, skip links, visible focus states, reduced-motion support, and no-JavaScript fallbacks.
 
-### Deterministic mapping
+Liquid Loom is optimized for custom/client theme engineering. Shopify identifies its official Skeleton Theme as the approved Theme Store starting point; use that base when Theme Store submission policy is the primary constraint, and adopt Liquid Loom’s tooling patterns where appropriate.
 
-Every supported source path has one predictable destination. The mapping is centralized in `build-scripts/lib/theme-builder.js`, covered by tests, and documented above.
+## Quality and supply chain
 
-### Content-addressed incremental builds
+Every pull request exercises:
 
-The manifest stores SHA-256 fingerprints, output paths, and byte sizes. An unchanged file is skipped only when both its fingerprint and destination match and the output still exists. Modified files are refreshed; deleted source files remove their stale output.
+- unit and integration tests with coverage thresholds;
+- clean transactional builds and performance budgets;
+- zero-offense Shopify Theme Check;
+- Linux/Node 22, Windows/Node 24, and macOS/Node 24 portability;
+- a non-blocking Node 26 compatibility canary;
+- installation and build from the packed npm artifact;
+- Dependency Review and CodeQL.
 
-### Safe clean operations
+Tagged releases validate again, pack both packages, create GitHub attestations, publish through npm trusted publishing with automatic provenance, and generate a GitHub release. See [Releasing](docs/RELEASING.md).
 
-Before a clean build or `pnpm clean`, the builder resolves the project, source, and output paths. It rejects the project root, the source tree, and any path outside the repository as an output target.
+## Measured improvement
 
-### Atomic cache writes
+The original generic Tailwind/PostCSS pipeline spent roughly 38 seconds in CSS transformation on this Windows benchmark. The native Tailwind Vite integration completes the clean transactional build in under two seconds after warm dependency installation on the same machine. Exact results and the reproducible method live in [Benchmarks](docs/BENCHMARKS.md); CI budgets guard against regressions rather than promising one machine’s number everywhere.
 
-The next manifest is written to a process-specific temporary file and renamed into place only after a successful static build. An interrupted process cannot leave a half-written cache pretending to be valid.
+## Learn the system
 
-### Output collision detection
-
-Feature-oriented folders are useful only if flattening remains safe. The complete copy plan is built and checked for duplicate destinations before any source file is written.
-
-### A release gate for accidental legacy content
-
-`pnpm public-ready` checks every repository filename plus the contents of public text formats, while excluding generated output, dependencies, cache data, and Git internals. It reports locations without echoing the excluded value into CI logs.
-
-## The reference theme
-
-The included Online Store 2.0 starter is deliberately useful but restrained. It demonstrates:
-
-- JSON templates and editable header/footer section groups
-- Home, product, collection, cart, page, search, and 404 surfaces
-- Responsive product grids and image handling
-- Theme settings exposed as CSS custom properties
-- Semantic navigation, skip links, visible focus states, reduced-motion support, and keyboard-closeable mobile navigation
-- Progressive enhancement: product and cart forms remain standard Shopify forms; JavaScript adds only menu and quantity behavior
-- A Vite entrypoint that imports Tailwind CSS 4 and authored component styles
-
-It does not dictate a vertical, visual identity, app stack, analytics provider, customer workflow, or deployment environment. Replace the reference presentation; keep the build contract.
-
-## Daily workflow
-
-1. Add or edit files under `src/`.
-2. Keep related sections and snippets together in nested feature folders.
-3. Let `pnpm dev` rebuild the deployable theme and Shopify preview.
-4. Run `pnpm validate` before opening a pull request.
-5. Push only `dist/theme` through Shopify CLI; never edit generated output.
-
-To add another bundled entrypoint, extend `rollupOptions.input` in `vite.config.js`. To support a new static source category, update the mapping contract and write the failing test first.
-
-## Quality baseline
-
-The repository currently verifies:
-
-- 15 passing tests
-- 96.92% line coverage
-- 91.67% branch coverage
-- 100% function coverage
-- zero Shopify Theme Check offenses in the generated starter
-- clean production and incremental builds on Windows, using platform-neutral Node APIs in the framework itself
-
-CI runs on Node 24 and executes the same `pnpm validate` command documented for contributors.
+- [Architecture](docs/ARCHITECTURE.md) — invariants, transaction flow, and extension points
+- [Recipes](docs/RECIPES.md) — entrypoints, static assets, private-term policies, and budgets
+- [Troubleshooting](docs/TROUBLESHOOTING.md) — collisions, locks, Shopify CLI, and build failures
+- [Roadmap](ROADMAP.md) — release direction and non-goals
+- [Support](SUPPORT.md) — where to ask questions and report problems
+- [Contributing](CONTRIBUTING.md) — development rules and pull-request expectations
+- [Security](SECURITY.md) — private vulnerability reporting
 
 ## Design principles
 
-- **Source is the product.** Generated theme files are disposable artifacts.
-- **Failures should be early and specific.** Invalid paths, incomplete themes, malformed JSON, and collisions stop the build with actionable errors.
-- **Modern tooling should respect the platform.** Vite and Tailwind enhance the workflow without disguising Shopify's actual runtime.
-- **Defaults should teach good habits.** The starter favors semantic HTML, progressive enhancement, responsive images, and editable theme settings.
-- **Public code should be portable.** No store identifiers, credentials, private services, absolute project paths, or hidden production dependencies.
-
-## Contributing
-
-Issues and focused pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) for setup, test expectations, and the source-mapping rules. Please report security issues through the process in [SECURITY.md](SECURITY.md), not a public issue.
-
-## Identity
-
-The mark combines two structural `L` forms with a horizontal shuttle: organized source threads becoming one deployable theme. Mint represents active build work, warm white represents structure, and coral is reserved for exceptions that need attention.
+- Source is the product; generated output is disposable.
+- Failures should be early, specific, and leave a last-known-good build.
+- Modern tooling should expose Shopify’s runtime instead of disguising it.
+- Defaults should teach accessibility, progressive enhancement, and responsive performance.
+- Public infrastructure must remain neutral: no store IDs, credentials, private services, or client workflows.
 
 <p align="center">
-  <img src="docs/brand-board.png" alt="Liquid Loom identity board showing the logo, construction, terminal, palette, typography, and theme application" width="960">
+  <img src="docs/brand-board.png" alt="Liquid Loom identity board" width="960">
 </p>
 
 ## License
 
 [MIT](LICENSE) © 2026 Liquid Loom contributors.
-
-Built on the public ecosystems around [Shopify themes](https://shopify.dev/docs/storefronts/themes), [Liquid](https://shopify.dev/docs/api/liquid), [Vite](https://vite.dev/), and [Tailwind CSS](https://tailwindcss.com/).

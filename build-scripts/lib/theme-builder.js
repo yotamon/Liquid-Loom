@@ -1,6 +1,7 @@
-import { createHash } from "node:crypto";
-import { access, copyFile, mkdir, readFile, readdir, rename, rm, unlink, writeFile } from "node:fs/promises";
+import { createHash, randomUUID } from "node:crypto";
+import { access, copyFile, cp, mkdir, open, readFile, readdir, rename, rm, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 
 const FLAT_THEME_DIRECTORIES = new Set(["layout", "sections", "snippets", "blocks"]);
 const STRUCTURED_THEME_DIRECTORIES = new Set(["templates", "config", "locales"]);
@@ -9,6 +10,7 @@ const REQUIRED_THEME_FILES = [
 	"theme/layout/theme.liquid",
 	"theme/templates/index.json"
 ];
+export const DEFAULT_RESERVED_OUTPUTS = ["assets/style.css", "assets/theme.js"];
 
 export class BuildCollisionError extends Error {
 	constructor(destination, sources) {
@@ -53,20 +55,34 @@ export function mapThemePath(sourcePath) {
 	throw new Error(`Unsupported source path: ${sourcePath}`);
 }
 
-export function createBuildPlan(sourceFiles) {
+function canonicalOutputPath(outputPath) {
+	return outputPath.normalize("NFC").toLocaleLowerCase("en-US");
+}
+
+export function createBuildPlan(sourceFiles, { reservedOutputs = [] } = {}) {
 	const destinations = new Map();
+
+	for (const output of reservedOutputs) {
+		const normalizedOutput = normalizeSourcePath(output).normalize("NFC");
+		destinations.set(canonicalOutputPath(normalizedOutput), {
+			destination: normalizedOutput,
+			sources: [`<generated:${normalizedOutput}>`]
+		});
+	}
+
 	const files = [...sourceFiles].sort().map((source) => {
 		const normalizedSource = normalizeSourcePath(source);
-		const output = mapThemePath(normalizedSource);
-		const mappedSources = destinations.get(output) ?? [];
-		mappedSources.push(normalizedSource);
-		destinations.set(output, mappedSources);
+		const output = mapThemePath(normalizedSource).normalize("NFC");
+		const key = canonicalOutputPath(output);
+		const entry = destinations.get(key) ?? { destination: output, sources: [] };
+		entry.sources.push(normalizedSource);
+		destinations.set(key, entry);
 		return { source: normalizedSource, output };
 	});
 
-	for (const [destination, sources] of destinations) {
+	for (const { destination, sources } of destinations.values()) {
 		if (sources.length > 1) {
-			throw new BuildCollisionError(destination, sources);
+			throw new BuildCollisionError(canonicalOutputPath(destination), sources);
 		}
 	}
 
@@ -205,7 +221,15 @@ async function removeStaleOutputs(previousManifest, currentOutputs, outputRoot) 
 	return removed;
 }
 
-export async function buildTheme({ projectRoot, sourceRoot, outputRoot, cacheFile, clean = false, useCache = true }) {
+export async function buildTheme({
+	projectRoot,
+	sourceRoot,
+	outputRoot,
+	cacheFile,
+	clean = false,
+	useCache = true,
+	reservedOutputs = DEFAULT_RESERVED_OUTPUTS
+}) {
 	assertSafeOutput({ projectRoot, sourceRoot, outputRoot });
 
 	const validation = await validateThemeSource(sourceRoot);
@@ -218,7 +242,7 @@ export async function buildTheme({ projectRoot, sourceRoot, outputRoot, cacheFil
 	}
 
 	const sourceFiles = await listBuildSourceFiles(sourceRoot);
-	const plan = createBuildPlan(sourceFiles);
+	const plan = createBuildPlan(sourceFiles, { reservedOutputs });
 	const previousManifest = useCache && !clean ? await readManifest(cacheFile) : { version: 1, files: {} };
 	validateManifestOutputs(previousManifest, outputRoot);
 	const nextManifest = { version: 1, files: {} };
@@ -268,4 +292,135 @@ export async function buildTheme({ projectRoot, sourceRoot, outputRoot, cacheFil
 		skipped,
 		total: plan.files.length
 	};
+}
+
+async function commitTransaction({ outputRoot, stagingRoot, cacheFile, stagingCache }) {
+	const transactionId = `${process.pid}-${randomUUID()}`;
+	const outputBackup = `${outputRoot}.backup-${transactionId}`;
+	const cacheBackup = `${cacheFile}.backup-${transactionId}`;
+	let outputBackedUp = false;
+	let cacheBackedUp = false;
+	let outputCommitted = false;
+	let cacheCommitted = false;
+
+	try {
+		if (await fileExists(outputRoot)) {
+			await rename(outputRoot, outputBackup);
+			outputBackedUp = true;
+		}
+		if (await fileExists(cacheFile)) {
+			await rename(cacheFile, cacheBackup);
+			cacheBackedUp = true;
+		}
+
+		await rename(stagingRoot, outputRoot);
+		outputCommitted = true;
+		await rename(stagingCache, cacheFile);
+		cacheCommitted = true;
+	} catch (error) {
+		if (cacheCommitted) await rm(cacheFile, { force: true });
+		if (outputCommitted) await rm(outputRoot, { recursive: true, force: true });
+		if (cacheBackedUp) await rename(cacheBackup, cacheFile);
+		if (outputBackedUp) await rename(outputBackup, outputRoot);
+		throw error;
+	}
+
+	await Promise.allSettled([rm(outputBackup, { recursive: true, force: true }), rm(cacheBackup, { force: true })]);
+}
+
+async function acquireBuildLock(cacheFile, timeoutMs = 30_000) {
+	const lockFile = `${cacheFile}.lock`;
+	const deadline = Date.now() + timeoutMs;
+	await mkdir(path.dirname(lockFile), { recursive: true });
+
+	while (true) {
+		let handle;
+		try {
+			handle = await open(lockFile, "wx");
+			await handle.writeFile(`${process.pid}\n`);
+			return async () => {
+				await handle.close();
+				await rm(lockFile, { force: true });
+			};
+		} catch (error) {
+			if (handle) {
+				await handle.close();
+				await rm(lockFile, { force: true });
+			}
+			if (error.code !== "EEXIST") throw error;
+			try {
+				const ownerPid = Number.parseInt(await readFile(lockFile, "utf8"), 10);
+				if (Number.isSafeInteger(ownerPid) && ownerPid > 0) {
+					try {
+						process.kill(ownerPid, 0);
+					} catch (processError) {
+						if (processError.code === "ESRCH") {
+							await rm(lockFile, { force: true });
+							continue;
+						}
+					}
+				}
+			} catch (readError) {
+				if (readError.code === "ENOENT") continue;
+				throw readError;
+			}
+			if (Date.now() >= deadline) {
+				throw new Error(`Timed out waiting for another Liquid Loom build to finish: ${lockFile}`);
+			}
+			await delay(25);
+		}
+	}
+}
+
+export async function buildProject({
+	projectRoot,
+	sourceRoot,
+	outputRoot,
+	cacheFile,
+	bundle,
+	clean = false,
+	reservedOutputs = DEFAULT_RESERVED_OUTPUTS
+}) {
+	assertSafeOutput({ projectRoot, sourceRoot, outputRoot });
+	if (typeof bundle !== "function") throw new TypeError("A bundle function is required.");
+	const releaseLock = await acquireBuildLock(cacheFile);
+
+	const transactionId = `${process.pid}-${randomUUID()}`;
+	const stagingRoot = `${outputRoot}.staging-${transactionId}`;
+	const stagingCache = `${cacheFile}.staging-${transactionId}`;
+
+	try {
+		await mkdir(path.dirname(stagingRoot), { recursive: true });
+		await mkdir(path.dirname(stagingCache), { recursive: true });
+
+		if (!clean && (await fileExists(outputRoot))) {
+			await cp(outputRoot, stagingRoot, { recursive: true });
+		} else {
+			await mkdir(stagingRoot, { recursive: true });
+		}
+		if (!clean && (await fileExists(cacheFile))) {
+			await copyFile(cacheFile, stagingCache);
+		}
+
+		const summary = await buildTheme({
+			projectRoot,
+			sourceRoot,
+			outputRoot: stagingRoot,
+			cacheFile: stagingCache,
+			useCache: !clean,
+			reservedOutputs
+		});
+		for (const output of reservedOutputs) {
+			const generatedOutput = resolveManifestOutputPath(stagingRoot, output);
+			await Promise.all([rm(generatedOutput, { force: true }), rm(`${generatedOutput}.map`, { force: true })]);
+		}
+		await bundle({ outputRoot: stagingRoot });
+		await commitTransaction({ outputRoot, stagingRoot, cacheFile, stagingCache });
+		return summary;
+	} catch (error) {
+		await Promise.all([rm(stagingRoot, { recursive: true, force: true }), rm(stagingCache, { force: true })]);
+		throw error;
+	} finally {
+		await releaseLock();
+	}
 }

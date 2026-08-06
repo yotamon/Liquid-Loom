@@ -1,0 +1,14 @@
+<section class="section">
+	<div class="page-width content-stack">
+		{% content_for 'blocks' %}
+	</div>
+</section>
+
+{% schema %}
+{
+	"name": "Flexible content",
+	"blocks": [{ "type": "@theme" }, { "type": "@app" }],
+	"settings": [],
+	"presets": [{ "name": "Flexible content" }]
+}
+{% endschema %}

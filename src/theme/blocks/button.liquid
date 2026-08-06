@@ -1,0 +1,21 @@
+{%- if block.settings.label != blank -%}
+	<a
+		class="button{% if block.settings.secondary %} button--secondary{% endif %}"
+		href="{{ block.settings.link }}"
+		{{ block.shopify_attributes }}
+	>
+		{{ block.settings.label | escape }}
+	</a>
+{%- endif -%}
+
+{% schema %}
+{
+	"name": "Button",
+	"settings": [
+		{ "type": "text", "id": "label", "label": "Label", "default": "Learn more" },
+		{ "type": "url", "id": "link", "label": "Link" },
+		{ "type": "checkbox", "id": "secondary", "label": "Use secondary style", "default": false }
+	],
+	"presets": [{ "name": "Button" }]
+}
+{% endschema %}

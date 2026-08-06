@@ -1,0 +1,16 @@
+<div class="rte" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+
+{% schema %}
+{
+	"name": "Text",
+	"settings": [
+		{
+			"type": "richtext",
+			"id": "text",
+			"label": "Text",
+			"default": "<p>Add flexible content without changing the section code.</p>"
+		}
+	],
+	"presets": [{ "name": "Text" }]
+}
+{% endschema %}

@@ -1,0 +1,25 @@
+<figure class="content-image" {{ block.shopify_attributes }}>
+	{%- if block.settings.image != blank -%}
+		{{
+			block.settings.image
+			| image_url: width: 1800
+			| image_tag: loading: 'lazy', widths: '480, 720, 960, 1280, 1800', sizes: '(min-width: 900px) 70vw, 100vw'
+		}}
+	{%- else -%}
+		{{ 'image' | placeholder_svg_tag }}
+	{%- endif -%}
+	{%- if block.settings.caption != blank -%}
+		<figcaption class="muted">{{ block.settings.caption | escape }}</figcaption>
+	{%- endif -%}
+</figure>
+
+{% schema %}
+{
+	"name": "Image",
+	"settings": [
+		{ "type": "image_picker", "id": "image", "label": "Image" },
+		{ "type": "text", "id": "caption", "label": "Caption" }
+	],
+	"presets": [{ "name": "Image" }]
+}
+{% endschema %}

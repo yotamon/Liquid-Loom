@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title description" viewBox="0 0 1280 640">
+  <title id="title">Liquid Loom</title>
+  <description id="description">Organize Shopify themes like applications. Ship them like Shopify expects.</description>
+  <defs>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4de3c1" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#ff6b5e" stop-opacity="0.03"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="22" stdDeviation="24" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="640" fill="#0b0f14"/>
+  <circle cx="1120" cy="-40" r="420" fill="url(#glow)"/>
+  <path d="M0 578h1280" stroke="#25303a"/>
+
+  <g transform="translate(76 66)">
+    <rect x="0" y="40" width="116" height="14" rx="7" fill="#4de3c1"/>
+    <path d="M27 0h20v86h58v20H27z" fill="#f4f0e6"/>
+    <path d="M60 -12h20v68h46v20H60z" fill="#f4f0e6"/>
+    <circle cx="116" cy="47" r="7" fill="#ff6b5e"/>
+  </g>
+
+  <text x="236" y="142" fill="#f4f0e6" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="58" font-weight="760" letter-spacing="-2">LIQUID LOOM</text>
+  <text x="80" y="244" fill="#f4f0e6" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="44" font-weight="700" letter-spacing="-1.5">Organize Shopify themes like applications.</text>
+  <text x="80" y="300" fill="#4de3c1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="44" font-weight="700" letter-spacing="-1.5">Ship them like Shopify expects.</text>
+
+  <g transform="translate(80 354)" filter="url(#shadow)">
+    <rect width="1120" height="154" rx="18" fill="#111820" stroke="#25303a"/>
+    <text x="30" y="36" fill="#7d8994" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="1.2">FEATURE-ORIENTED SOURCE</text>
+    <text x="30" y="77" fill="#f4f0e6" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="21">src/theme/sections/home/hero.liquid</text>
+    <path d="M514 77h82" stroke="#4de3c1" stroke-width="3" stroke-linecap="round"/>
+    <path d="m584 66 12 11-12 11" fill="none" stroke="#4de3c1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="632" y="36" fill="#7d8994" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="1.2">SHOPIFY-READY OUTPUT</text>
+    <text x="632" y="77" fill="#f4f0e6" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="21">sections/hero.liquid</text>
+    <text x="30" y="124" fill="#4de3c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">deterministic</text>
+    <text x="190" y="124" fill="#4de3c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">transactional</text>
+    <text x="366" y="124" fill="#4de3c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">collision-safe</text>
+    <text x="534" y="124" fill="#4de3c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">cross-platform</text>
+    <text x="714" y="124" fill="#4de3c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">Vite 8</text>
+    <text x="814" y="124" fill="#4de3c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">Tailwind 4</text>
+  </g>
+
+  <text x="80" y="604" fill="#7d8994" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" letter-spacing="2">OPEN SOURCE SHOPIFY THEME TOOLING</text>
+  <circle cx="1188" cy="598" r="7" fill="#ff6b5e"/>
+</svg>
