@@ -23,6 +23,18 @@ It includes two packages and one merchant-neutral reference storefront:
 
 ## Start a theme
 
+The `create-liquid-loom` package is validated and ready for the first `0.1.0` provenance-backed npm release. Until the repository owner completes npm’s one-time trusted-publisher connection, clone the template directly:
+
+```bash
+git clone https://github.com/yotamon/Liquid-Loom.git my-storefront
+cd my-storefront
+corepack enable
+pnpm install
+pnpm dev
+```
+
+After `0.1.0` is published, new projects can use the atomic scaffolder:
+
 ```bash
 corepack enable
 pnpm create liquid-loom@latest my-storefront
