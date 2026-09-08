@@ -4,12 +4,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createBootstrapPackage } from "./lib/npm-bootstrap.js";
+import { npmInvocation } from "./lib/npm-command.js";
 
 const repositoryRoot = path.resolve(fileURLToPath(new URL("../", import.meta.url)));
 const bootstrapRoot = path.join(repositoryRoot, ".artifacts", "npm-bootstrap");
 const bootstrapVersion = "0.0.0";
 const bootstrapTag = "bootstrap";
-const npmExecutable = process.platform === "win32" ? "npm.cmd" : "npm";
 
 const packageDefinitions = [
 	{ name: "liquid-loom", sourceRoot: repositoryRoot },
@@ -47,7 +47,8 @@ async function prepareBootstrapPackages() {
 
 function runNpm(args, { interactive = false, env = process.env, cwd = repositoryRoot } = {}) {
 	return new Promise((resolve, reject) => {
-		const child = spawn(npmExecutable, args, {
+		const invocation = npmInvocation(args);
+		const child = spawn(invocation.command, invocation.args, {
 			cwd,
 			env,
 			stdio: interactive ? "inherit" : ["ignore", "pipe", "pipe"]
@@ -82,9 +83,9 @@ async function assertAuthenticated() {
 	try {
 		const { stdout } = await runNpm(["whoami"]);
 		return stdout.trim();
-	} catch {
+	} catch (error) {
 		throw new Error(
-			"npm authentication is required. Run `npm login` with an account that owns the package names first."
+			`npm authentication check failed: ${error.message}. Run \`npm login\` with an account that owns the package names first.`
 		);
 	}
 }
