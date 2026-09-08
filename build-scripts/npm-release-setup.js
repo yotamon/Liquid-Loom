@@ -1,12 +1,10 @@
+import { spawn } from "node:child_process";
 import { mkdir, rm } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
 
 import { createBootstrapPackage } from "./lib/npm-bootstrap.js";
 
-const execFileAsync = promisify(execFile);
 const repositoryRoot = path.resolve(fileURLToPath(new URL("../", import.meta.url)));
 const bootstrapRoot = path.join(repositoryRoot, ".artifacts", "npm-bootstrap");
 const bootstrapVersion = "0.0.0";
@@ -46,11 +44,37 @@ async function prepareBootstrapPackages() {
 	return prepared;
 }
 
-async function runNpm(args, options = {}) {
-	return execFileAsync("npm", args, {
-		cwd: repositoryRoot,
-		maxBuffer: 1024 * 1024 * 10,
-		...options
+function runNpm(args, { interactive = false, env = process.env } = {}) {
+	return new Promise((resolve, reject) => {
+		const child = spawn("npm", args, {
+			cwd: repositoryRoot,
+			env,
+			shell: process.platform === "win32",
+			stdio: interactive ? "inherit" : ["ignore", "pipe", "pipe"]
+		});
+		let stdout = "";
+		let stderr = "";
+
+		if (!interactive) {
+			child.stdout.setEncoding("utf8");
+			child.stderr.setEncoding("utf8");
+			child.stdout.on("data", (chunk) => {
+				stdout += chunk;
+			});
+			child.stderr.on("data", (chunk) => {
+				stderr += chunk;
+			});
+		}
+
+		child.once("error", reject);
+		child.once("close", (code) => {
+			if (code === 0) {
+				resolve({ stderr, stdout });
+				return;
+			}
+			const detail = stderr.trim();
+			reject(new Error(detail || `npm ${args[0]} exited with code ${code}.`));
+		});
 	});
 }
 
@@ -61,6 +85,16 @@ async function assertAuthenticated() {
 	} catch {
 		throw new Error(
 			"npm authentication is required. Run `npm login` with an account that owns the package names first."
+		);
+	}
+}
+
+async function assertTrustCliVersion() {
+	const { stdout } = await runNpm(["--version"]);
+	const [major = 0, minor = 0] = stdout.trim().split(".").map(Number);
+	if (major < 11 || (major === 11 && minor < 15)) {
+		throw new Error(
+			`npm trust requires npm 11.15.0 or newer; found ${stdout.trim()}. Run \`npm install --global npm@latest\`.`
 		);
 	}
 }
@@ -93,13 +127,15 @@ async function publishBootstrap() {
 
 		console.log(`Publishing ${packageInfo.name}@${bootstrapVersion} with dist-tag ${bootstrapTag}...`);
 		await runNpm(["publish", packageInfo.targetRoot, "--tag", bootstrapTag, "--access", "public"], {
-			env: { ...process.env, NPM_CONFIG_PROVENANCE: "false" }
+			env: { ...process.env, NPM_CONFIG_PROVENANCE: "false" },
+			interactive: true
 		});
 		console.log(`✓ ${packageInfo.name}@${bootstrapVersion} published without provenance.`);
 	}
 }
 
 async function configureTrust() {
+	await assertTrustCliVersion();
 	const username = await assertAuthenticated();
 	console.log(`npm account: ${username}`);
 
@@ -111,19 +147,22 @@ async function configureTrust() {
 
 	for (const { name } of packageDefinitions) {
 		console.log(`Configuring GitHub trusted publishing for ${name}...`);
-		await runNpm([
-			"trust",
-			"github",
-			name,
-			"--repo",
-			"yotamon/Liquid-Loom",
-			"--file",
-			"release.yml",
-			"--env",
-			"npm",
-			"--allow-publish",
-			"--yes"
-		]);
+		await runNpm(
+			[
+				"trust",
+				"github",
+				name,
+				"--repo",
+				"yotamon/Liquid-Loom",
+				"--file",
+				"release.yml",
+				"--env",
+				"npm",
+				"--allow-publish",
+				"--yes"
+			],
+			{ interactive: true }
+		);
 		console.log(`✓ ${name} trusts yotamon/Liquid-Loom/.github/workflows/release.yml`);
 	}
 }
