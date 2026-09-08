@@ -4,10 +4,17 @@ Liquid Loom releases `liquid-loom` and `create-liquid-loom` at the same version.
 
 ## One-time npm setup
 
-1. Create or claim both public packages on npm.
-2. Configure GitHub trusted publishing for repository `yotamon/Liquid-Loom`, workflow `release.yml`, environment `npm`, and allow `npm publish`.
-3. In the GitHub repository, create the protected `npm` environment and add required reviewers if desired.
-4. Restrict or revoke npm automation tokens after trusted publishing succeeds.
+npm Trusted Publishing can publish an existing package through GitHub Actions OIDC, but the package must already exist in the npm registry before a trusted publisher can be configured.
+
+For each package name:
+
+1. Check whether `liquid-loom` and `create-liquid-loom` already exist under the intended npm account.
+2. If a package does not exist, make one manual bootstrap publication under a non-default tag before the real release. Keep this bootstrap version separate from `latest` so `0.1.0` remains the first user-facing release.
+3. Configure GitHub Trusted Publishing for repository `yotamon/Liquid-Loom`, workflow `release.yml`, environment `npm`, and allow `npm publish`.
+4. In the GitHub repository, create the protected `npm` environment and add required reviewers if desired.
+5. Restrict or revoke any temporary npm publishing credential after Trusted Publishing succeeds.
+
+See npm's [Trusted Publishers documentation](https://docs.npmjs.com/trusted-publishers/) for the current registry requirements. Normal Liquid Loom releases should use the OIDC workflow rather than a long-lived npm token.
 
 npm requires a public repository and exact matching repository metadata for automatic provenance. The release workflow grants only `contents`, `id-token`, and attestation permissions.
 
@@ -30,4 +37,4 @@ gh attestation verify liquid-loom-0.1.0.tgz --repo yotamon/Liquid-Loom
 pnpm create liquid-loom@latest release-smoke
 ```
 
-Never publish from an uncommitted local worktree or with a long-lived npm token.
+Never publish a real release from an uncommitted local worktree or with a long-lived npm token.
