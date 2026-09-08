@@ -4,6 +4,20 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-09-08
+
+### Added
+
+- A ten-minute first-project evaluation guide for Shopify developers trying the public package.
+- A first-project feedback path for early Shopify adopters, focused on real setup, build, and preview friction.
+- Public adoption milestones that distinguish product evidence from stars, views, and other vanity metrics.
+
+### Changed
+
+- README onboarding now leads with the public npm quick start, clarifies the Shopify CLI relationship, and makes the `0.1.x` early-adopter call explicit.
+- Scaffolder documentation now guides users through a local build before requiring a Shopify development store.
+- Validation and roadmap status now reflect the completed `0.1.0` Trusted Publishing release and the remaining external-use evidence.
+
 ## [0.1.0] - 2026-09-08
 
 ### Added
@@ -28,5 +42,6 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 - README and roadmap now prioritize custom-theme workflow, shipping, and external adoption before speculative extension APIs.
 - npm CLI bin metadata now uses registry-normalized relative paths, and package smoke tests execute both packed CLIs before release.
 
-[Unreleased]: https://github.com/yotamon/Liquid-Loom/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/yotamon/Liquid-Loom/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/yotamon/Liquid-Loom/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/yotamon/Liquid-Loom/releases/tag/v0.1.0
