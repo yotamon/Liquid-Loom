@@ -93,7 +93,9 @@ async function assertTrustCliVersion() {
 	const { stdout } = await runNpm(["--version"]);
 	const [major = 0, minor = 0] = stdout.trim().split(".").map(Number);
 	if (major < 11 || (major === 11 && minor < 15)) {
-		throw new Error(`npm trust requires npm 11.15.0 or newer; found ${stdout.trim()}. Run \`npm install --global npm@latest\`.`);
+		throw new Error(
+			`npm trust requires npm 11.15.0 or newer; found ${stdout.trim()}. Run \`npm install --global npm@latest\`.`
+		);
 	}
 }
 
