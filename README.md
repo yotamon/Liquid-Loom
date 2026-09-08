@@ -128,13 +128,13 @@ Projects can use JavaScript or TypeScript configuration:
 import { defineConfig } from "liquid-loom";
 
 export default defineConfig({
-  sourceDir: "src",
-  outputDir: "dist/theme",
-  performance: {
-    maxBuildMs: 10_000,
-    maxThemeBytes: 5_000_000,
-    maxAssetBytes: 500_000
-  }
+	sourceDir: "src",
+	outputDir: "dist/theme",
+	performance: {
+		maxBuildMs: 10_000,
+		maxThemeBytes: 5_000_000,
+		maxAssetBytes: 500_000
+	}
 });
 ```
 
