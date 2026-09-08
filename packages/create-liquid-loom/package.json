@@ -5,7 +5,7 @@
 	"type": "module",
 	"license": "MIT",
 	"bin": {
-		"create-liquid-loom": "./cli.js"
+		"create-liquid-loom": "cli.js"
 	},
 	"exports": "./index.js",
 	"files": [
