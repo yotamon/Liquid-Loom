@@ -5,6 +5,7 @@ import path from "node:path";
 import { afterEach, describe, it } from "node:test";
 
 import { createBootstrapPackage } from "../build-scripts/lib/npm-bootstrap.js";
+import { npmInvocation } from "../build-scripts/npm-release-setup.js";
 
 const temporaryDirectories = [];
 
@@ -57,6 +58,29 @@ describe("npm bootstrap package", () => {
 		await assert.rejects(
 			createBootstrapPackage({ sourceRoot: noFilesRoot, targetRoot: path.join(noFilesRoot, "bootstrap") }),
 			/must declare publishable files/
+		);
+	});
+});
+
+describe("npm command invocation", () => {
+	it("uses cmd.exe explicitly on Windows so npm.cmd can execute without shell mode", () => {
+		assert.deepEqual(npmInvocation(["whoami"], { platform: "win32", comspec: "C:\\Windows\\System32\\cmd.exe" }), {
+			command: "C:\\Windows\\System32\\cmd.exe",
+			args: ["/d", "/s", "/c", "npm whoami"]
+		});
+	});
+
+	it("keeps npm arguments as an argv array outside Windows", () => {
+		assert.deepEqual(npmInvocation(["publish", "--tag", "bootstrap"], { platform: "linux" }), {
+			command: "npm",
+			args: ["publish", "--tag", "bootstrap"]
+		});
+	});
+
+	it("rejects shell metacharacters in Windows npm arguments", () => {
+		assert.throws(
+			() => npmInvocation(["publish", "package & calc"], { platform: "win32", comspec: "cmd.exe" }),
+			/Unsafe npm argument/
 		);
 	});
 });
