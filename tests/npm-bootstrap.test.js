@@ -9,9 +9,7 @@ import { createBootstrapPackage } from "../build-scripts/lib/npm-bootstrap.js";
 const temporaryDirectories = [];
 
 afterEach(async () => {
-	await Promise.all(
-		temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true, force: true }))
-	);
+	await Promise.all(temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
 });
 
 async function createPackageFixture(packageJson) {
