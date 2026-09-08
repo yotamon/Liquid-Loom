@@ -17,10 +17,10 @@ The repository includes a guarded setup tool so the real `0.1.0` package metadat
 
 Trusted Publishing itself is supported by npm 11.5.1+, but the CLI-based `npm trust` management command used by Liquid Loom requires npm 11.15.0+.
 
-Update npm before starting:
+Use a compatible npm 11 release before starting. Do not blindly install `npm@latest`, because npm 12 may require a newer Node.js runtime than the project currently uses.
 
 ```bash
-npm install --global npm@latest
+npm install --global npm@11
 npm login
 npm whoami
 ```
@@ -58,7 +58,8 @@ The command:
 - skips any package name that already exists;
 - publishes only missing packages as `0.0.0` under the non-default `bootstrap` dist-tag;
 - disables provenance for those bootstrap copies only;
-- inherits your terminal for npm's browser or two-factor authentication prompts on macOS, Linux, and Windows.
+- runs npm directly in each prepared package directory, avoiding shell argument parsing differences across macOS, Linux, and Windows;
+- inherits your terminal for npm's browser or two-factor authentication prompts.
 
 It never publishes `0.1.0`.
 
