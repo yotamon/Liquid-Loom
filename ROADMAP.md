@@ -4,13 +4,19 @@ Liquid Loom favors a small, dependable core over a broad abstraction layer. The 
 
 ## 0.1 - Ship and validate
 
-- Keep source-to-output mapping aligned with Shopify's documented directory contract.
-- Publish `liquid-loom` and `create-liquid-loom` through npm trusted publishing.
-- Validate a clean public-package install and build.
-- Run the reference storefront against a real Shopify development store.
-- Put at least three external Shopify developers through the core edit/build/preview workflow.
-- Publish one concise before/after case study.
-- Fix onboarding and diagnostics issues discovered by those sessions.
+Completed:
+
+- [x] Keep source-to-output mapping aligned with Shopify's documented directory contract.
+- [x] Publish `liquid-loom` and `create-liquid-loom` through npm Trusted Publishing with provenance.
+- [x] Validate packed consumer installs and both CLI binaries in CI.
+
+Now proving:
+
+- [ ] Validate a clean install directly from the public npm registry.
+- [ ] Run the reference storefront against a real Shopify development store.
+- [ ] Put at least three external Shopify developers through the core edit/build/preview workflow.
+- [ ] Publish one concise before/after case study.
+- [ ] Fix onboarding and diagnostics issues discovered by those sessions.
 
 ## 0.2 - Product proof
 
