@@ -32,11 +32,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Preview docs formatting
-        run: |
-          pnpm prettier --write README.md docs/FIRST_PROJECT.md
-          git diff -- README.md docs/FIRST_PROJECT.md
-
       - name: Validate framework and theme
         run: pnpm validate
 
