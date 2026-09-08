@@ -1,6 +1,6 @@
 {
 	"name": "create-liquid-loom",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Create a production-ready Liquid Loom Shopify theme project.",
 	"type": "module",
 	"license": "MIT",
