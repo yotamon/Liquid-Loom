@@ -31,7 +31,8 @@ dist/theme/assets/theme.js
 
 It does not replace Liquid, Online Store 2.0, or Shopify CLI. It is a build layer around them: feature-oriented source, Vite/Tailwind assets, collision-safe flattening, transactional output, diagnostics, and a production-minded starter.
 
-> **Status:** pre-release. `0.1.0` is validated and package-ready, but is not yet published to npm. The remaining release blocker is the repository owner's one-time npm trusted-publisher connection.
+> **Status:** pre-release. `0.1.0` is validated and package-ready, but is not yet published to npm.
+> Registry setup still needs to be completed: claim or bootstrap both package names if needed, then configure npm Trusted Publishing for `release.yml`.
 
 ## Who it is for
 
@@ -50,7 +51,7 @@ If your primary goal is Shopify Theme Store submission, start with Shopify's off
 
 ## Start a theme
 
-Until `0.1.0` is published, clone the repository directly:
+Until both packages are live on npm, clone the repository directly:
 
 ```bash
 git clone https://github.com/yotamon/Liquid-Loom.git my-storefront
@@ -85,17 +86,17 @@ pnpm validate
 
 Shopify deployable themes use a constrained directory structure. Liquid Loom lets authoring paths be nested for organization, then maps them to portable Shopify output before writing anything.
 
-| Authoring path | Deployable path | Rule |
-| --- | --- | --- |
-| `src/theme/sections/home/hero.liquid` | `sections/hero.liquid` | Flatten by filename |
-| `src/theme/snippets/product/price.liquid` | `snippets/price.liquid` | Flatten by filename |
-| `src/theme/config/editor/settings_schema.json` | `config/settings_schema.json` | Flatten by filename |
-| `src/theme/locales/markets/en.default.json` | `locales/en.default.json` | Flatten by filename |
-| `src/theme/templates/catalog/product.json` | `templates/product.json` | Feature folders flatten by filename |
-| `src/theme/templates/customers/account.json` | `templates/customers/account.json` | Preserve Shopify-supported nesting |
-| `src/theme/templates/metaobject/book.json` | `templates/metaobject/book.json` | Preserve Shopify-supported nesting |
-| `src/public/icons/cart.svg` | `assets/cart.svg` | Flatten into assets |
-| `src/entrypoints/theme.js` + `src/styles/*.css` | `assets/theme.js` + `assets/style.css` | Vite owns generated bundle outputs |
+| Authoring path                                  | Deployable path                        | Rule                                |
+| ----------------------------------------------- | -------------------------------------- | ----------------------------------- |
+| `src/theme/sections/home/hero.liquid`           | `sections/hero.liquid`                 | Flatten by filename                 |
+| `src/theme/snippets/product/price.liquid`       | `snippets/price.liquid`                | Flatten by filename                 |
+| `src/theme/config/editor/settings_schema.json`  | `config/settings_schema.json`          | Flatten by filename                 |
+| `src/theme/locales/markets/en.default.json`     | `locales/en.default.json`              | Flatten by filename                 |
+| `src/theme/templates/catalog/product.json`      | `templates/product.json`               | Feature folders flatten by filename |
+| `src/theme/templates/customers/account.json`    | `templates/customers/account.json`     | Preserve Shopify-supported nesting  |
+| `src/theme/templates/metaobject/book.json`      | `templates/metaobject/book.json`       | Preserve Shopify-supported nesting  |
+| `src/public/icons/cart.svg`                     | `assets/cart.svg`                      | Flatten into assets                 |
+| `src/entrypoints/theme.js` + `src/styles/*.css` | `assets/theme.js` + `assets/style.css` | Vite owns generated bundle outputs  |
 
 Liquid Loom validates the current Shopify upload minimum: `layout/theme.liquid`. Starter-only files such as `config/settings_schema.json` and `templates/index.json` are useful defaults, but they are not treated as platform requirements.
 
@@ -141,19 +142,19 @@ Configuration stays project-relative and portable. The CLI resolves the consumin
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm dev` | Build, watch, and launch Shopify theme development |
-| `pnpm watch` | Rebuild locally without Shopify CLI |
-| `pnpm build` | Incremental production build |
-| `pnpm build:clean` | Production build from empty staging |
-| `pnpm doctor` | Diagnose runtime, project metadata, source, config, safety, and privacy |
-| `pnpm check` | Validate source JSON and required build output |
-| `pnpm analyze` | Report output composition and largest files |
-| `pnpm theme-check` | Run Shopify Theme Check |
-| `pnpm test:coverage` | Enforce line, branch, and function coverage thresholds |
-| `pnpm pack:check` | Install the packed CLI into a fresh scaffold and build it |
-| `pnpm validate` | Reproduce the protected CI gate |
+| Command              | Purpose                                                                 |
+| -------------------- | ----------------------------------------------------------------------- |
+| `pnpm dev`           | Build, watch, and launch Shopify theme development                      |
+| `pnpm watch`         | Rebuild locally without Shopify CLI                                     |
+| `pnpm build`         | Incremental production build                                            |
+| `pnpm build:clean`   | Production build from empty staging                                     |
+| `pnpm doctor`        | Diagnose runtime, project metadata, source, config, safety, and privacy |
+| `pnpm check`         | Validate source JSON and required build output                          |
+| `pnpm analyze`       | Report output composition and largest files                             |
+| `pnpm theme-check`   | Run Shopify Theme Check                                                 |
+| `pnpm test:coverage` | Enforce line, branch, and function coverage thresholds                  |
+| `pnpm pack:check`    | Install the packed CLI into a fresh scaffold and build it               |
+| `pnpm validate`      | Reproduce the protected CI gate                                         |
 
 ## Reference storefront
 
