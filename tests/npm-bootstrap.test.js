@@ -9,7 +9,9 @@ import { createBootstrapPackage } from "../build-scripts/lib/npm-bootstrap.js";
 const temporaryDirectories = [];
 
 afterEach(async () => {
-	await Promise.all(temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
+	await Promise.all(
+		temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true, force: true }))
+	);
 });
 
 async function createPackageFixture(packageJson) {
@@ -42,7 +44,12 @@ describe("npm bootstrap package", () => {
 	});
 
 	it("refuses private packages and packages without an explicit files allowlist", async () => {
-		const privateRoot = await createPackageFixture({ name: "private-fixture", version: "0.1.0", private: true, files: ["dist"] });
+		const privateRoot = await createPackageFixture({
+			name: "private-fixture",
+			version: "0.1.0",
+			private: true,
+			files: ["dist"]
+		});
 		const noFilesRoot = await createPackageFixture({ name: "no-files-fixture", version: "0.1.0" });
 
 		await assert.rejects(
