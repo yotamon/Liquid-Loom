@@ -74,7 +74,7 @@ export async function diagnoseProject(config) {
 		check(
 			"theme-source",
 			source.valid ? "pass" : "fail",
-			source.valid ? "Required Shopify source files present" : `Missing: ${source.missing.join(", ")}`
+			source.valid ? "Shopify upload minimum present" : `Missing: ${source.missing.join(", ")}`
 		)
 	);
 

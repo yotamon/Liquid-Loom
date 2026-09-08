@@ -34,8 +34,12 @@ async function writeSource(sourceRoot, relativePath, contents) {
 	return filePath;
 }
 
-async function createMinimumTheme(sourceRoot) {
+async function createUploadableTheme(sourceRoot) {
 	await writeSource(sourceRoot, "theme/layout/theme.liquid", "<main>{{ content_for_layout }}</main>");
+}
+
+async function createReferenceTheme(sourceRoot) {
+	await createUploadableTheme(sourceRoot);
 	await writeSource(sourceRoot, "theme/templates/index.json", '{"sections":{},"order":[]}');
 	await writeSource(sourceRoot, "theme/config/settings_schema.json", "[]");
 }
@@ -50,9 +54,22 @@ describe("mapThemePath", () => {
 		assert.equal(mapThemePath("theme/snippets/product/card.liquid"), "snippets/card.liquid");
 	});
 
-	it("preserves nested paths where Shopify supports them", () => {
+	it("flattens config, locale, and feature-organized template paths into Shopify-supported output", () => {
+		assert.equal(mapThemePath("theme/config/editor/settings_schema.json"), "config/settings_schema.json");
+		assert.equal(mapThemePath("theme/locales/markets/en.default.json"), "locales/en.default.json");
+		assert.equal(mapThemePath("theme/templates/catalog/product.json"), "templates/product.json");
+	});
+
+	it("preserves only Shopify-supported template subdirectories", () => {
 		assert.equal(mapThemePath("theme/templates/customers/account.json"), "templates/customers/account.json");
-		assert.equal(mapThemePath("theme/locales/en.default.json"), "locales/en.default.json");
+		assert.equal(mapThemePath("theme/templates/metaobject/book.json"), "templates/metaobject/book.json");
+	});
+
+	it("rejects deeper nesting inside Shopify-reserved template subdirectories", () => {
+		assert.throws(
+			() => mapThemePath("theme/templates/metaobject/books/book.json"),
+			/Only templates\/customers\/\* and templates\/metaobject\/\*/
+		);
 	});
 
 	it("maps public files into Shopify's flat assets directory", () => {
@@ -99,25 +116,38 @@ describe("createBuildPlan", () => {
 });
 
 describe("theme source validation", () => {
-	it("reports all missing files required for a bootable Shopify theme", async () => {
+	it("matches Shopify's upload minimum instead of requiring starter-only files", async () => {
 		const { sourceRoot } = await createTemporaryProject();
 		await mkdir(sourceRoot, { recursive: true });
 
-		const result = await validateThemeSource(sourceRoot);
+		const missing = await validateThemeSource(sourceRoot);
+		assert.equal(missing.valid, false);
+		assert.deepEqual(missing.missing, ["theme/layout/theme.liquid"]);
 
-		assert.equal(result.valid, false);
-		assert.deepEqual(result.missing, [
-			"theme/config/settings_schema.json",
-			"theme/layout/theme.liquid",
-			"theme/templates/index.json"
-		]);
+		await createUploadableTheme(sourceRoot);
+		const valid = await validateThemeSource(sourceRoot);
+		assert.deepEqual(valid, { valid: true, missing: [] });
 	});
 });
 
 describe("buildTheme", () => {
+	it("builds Shopify's upload minimum without requiring config or index template files", async () => {
+		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
+		await createUploadableTheme(sourceRoot);
+
+		const summary = await buildTheme({ projectRoot, sourceRoot, outputRoot, cacheFile });
+
+		assert.equal(summary.total, 1);
+		assert.equal(summary.copied, 1);
+		assert.equal(
+			await readFile(path.join(outputRoot, "layout", "theme.liquid"), "utf8"),
+			"<main>{{ content_for_layout }}</main>"
+		);
+	});
+
 	it("copies a complete source tree and writes a portable manifest", async () => {
 		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
-		await createMinimumTheme(sourceRoot);
+		await createReferenceTheme(sourceRoot);
 		await writeSource(sourceRoot, "theme/sections/home/hero.liquid", "<section>Hero</section>");
 		await writeSource(sourceRoot, "public/icons/cart.svg", "<svg></svg>");
 
@@ -135,7 +165,7 @@ describe("buildTheme", () => {
 
 	it("leaves Vite entrypoints and styles to the bundler", async () => {
 		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
-		await createMinimumTheme(sourceRoot);
+		await createReferenceTheme(sourceRoot);
 		await writeSource(sourceRoot, "entrypoints/theme.js", 'import "../styles/theme.css";');
 		await writeSource(sourceRoot, "styles/theme.css", "body { display: grid; }");
 
@@ -147,7 +177,7 @@ describe("buildTheme", () => {
 
 	it("skips unchanged files, refreshes changed files, and removes stale outputs", async () => {
 		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
-		await createMinimumTheme(sourceRoot);
+		await createReferenceTheme(sourceRoot);
 		const sectionPath = await writeSource(sourceRoot, "theme/sections/home/hero.liquid", "version one");
 		const assetPath = await writeSource(sourceRoot, "public/icons/cart.svg", "<svg></svg>");
 
@@ -183,7 +213,7 @@ describe("buildTheme", () => {
 
 	it("rejects cache entries that point outside the build directory", async () => {
 		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
-		await createMinimumTheme(sourceRoot);
+		await createReferenceTheme(sourceRoot);
 		const protectedFile = path.join(projectRoot, "outside.txt");
 		await writeFile(protectedFile, "keep me");
 		await mkdir(path.dirname(cacheFile), { recursive: true });
@@ -205,7 +235,7 @@ describe("buildTheme", () => {
 describe("buildProject", () => {
 	it("recovers an abandoned build lock from a terminated process", async () => {
 		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
-		await createMinimumTheme(sourceRoot);
+		await createReferenceTheme(sourceRoot);
 		await mkdir(path.dirname(cacheFile), { recursive: true });
 		await writeFile(`${cacheFile}.lock`, "999999999\n");
 
@@ -216,7 +246,7 @@ describe("buildProject", () => {
 
 	it("serializes concurrent builds that target the same project", async () => {
 		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
-		await createMinimumTheme(sourceRoot);
+		await createReferenceTheme(sourceRoot);
 		let activeBundles = 0;
 		let maximumConcurrency = 0;
 		const bundle = async () => {
@@ -236,7 +266,7 @@ describe("buildProject", () => {
 
 	it("keeps the last successful output and cache when bundling fails", async () => {
 		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
-		await createMinimumTheme(sourceRoot);
+		await createReferenceTheme(sourceRoot);
 		await mkdir(outputRoot, { recursive: true });
 		await mkdir(path.dirname(cacheFile), { recursive: true });
 		await writeFile(path.join(outputRoot, "last-good.txt"), "stable");
@@ -266,7 +296,7 @@ describe("buildProject", () => {
 
 	it("publishes static and generated files together after a successful bundle", async () => {
 		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
-		await createMinimumTheme(sourceRoot);
+		await createReferenceTheme(sourceRoot);
 		await mkdir(outputRoot, { recursive: true });
 		await writeFile(path.join(outputRoot, "obsolete.txt"), "remove me");
 
@@ -289,7 +319,7 @@ describe("buildProject", () => {
 
 	it("removes stale generated bundles and source maps before bundling", async () => {
 		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
-		await createMinimumTheme(sourceRoot);
+		await createReferenceTheme(sourceRoot);
 		await mkdir(path.join(outputRoot, "assets"), { recursive: true });
 		await writeFile(path.join(outputRoot, "assets", "theme.js"), "old bundle");
 		await writeFile(path.join(outputRoot, "assets", "theme.js.map"), "old map");

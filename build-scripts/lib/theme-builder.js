@@ -3,13 +3,9 @@ import { access, copyFile, cp, mkdir, open, readFile, readdir, rename, rm, unlin
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
-const FLAT_THEME_DIRECTORIES = new Set(["layout", "sections", "snippets", "blocks"]);
-const STRUCTURED_THEME_DIRECTORIES = new Set(["templates", "config", "locales"]);
-const REQUIRED_THEME_FILES = [
-	"theme/config/settings_schema.json",
-	"theme/layout/theme.liquid",
-	"theme/templates/index.json"
-];
+const FLAT_THEME_DIRECTORIES = new Set(["blocks", "config", "layout", "locales", "sections", "snippets"]);
+const SUPPORTED_TEMPLATE_SUBDIRECTORIES = new Set(["customers", "metaobject"]);
+const REQUIRED_THEME_FILES = ["theme/layout/theme.liquid"];
 export const DEFAULT_RESERVED_OUTPUTS = ["assets/style.css", "assets/theme.js"];
 
 export class BuildCollisionError extends Error {
@@ -31,6 +27,24 @@ function normalizeSourcePath(sourcePath) {
 	return normalized;
 }
 
+function mapTemplatePath(parts, sourcePath) {
+	const templateParts = parts.slice(2);
+	if (templateParts.length === 1) return `templates/${templateParts[0]}`;
+
+	const [subdirectory] = templateParts;
+	if (SUPPORTED_TEMPLATE_SUBDIRECTORIES.has(subdirectory)) {
+		if (templateParts.length !== 2) {
+			throw new Error(
+				`Unsupported Shopify template nesting: ${sourcePath}. ` +
+					`Only templates/customers/* and templates/metaobject/* may be nested in deployable output.`
+			);
+		}
+		return `templates/${templateParts.join("/")}`;
+	}
+
+	return `templates/${path.posix.basename(sourcePath)}`;
+}
+
 export function mapThemePath(sourcePath) {
 	const normalized = normalizeSourcePath(sourcePath);
 	const parts = normalized.split("/");
@@ -48,8 +62,8 @@ export function mapThemePath(sourcePath) {
 		return `${themeDirectory}/${path.posix.basename(normalized)}`;
 	}
 
-	if (STRUCTURED_THEME_DIRECTORIES.has(themeDirectory)) {
-		return `${themeDirectory}/${parts.slice(2).join("/")}`;
+	if (themeDirectory === "templates") {
+		return mapTemplatePath(parts, normalized);
 	}
 
 	throw new Error(`Unsupported source path: ${sourcePath}`);
@@ -234,7 +248,7 @@ export async function buildTheme({
 
 	const validation = await validateThemeSource(sourceRoot);
 	if (!validation.valid) {
-		throw new Error(`Theme source is incomplete. Missing: ${validation.missing.join(", ")}`);
+		throw new Error(`Theme source is incomplete. Missing Shopify upload minimum: ${validation.missing.join(", ")}`);
 	}
 
 	if (clean) {
