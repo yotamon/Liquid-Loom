@@ -165,17 +165,17 @@ Configuration stays project-relative and portable. The CLI resolves the consumin
 
 ## Commands
 
-| Command              | Purpose                                                                 |
-| -------------------- | ----------------------------------------------------------------------- |
-| `pnpm dev`           | Build, watch, and launch Shopify theme development                      |
-| `pnpm watch`         | Rebuild locally without Shopify CLI                                     |
-| `pnpm build`         | Incremental production build                                            |
-| `pnpm build:clean`   | Production build from empty staging                                     |
-| `pnpm doctor`        | Diagnose runtime, project metadata, source, config, safety, and privacy |
-| `pnpm check`         | Validate source JSON and required build output                          |
-| `pnpm analyze`       | Report output composition and largest files                             |
-| `pnpm theme-check`   | Run Shopify Theme Check                                                 |
-| `pnpm validate`      | Reproduce the protected CI gate                                         |
+| Command            | Purpose                                                                 |
+| ------------------ | ----------------------------------------------------------------------- |
+| `pnpm dev`         | Build, watch, and launch Shopify theme development                      |
+| `pnpm watch`       | Rebuild locally without Shopify CLI                                     |
+| `pnpm build`       | Incremental production build                                            |
+| `pnpm build:clean` | Production build from empty staging                                     |
+| `pnpm doctor`      | Diagnose runtime, project metadata, source, config, safety, and privacy |
+| `pnpm check`       | Validate source JSON and required build output                          |
+| `pnpm analyze`     | Report output composition and largest files                             |
+| `pnpm theme-check` | Run Shopify Theme Check                                                 |
+| `pnpm validate`    | Reproduce the protected CI gate                                         |
 
 ## Reference storefront
 
