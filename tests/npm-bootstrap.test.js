@@ -5,7 +5,7 @@ import path from "node:path";
 import { afterEach, describe, it } from "node:test";
 
 import { createBootstrapPackage } from "../build-scripts/lib/npm-bootstrap.js";
-import { npmInvocation } from "../build-scripts/npm-release-setup.js";
+import { npmInvocation } from "../build-scripts/lib/npm-command.js";
 
 const temporaryDirectories = [];
 
