@@ -9,6 +9,7 @@ const repositoryRoot = path.resolve(fileURLToPath(new URL("../", import.meta.url
 const bootstrapRoot = path.join(repositoryRoot, ".artifacts", "npm-bootstrap");
 const bootstrapVersion = "0.0.0";
 const bootstrapTag = "bootstrap";
+const npmExecutable = process.platform === "win32" ? "npm.cmd" : "npm";
 
 const packageDefinitions = [
 	{ name: "liquid-loom", sourceRoot: repositoryRoot },
@@ -44,12 +45,11 @@ async function prepareBootstrapPackages() {
 	return prepared;
 }
 
-function runNpm(args, { interactive = false, env = process.env } = {}) {
+function runNpm(args, { interactive = false, env = process.env, cwd = repositoryRoot } = {}) {
 	return new Promise((resolve, reject) => {
-		const child = spawn("npm", args, {
-			cwd: repositoryRoot,
+		const child = spawn(npmExecutable, args, {
+			cwd,
 			env,
-			shell: process.platform === "win32",
 			stdio: interactive ? "inherit" : ["ignore", "pipe", "pipe"]
 		});
 		let stdout = "";
@@ -94,7 +94,7 @@ async function assertTrustCliVersion() {
 	const [major = 0, minor = 0] = stdout.trim().split(".").map(Number);
 	if (major < 11 || (major === 11 && minor < 15)) {
 		throw new Error(
-			`npm trust requires npm 11.15.0 or newer; found ${stdout.trim()}. Run \`npm install --global npm@latest\`.`
+			`npm trust requires npm 11.15.0 or newer; found ${stdout.trim()}. Run \`npm install --global npm@11\`.`
 		);
 	}
 }
@@ -126,7 +126,8 @@ async function publishBootstrap() {
 		}
 
 		console.log(`Publishing ${packageInfo.name}@${bootstrapVersion} with dist-tag ${bootstrapTag}...`);
-		await runNpm(["publish", packageInfo.targetRoot, "--tag", bootstrapTag, "--access", "public"], {
+		await runNpm(["publish", "--tag", bootstrapTag, "--access", "public"], {
+			cwd: packageInfo.targetRoot,
 			env: { ...process.env, NPM_CONFIG_PROVENANCE: "false" },
 			interactive: true
 		});
