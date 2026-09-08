@@ -59,7 +59,9 @@ async function assertAuthenticated() {
 		const { stdout } = await runNpm(["whoami"]);
 		return stdout.trim();
 	} catch {
-		throw new Error("npm authentication is required. Run `npm login` with an account that owns the package names first.");
+		throw new Error(
+			"npm authentication is required. Run `npm login` with an account that owns the package names first."
+		);
 	}
 }
 
@@ -145,7 +147,9 @@ async function main() {
 		if (!flags.includes("--publish")) {
 			await prepareBootstrapPackages();
 			console.log("Dry run only. No package was published.");
-			console.log("Run `node build-scripts/npm-release-setup.js bootstrap --publish` to perform the one-time publish.");
+			console.log(
+				"Run `node build-scripts/npm-release-setup.js bootstrap --publish` to perform the one-time publish."
+			);
 			return;
 		}
 		await publishBootstrap();
