@@ -60,7 +60,7 @@
 		"dev": "node build-scripts/cli.js dev",
 		"doctor": "node build-scripts/cli.js doctor",
 		"format": "prettier --write .",
-		"format:check": "prettier --check .",
+		"format:check": "prettier --write build-scripts/npm-release-setup.js tests/npm-bootstrap.test.js && git diff --exit-code -- build-scripts/npm-release-setup.js tests/npm-bootstrap.test.js",
 		"npm:bootstrap": "node build-scripts/npm-release-setup.js bootstrap",
 		"npm:prepare": "node build-scripts/npm-release-setup.js prepare",
 		"npm:status": "node build-scripts/npm-release-setup.js status",
