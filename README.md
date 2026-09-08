@@ -38,7 +38,7 @@ pnpm dev
 
 Want another package manager? The scaffolder supports `--package-manager npm|pnpm|yarn|bun` and `--no-install`.
 
-> **Building a real custom theme?** Liquid Loom is in its early `0.1.x` validation cycle and we are actively looking for Shopify developers to try one real edit/build/preview loop. If something is confusing, slower, or worse than your current workflow, [tell us exactly that](https://github.com/yotamon/Liquid-Loom/issues/new?template=early_adopter_feedback.yml). Questions and architecture ideas are welcome in [Discussions](https://github.com/yotamon/Liquid-Loom/discussions).
+> **Building a real custom theme?** Liquid Loom is in its early `0.1.x` validation cycle and we are actively looking for Shopify developers to try one real edit/build/preview loop. [Run the 10-minute first-project test](docs/FIRST_PROJECT.md), then [tell us what felt confusing, slower, or worse](https://github.com/yotamon/Liquid-Loom/issues/new?template=early_adopter_feedback.yml). Questions and architecture ideas are welcome in [Discussions](https://github.com/yotamon/Liquid-Loom/discussions).
 
 ## What changes
 
@@ -201,6 +201,7 @@ See [Validation](docs/VALIDATION.md) for the early-adopter plan and [Roadmap](RO
 
 If you try Liquid Loom, feedback from an imperfect real project is more valuable right now than a feature wishlist based only on the README.
 
+- [Run the 10-minute first-project test](docs/FIRST_PROJECT.md)
 - [Share first-project feedback](https://github.com/yotamon/Liquid-Loom/issues/new?template=early_adopter_feedback.yml)
 - [Report a bug](https://github.com/yotamon/Liquid-Loom/issues/new?template=bug_report.yml)
 - [Start a discussion](https://github.com/yotamon/Liquid-Loom/discussions)
@@ -208,6 +209,7 @@ If you try Liquid Loom, feedback from an imperfect real project is more valuable
 
 ## Documentation
 
+- [First project](docs/FIRST_PROJECT.md) - a ten-minute evaluation from public install to one real source edit
 - [Architecture](docs/ARCHITECTURE.md) - invariants, mapping rules, transaction flow, and extension boundaries
 - [Validation](docs/VALIDATION.md) - external-user and real-store validation plan
 - [Recipes](docs/RECIPES.md) - entrypoints, static assets, private-term policies, and budgets
