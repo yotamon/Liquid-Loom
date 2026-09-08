@@ -1,34 +1,42 @@
 # Roadmap
 
-Liquid Loom favors a small, dependable core over a broad abstraction layer. Roadmap items move into a release only when they preserve deterministic output, progressive enhancement, and cross-platform behavior.
+Liquid Loom favors a small, dependable core over a broad abstraction layer. The immediate goal is to prove the workflow on real Shopify projects before expanding the framework surface.
 
-## 0.1 — Trustworthy foundation
+## 0.1 - Ship and validate
 
-- Publishable CLI and atomic project scaffolder
-- Transactional, collision-safe, concurrency-safe builds
-- Typed configuration and performance budgets
-- Theme blocks and modern storefront reference features
-- Cross-platform validation, security scanning, and provenance-ready releases
+- Keep source-to-output mapping aligned with Shopify's documented directory contract.
+- Publish `liquid-loom` and `create-liquid-loom` through npm trusted publishing.
+- Validate a clean public-package install and build.
+- Run the reference storefront against a real Shopify development store.
+- Put at least three external Shopify developers through the core edit/build/preview workflow.
+- Publish one concise before/after case study.
+- Fix onboarding and diagnostics issues discovered by those sessions.
 
-## 0.2 — Extension surface
+## 0.2 - Product proof
 
-- Documented plugin hooks around planning, validation, and post-build analysis
-- Machine-readable build reports for CI and observability
-- First-class multi-entry asset recipes
-- Additional starter variants built from the same contract
+Priorities should come from `0.1` usage. Likely candidates:
 
-## 0.3 — Ecosystem confidence
+- opt-in browser smoke tests against a Shopify development store;
+- migration guidance for common flat or legacy theme layouts;
+- machine-readable build reports when CI/observability consumers need them;
+- improved multi-entry asset recipes;
+- packaging cleanup that removes starter duplication without complicating npm delivery.
 
-- Opt-in browser smoke suite against a Shopify development store
-- Accessibility and storefront performance baselines
-- Migration guides for common legacy theme layouts
-- Community-maintained recipe registry
+## 0.3 - Extension surface, if earned
+
+Only after repeated consumer needs justify a public extension API:
+
+- documented hooks around planning, validation, and post-build analysis;
+- a stable extension compatibility contract;
+- additional starter variants when they demonstrate distinct real-world workflows;
+- a community recipe registry if a community actually forms around reusable recipes.
 
 ## Non-goals
 
-- Hiding Liquid, Shopify CLI, or Online Store 2.0 concepts
-- Replacing Shopify’s official Theme Store policy or approved starting point
-- Bundling analytics, app vendors, credentials, store data, or vertical-specific workflows
-- Becoming a general storefront framework unrelated to Shopify themes
+- Hiding Liquid, Shopify CLI, or Online Store 2.0 concepts.
+- Replacing Shopify's official Theme Store policy or approved starting point.
+- Bundling analytics vendors, credentials, store data, or client-specific workflows.
+- Becoming a general storefront framework unrelated to Shopify themes.
+- Adding abstractions solely to make the project appear more framework-like.
 
-Proposals belong in [GitHub Discussions](https://github.com/yotamon/Liquid-Loom/discussions) before implementation when they change the source contract.
+See [Validation](docs/VALIDATION.md) for the evidence expected before broadening the public API.
