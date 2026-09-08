@@ -63,6 +63,17 @@ The command:
 
 It never publishes `0.1.0`.
 
+On a first-ever registry publication, verify the resulting dist-tags. If npm also created `latest` pointing at the bootstrap version, remove only that tag before the real release:
+
+```bash
+npm dist-tag rm liquid-loom latest
+npm dist-tag rm create-liquid-loom latest
+npm view liquid-loom dist-tags
+npm view create-liquid-loom dist-tags
+```
+
+Keep the `bootstrap` tag and the immutable `0.0.0` versions in place.
+
 ### 4. Configure GitHub Trusted Publishing
 
 Once both package names exist:
@@ -89,7 +100,7 @@ After a successful OIDC release, restrict or revoke any temporary npm publishing
 
 See npm's [Trusted Publishers documentation](https://docs.npmjs.com/trusted-publishers/) and [`npm trust`](https://docs.npmjs.com/cli/v11/commands/npm-trust/) documentation for the current registry requirements.
 
-npm requires a public repository and matching repository metadata for automatic provenance. The release workflow grants `id-token: write` for OIDC and uses GitHub-hosted runners.
+npm requires a public repository and matching repository metadata for automatic provenance. The release workflow grants `id-token: write` for OIDC and uses GitHub-hosted runners. It pins npm `11.19.1` so release behavior does not change when the registry's `latest` npm tag moves to a new major.
 
 ## Release process
 
