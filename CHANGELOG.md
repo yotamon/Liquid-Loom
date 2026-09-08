@@ -4,6 +4,17 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 
 ## [Unreleased]
 
+### Added
+
+- A first-project feedback path for early Shopify adopters, focused on real setup, build, and preview friction.
+- Public adoption milestones that distinguish product evidence from stars, views, and other vanity metrics.
+
+### Changed
+
+- README onboarding now leads with the public npm quick start, clarifies the Shopify CLI relationship, and makes the `0.1.x` early-adopter call explicit.
+- Scaffolder documentation now guides users through a local build before requiring a Shopify development store.
+- Validation and roadmap status now reflect the completed `0.1.0` Trusted Publishing release and the remaining external-use evidence.
+
 ## [0.1.0] - 2026-09-08
 
 ### Added
