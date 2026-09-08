@@ -27,7 +27,7 @@ describe("create-liquid-loom", () => {
 
 		const packageJson = JSON.parse(await readFile(path.join(targetDirectory, "package.json"), "utf8"));
 		assert.equal(packageJson.name, "my-storefront");
-		assert.equal(packageJson.devDependencies["liquid-loom"], "^0.1.0");
+		assert.equal(packageJson.devDependencies["liquid-loom"], "^0.1.1");
 		assert.match(
 			await readFile(path.join(targetDirectory, "src", "theme", "layout", "theme.liquid"), "utf8"),
 			/content_for_layout/
