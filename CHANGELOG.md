@@ -4,6 +4,8 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-08
+
 ### Added
 
 - Cross-platform CI, CodeQL, Dependency Review, package smoke tests, and Node 26 canary coverage.
@@ -26,4 +28,5 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 - README and roadmap now prioritize custom-theme workflow, shipping, and external adoption before speculative extension APIs.
 - npm CLI bin metadata now uses registry-normalized relative paths, and package smoke tests execute both packed CLIs before release.
 
-[Unreleased]: https://github.com/yotamon/Liquid-Loom/commits/main
+[Unreleased]: https://github.com/yotamon/Liquid-Loom/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/yotamon/Liquid-Loom/releases/tag/v0.1.0
