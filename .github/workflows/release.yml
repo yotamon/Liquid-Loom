@@ -24,7 +24,9 @@ jobs:
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
       - run: corepack enable
-      - run: npm install --global npm@latest
+      - name: Pin npm for trusted publishing
+        run: npm install --global npm@11.19.1
+      - run: npm --version
       - run: pnpm install --frozen-lockfile
       - run: pnpm validate
       - name: Verify release version contract
