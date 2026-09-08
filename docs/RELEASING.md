@@ -11,9 +11,11 @@ The repository includes a guarded setup tool so the real `0.1.0` package metadat
 ### Requirements
 
 - npm account with two-factor authentication enabled;
-- npm CLI 11.5.1 or newer;
-- Node.js 22.14.0 or newer for npm Trusted Publishing commands;
+- npm CLI 11.15.0 or newer for the `npm trust` setup command;
+- Node.js 22.14.0 or newer for npm Trusted Publishing;
 - ownership of the intended package names.
+
+Trusted Publishing itself is supported by npm 11.5.1+, but the CLI-based `npm trust` management command used by Liquid Loom requires npm 11.15.0+.
 
 Update npm before starting:
 
@@ -55,7 +57,8 @@ The command:
 - re-checks the registry immediately before publishing;
 - skips any package name that already exists;
 - publishes only missing packages as `0.0.0` under the non-default `bootstrap` dist-tag;
-- disables provenance for those bootstrap copies only.
+- disables provenance for those bootstrap copies only;
+- inherits your terminal for npm's browser or two-factor authentication prompts on macOS, Linux, and Windows.
 
 It never publishes `0.1.0`.
 
@@ -75,7 +78,7 @@ This configures both packages with:
 - environment: `npm`
 - direct `npm publish`: allowed
 
-The command uses npm's `npm trust github` interface and therefore requires account-level two-factor authentication.
+The command uses npm's `npm trust github` interface and therefore requires account-level two-factor authentication. The setup tool runs it interactively so npm can open or display the authentication flow when required.
 
 In GitHub, ensure the `npm` environment exists. Add required reviewers if you want a human gate before a release job can publish.
 
