@@ -21,7 +21,9 @@ function run(command, args, cwd) {
 
 const tarballs = await readdir(artifacts);
 const packageTarball = tarballs.find((file) => /^liquid-loom-\d.*\.tgz$/.test(file));
+const creatorTarball = tarballs.find((file) => /^create-liquid-loom-\d.*\.tgz$/.test(file));
 if (!packageTarball) throw new Error("Liquid Loom package tarball was not created.");
+if (!creatorTarball) throw new Error("Create Liquid Loom package tarball was not created.");
 
 const workspace = await mkdtemp(path.join(os.tmpdir(), "liquid-loom-package-smoke-"));
 const target = path.join(workspace, "storefront");
@@ -31,12 +33,14 @@ try {
 	const packageFile = path.join(target, "package.json");
 	const packageJson = JSON.parse(await readFile(packageFile, "utf8"));
 	packageJson.devDependencies["liquid-loom"] = `file:${path.join(artifacts, packageTarball)}`;
+	packageJson.devDependencies["create-liquid-loom"] = `file:${path.join(artifacts, creatorTarball)}`;
 	await writeFile(packageFile, `${JSON.stringify(packageJson, null, 2)}\n`);
 
 	await run("npm", ["install", "--ignore-scripts"], target);
 	await run("npm", ["exec", "--", "liquid-loom", "--version"], target);
+	await run("npm", ["exec", "--", "create-liquid-loom", "--version"], target);
 	await run("npm", ["run", "build"], target);
-	console.log("✓ Packed CLI installs and builds an independent scaffold");
+	console.log("✓ Packed framework and scaffolder CLIs install and execute from an independent scaffold");
 } finally {
 	try {
 		await rm(workspace, { force: true, maxRetries: 10, recursive: true, retryDelay: 200 });
