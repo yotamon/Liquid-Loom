@@ -33,21 +33,21 @@ with a minimal valid Shopify section, for example:
 
 ```liquid
 <section class="promo-banner">
-  <p>{{ section.settings.text }}</p>
+	<p>{{ section.settings.text }}</p>
 </section>
 
 {% schema %}
 {
-  "name": "Promo banner",
-  "settings": [
-    {
-      "type": "text",
-      "id": "text",
-      "label": "Text",
-      "default": "Hello from Liquid Loom"
-    }
-  ],
-  "presets": [{ "name": "Promo banner" }]
+	"name": "Promo banner",
+	"settings": [
+		{
+			"type": "text",
+			"id": "text",
+			"label": "Text",
+			"default": "Hello from Liquid Loom"
+		}
+	],
+	"presets": [{ "name": "Promo banner" }]
 }
 {% endschema %}
 ```
