@@ -1,0 +1,72 @@
+name: First project feedback
+description: Tried Liquid Loom on a real or development-store theme? Tell us what helped and what got in the way.
+title: "[feedback]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying Liquid Loom. During the 0.1.x cycle, concrete workflow feedback is more useful than broad feature requests. Partial attempts and failed setups are useful too.
+
+  - type: dropdown
+    id: project
+    attributes:
+      label: What were you building?
+      options:
+        - A client or production custom theme
+        - A Shopify development-store theme
+        - A personal or experimental theme
+        - Evaluating Liquid Loom without a store
+        - Something else
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: reached
+    attributes:
+      label: How far did you get?
+      options:
+        - label: Scaffolded a project with create-liquid-loom
+        - label: Ran a successful local build
+        - label: Made a source edit and saw the expected dist/theme output
+        - label: Ran pnpm doctor or pnpm check
+        - label: Previewed the theme through Shopify CLI
+
+  - type: textarea
+    id: better
+    attributes:
+      label: What felt better than your usual Shopify theme workflow?
+      description: If nothing did, say that. That is useful feedback.
+      placeholder: Source organization, build confidence, tooling, diagnostics, onboarding...
+
+  - type: textarea
+    id: friction
+    attributes:
+      label: What was confusing, slow, or got in your way?
+      description: Please include the command or step where possible.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: use_again
+    attributes:
+      label: Would you use Liquid Loom for your next custom Shopify theme today?
+      options:
+        - Yes
+        - Maybe, after a few changes
+        - No
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Optional. Node version, package manager, OS, and Shopify CLI version can help us reproduce friction.
+      placeholder: Node 24, pnpm 11, Windows 11, Shopify CLI ...
+
+  - type: checkboxes
+    id: quote
+    attributes:
+      label: Public learning
+      options:
+        - label: You may quote or summarize this feedback in public project updates or a case study, with my GitHub username attributed.
