@@ -24,5 +24,6 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 - Feature-organized `config`, `locales`, and ordinary `templates` source folders flatten into Shopify-supported output paths.
 - Only Shopify-supported `templates/customers/*` and `templates/metaobject/*` nesting is preserved in deployable output.
 - README and roadmap now prioritize custom-theme workflow, shipping, and external adoption before speculative extension APIs.
+- npm CLI bin metadata now uses registry-normalized relative paths, and package smoke tests execute both packed CLIs before release.
 
 [Unreleased]: https://github.com/yotamon/Liquid-Loom/commits/main
