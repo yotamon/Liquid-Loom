@@ -4,12 +4,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createBootstrapPackage } from "./lib/npm-bootstrap.js";
+import { npmInvocation } from "./lib/npm-command.js";
 
 const repositoryRoot = path.resolve(fileURLToPath(new URL("../", import.meta.url)));
 const bootstrapRoot = path.join(repositoryRoot, ".artifacts", "npm-bootstrap");
 const bootstrapVersion = "0.0.0";
 const bootstrapTag = "bootstrap";
-const windowsNpmArgumentPattern = /^[A-Za-z0-9@._/:=+-]+$/u;
 
 const packageDefinitions = [
 	{ name: "liquid-loom", sourceRoot: repositoryRoot },
@@ -18,21 +18,6 @@ const packageDefinitions = [
 		sourceRoot: path.join(repositoryRoot, "packages", "create-liquid-loom")
 	}
 ];
-
-export function npmInvocation(args, { platform = process.platform, comspec = process.env.ComSpec } = {}) {
-	if (platform !== "win32") return { command: "npm", args };
-
-	for (const argument of args) {
-		if (!windowsNpmArgumentPattern.test(argument)) {
-			throw new Error(`Unsafe npm argument for Windows command execution: ${argument}`);
-		}
-	}
-
-	return {
-		command: comspec || "cmd.exe",
-		args: ["/d", "/s", "/c", ["npm", ...args].join(" ")]
-	};
-}
 
 async function registryStatus(name) {
 	const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`);
