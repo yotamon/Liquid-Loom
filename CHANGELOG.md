@@ -4,6 +4,27 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-09
+
+### Added
+
+- Dual-source builds that merge an existing native Shopify theme with feature-organized Liquid Loom source into one deterministic deployable theme.
+- `liquid-loom init` for zero-migration adoption of an existing Shopify theme, with dry-run planning, package-manager detection, non-destructive namespaced scripts, and optional dependency installation.
+- `liquid-loom migrate` for preview-first file, directory, or full-theme migration into `src`, including explicit output-identity validation and rollback on failed moves.
+- Native Shopify source mapping and cross-layer ownership checks with the same case-insensitive and Unicode-normalized collision guarantees as organized source.
+- Existing-theme diagnostics for hybrid source ownership, optional Vite, and organized entrypoints that are present while bundling is disabled.
+- Packed-package smoke coverage for installing Liquid Loom into an existing theme, building hybrid source, migrating a file, and rebuilding the same Shopify output.
+- A complete existing-theme adoption design and operational guide.
+
+### Changed
+
+- Vite is now optional through `viteConfig: false`, allowing existing themes to keep their current asset workflow while adopting Liquid Loom incrementally.
+- Performance budgets can be disabled for non-bundled existing-theme adoption instead of imposing starter assumptions on an established project.
+- Build validation now checks the final ownership plan for Shopify's upload minimum, regardless of whether `layout/theme.liquid` comes from native or organized source.
+- Build manifests can track source-layer identity so moving ownership from native Shopify source to organized source does not delete an unchanged deployable output as stale.
+- Watch mode observes only Liquid Loom source plus existing Shopify-managed directories instead of recursively watching an entire repository.
+- The public API and TypeScript declarations now expose source-layer-aware build/configuration contracts and existing-theme helpers.
+
 ## [0.1.1] - 2026-09-08
 
 ### Added
@@ -42,6 +63,7 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 - README and roadmap now prioritize custom-theme workflow, shipping, and external adoption before speculative extension APIs.
 - npm CLI bin metadata now uses registry-normalized relative paths, and package smoke tests execute both packed CLIs before release.
 
-[Unreleased]: https://github.com/yotamon/Liquid-Loom/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/yotamon/Liquid-Loom/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/yotamon/Liquid-Loom/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/yotamon/Liquid-Loom/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/yotamon/Liquid-Loom/releases/tag/v0.1.0
