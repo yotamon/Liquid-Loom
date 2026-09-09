@@ -18,12 +18,25 @@ Now proving:
 - [ ] Publish one concise before/after case study.
 - [ ] Fix onboarding and diagnostics issues discovered by those sessions.
 
-## 0.2 - Product proof
+## 0.2 - Existing-theme adoption
 
-Priorities should come from `0.1` usage. Likely candidates:
+The first external feedback exposed switching cost as a larger adoption problem than missing framework surface. `0.2` should make Liquid Loom useful inside the Shopify theme a developer already has.
+
+Primary scope:
+
+- adopt Liquid Loom without moving existing Shopify theme files;
+- build native Shopify source and organized Liquid Loom source together;
+- keep existing asset tooling by default instead of forcing Vite/Tailwind;
+- add a safe `liquid-loom init` path for existing themes;
+- support previewable partial and full migration into `src` while preserving deployable Shopify paths;
+- keep collisions explicit across native and organized source instead of introducing silent precedence;
+- validate the complete existing-theme path in packed-package CI and a real Shopify development store.
+
+The accepted design is tracked in [Existing-theme adoption design](docs/EXISTING_THEME_ADOPTION.md).
+
+Secondary candidates after the adoption path is proven:
 
 - opt-in browser smoke tests against a Shopify development store;
-- migration guidance for common flat or legacy theme layouts;
 - machine-readable build reports when CI/observability consumers need them;
 - improved multi-entry asset recipes;
 - packaging cleanup that removes starter duplication without complicating npm delivery.
