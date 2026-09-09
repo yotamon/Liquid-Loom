@@ -1,4 +1,11 @@
-import { defineConfig, type LiquidLoomConfig, type PerformanceBudgets } from "liquid-loom";
+import {
+	applyMigration,
+	defineConfig,
+	planMigration,
+	type LiquidLoomConfig,
+	type PerformanceBudgets,
+	type ResolvedLiquidLoomConfig
+} from "liquid-loom";
 
 const budgets: PerformanceBudgets = {
 	maxAssetBytes: 500_000,
@@ -12,4 +19,16 @@ const config: LiquidLoomConfig = defineConfig({
 	reservedOutputs: ["assets/theme.js", "assets/style.css"]
 });
 
+const existingThemeConfig: LiquidLoomConfig = defineConfig({
+	shopifySourceDir: ".",
+	sourceDir: "src",
+	outputDir: "dist/theme",
+	viteConfig: false,
+	performance: false
+});
+
+declare const resolvedExistingTheme: ResolvedLiquidLoomConfig;
+void planMigration(resolvedExistingTheme, { target: "sections/hero.liquid" });
+void applyMigration(resolvedExistingTheme, { all: true, apply: true });
 void config;
+void existingThemeConfig;
