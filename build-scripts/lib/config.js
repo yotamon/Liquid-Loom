@@ -59,7 +59,6 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 	const resolvedRoot = path.resolve(projectRoot);
 	const configFile = await findConfigFile(resolvedRoot);
 	let userConfig = {};
-
 	if (configFile) {
 		const loaded = await loadConfigFromFile(
 			{ command: "build", isPreview: false, isSsrBuild: false, mode: "production" },
@@ -74,22 +73,32 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 	}
 
 	const sourceDir = userConfig.sourceDir ?? "src";
+	const shopifySourceDir = userConfig.shopifySourceDir;
 	const outputDir = userConfig.outputDir ?? "dist/theme";
 	const cacheFile = userConfig.cacheFile ?? ".cache/manifest.json";
-	const viteConfig = userConfig.viteConfig ?? "vite.config.js";
+	const viteConfig = userConfig.viteConfig === false ? false : (userConfig.viteConfig ?? "vite.config.js");
 	const forbiddenTerms = userConfig.forbiddenTerms ?? [];
-	const reservedOutputs = userConfig.reservedOutputs ?? DEFAULT_RESERVED_OUTPUTS;
-	const performance = { ...DEFAULT_PERFORMANCE, ...(userConfig.performance ?? {}) };
+	const reservedOutputs = userConfig.reservedOutputs ?? (viteConfig === false ? [] : DEFAULT_RESERVED_OUTPUTS);
+	const performanceEnabled = userConfig.performance !== false;
+	const performance = {
+		...DEFAULT_PERFORMANCE,
+		...(performanceEnabled ? (userConfig.performance ?? {}) : {})
+	};
 
-	for (const [name, value] of Object.entries({ cacheFile, outputDir, sourceDir, viteConfig })) {
+	for (const [name, value] of Object.entries({ cacheFile, outputDir, sourceDir }))
 		assertProjectRelativePath(name, value);
-	}
+	if (shopifySourceDir !== undefined) assertProjectRelativePath("shopifySourceDir", shopifySourceDir);
+	if (viteConfig !== false) assertProjectRelativePath("viteConfig", viteConfig);
 	assertStringList("forbiddenTerms", forbiddenTerms);
 	assertStringList("reservedOutputs", reservedOutputs);
-	for (const [name, value] of Object.entries(performance)) {
-		if (!Number.isFinite(value) || value <= 0) throw new TypeError(`performance.${name} must be a positive number.`);
+	if (performanceEnabled) {
+		for (const [name, value] of Object.entries(performance)) {
+			if (!Number.isFinite(value) || value <= 0) throw new TypeError(`performance.${name} must be a positive number.`);
+		}
 	}
 
+	const sourceRoot = path.resolve(resolvedRoot, sourceDir);
+	const shopifySourceRoot = shopifySourceDir === undefined ? undefined : path.resolve(resolvedRoot, shopifySourceDir);
 	return {
 		...userConfig,
 		cacheFile: path.resolve(resolvedRoot, cacheFile),
@@ -97,9 +106,16 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 		forbiddenTerms: [...forbiddenTerms],
 		outputRoot: path.resolve(resolvedRoot, outputDir),
 		performance,
+		performanceEnabled,
 		projectRoot: resolvedRoot,
 		reservedOutputs: [...reservedOutputs],
-		sourceRoot: path.resolve(resolvedRoot, sourceDir),
-		viteConfig: path.resolve(resolvedRoot, viteConfig)
+		shopifySourceRoot,
+		sourceLayers: [
+			...(shopifySourceRoot ? [{ id: "shopify", kind: "shopify", root: shopifySourceRoot }] : []),
+			{ id: "loom", kind: "organized", root: sourceRoot }
+		],
+		sourceRoot,
+		viteConfig: viteConfig === false ? false : path.resolve(resolvedRoot, viteConfig),
+		viteEnabled: viteConfig !== false
 	};
 }
