@@ -106,7 +106,8 @@ function normalizeBuildEntry(source) {
 			sourceKey: relativePath
 		};
 	}
-	if (!source || typeof source !== "object") throw new TypeError("Build source entries must be paths or source descriptors.");
+	if (!source || typeof source !== "object")
+		throw new TypeError("Build source entries must be paths or source descriptors.");
 	const relativePath = normalizeRelativePath(source.relativePath);
 	if (source.kind !== "organized" && source.kind !== "shopify") {
 		throw new TypeError(`Unsupported source kind: ${source.kind}`);
@@ -136,9 +137,9 @@ export function createBuildPlan(sourceFiles, { reservedOutputs = [] } = {}) {
 		.map(normalizeBuildEntry)
 		.sort((left, right) => left.displayPath.localeCompare(right.displayPath))
 		.map((entry) => {
-			const output = (entry.kind === "shopify" ? mapShopifyPath(entry.relativePath) : mapThemePath(entry.relativePath)).normalize(
-				"NFC"
-			);
+			const output = (
+				entry.kind === "shopify" ? mapShopifyPath(entry.relativePath) : mapThemePath(entry.relativePath)
+			).normalize("NFC");
 			const key = canonicalOutputPath(output);
 			const destination = destinations.get(key) ?? { destination: output, sources: [] };
 			destination.sources.push(entry.displayPath);
@@ -213,7 +214,10 @@ export async function discoverSourceEntries({ projectRoot, sourceRoot, shopifySo
 					kind: "organized",
 					root: sourceRoot,
 					relativePath,
-					displayPath: path.relative(projectRoot, path.join(sourceRoot, ...relativePath.split("/"))).split(path.sep).join("/")
+					displayPath: path
+						.relative(projectRoot, path.join(sourceRoot, ...relativePath.split("/")))
+						.split(path.sep)
+						.join("/")
 				});
 			}
 		}
@@ -261,7 +265,8 @@ function hash(contents) {
 async function readManifest(cacheFile) {
 	try {
 		const manifest = JSON.parse(await readFile(cacheFile, "utf8"));
-		if ((manifest.version === 1 || manifest.version === 2) && manifest.files && typeof manifest.files === "object") return manifest;
+		if ((manifest.version === 1 || manifest.version === 2) && manifest.files && typeof manifest.files === "object")
+			return manifest;
 	} catch {
 		// A missing or invalid cache is equivalent to a cold build.
 	}
@@ -436,7 +441,8 @@ async function acquireBuildLock(cacheFile, timeoutMs = 30_000) {
 				if (readError.code === "ENOENT") continue;
 				throw readError;
 			}
-			if (Date.now() >= deadline) throw new Error(`Timed out waiting for another Liquid Loom build to finish: ${lockFile}`);
+			if (Date.now() >= deadline)
+				throw new Error(`Timed out waiting for another Liquid Loom build to finish: ${lockFile}`);
 			await delay(25);
 		}
 	}

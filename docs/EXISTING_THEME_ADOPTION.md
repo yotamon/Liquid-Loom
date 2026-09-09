@@ -102,11 +102,11 @@ Existing-theme initialization defaults to:
 import { defineConfig } from "liquid-loom";
 
 export default defineConfig({
-  shopifySourceDir: ".",
-  sourceDir: "src",
-  outputDir: "dist/theme",
-  viteConfig: false,
-  performance: false
+	shopifySourceDir: ".",
+	sourceDir: "src",
+	outputDir: "dist/theme",
+	viteConfig: false,
+	performance: false
 });
 ```
 
@@ -257,7 +257,7 @@ Existing themes often already use their own Sass, PostCSS, Webpack, Vite, or oth
 With:
 
 ```js
-viteConfig: false
+viteConfig: false;
 ```
 
 behavior is:
@@ -310,10 +310,10 @@ Use a project-relative native theme root:
 
 ```js
 export default defineConfig({
-  shopifySourceDir: "theme",
-  sourceDir: "src",
-  outputDir: "dist/theme",
-  viteConfig: false
+	shopifySourceDir: "theme",
+	sourceDir: "src",
+	outputDir: "dist/theme",
+	viteConfig: false
 });
 ```
 

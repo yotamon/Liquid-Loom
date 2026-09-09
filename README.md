@@ -205,11 +205,11 @@ Existing-theme initialization defaults to:
 import { defineConfig } from "liquid-loom";
 
 export default defineConfig({
-  shopifySourceDir: ".",
-  sourceDir: "src",
-  outputDir: "dist/theme",
-  viteConfig: false,
-  performance: false
+	shopifySourceDir: ".",
+	sourceDir: "src",
+	outputDir: "dist/theme",
+	viteConfig: false,
+	performance: false
 });
 ```
 
@@ -221,18 +221,18 @@ If `src/entrypoints` exists while Vite is disabled, `doctor` warns that those fi
 
 ## Shopify mapping contract
 
-| Authoring source | Deployable Shopify path | Rule |
-| --- | --- | --- |
-| `sections/hero.liquid` | `sections/hero.liquid` | Native Shopify identity mapping |
-| `src/theme/sections/home/hero.liquid` | `sections/hero.liquid` | Organized source flattens by filename |
-| `src/theme/snippets/product/price.liquid` | `snippets/price.liquid` | Organized source flattens by filename |
-| `src/theme/config/editor/settings_schema.json` | `config/settings_schema.json` | Flatten by filename |
-| `src/theme/locales/markets/en.default.json` | `locales/en.default.json` | Flatten by filename |
-| `src/theme/templates/catalog/product.json` | `templates/product.json` | Feature folders flatten |
-| `templates/customers/account.json` | `templates/customers/account.json` | Preserve Shopify-supported nesting |
-| `src/theme/templates/metaobject/book.json` | `templates/metaobject/book.json` | Preserve Shopify-supported nesting |
-| `src/public/icons/cart.svg` | `assets/cart.svg` | Flatten passthrough assets |
-| `src/entrypoints/theme.js` + `src/styles/*.css` | `assets/theme.js` + `assets/style.css` | Vite-generated outputs when enabled |
+| Authoring source                                | Deployable Shopify path                | Rule                                  |
+| ----------------------------------------------- | -------------------------------------- | ------------------------------------- |
+| `sections/hero.liquid`                          | `sections/hero.liquid`                 | Native Shopify identity mapping       |
+| `src/theme/sections/home/hero.liquid`           | `sections/hero.liquid`                 | Organized source flattens by filename |
+| `src/theme/snippets/product/price.liquid`       | `snippets/price.liquid`                | Organized source flattens by filename |
+| `src/theme/config/editor/settings_schema.json`  | `config/settings_schema.json`          | Flatten by filename                   |
+| `src/theme/locales/markets/en.default.json`     | `locales/en.default.json`              | Flatten by filename                   |
+| `src/theme/templates/catalog/product.json`      | `templates/product.json`               | Feature folders flatten               |
+| `templates/customers/account.json`              | `templates/customers/account.json`     | Preserve Shopify-supported nesting    |
+| `src/theme/templates/metaobject/book.json`      | `templates/metaobject/book.json`       | Preserve Shopify-supported nesting    |
+| `src/public/icons/cart.svg`                     | `assets/cart.svg`                      | Flatten passthrough assets            |
+| `src/entrypoints/theme.js` + `src/styles/*.css` | `assets/theme.js` + `assets/style.css` | Vite-generated outputs when enabled   |
 
 Framework validation checks Shopify's upload minimum from the final ownership plan: `layout/theme.liquid` must exist in deployable output, regardless of which source layer owns it.
 
@@ -282,13 +282,13 @@ Fresh project example:
 import { defineConfig } from "liquid-loom";
 
 export default defineConfig({
-  sourceDir: "src",
-  outputDir: "dist/theme",
-  performance: {
-    maxBuildMs: 10_000,
-    maxThemeBytes: 5_000_000,
-    maxAssetBytes: 500_000
-  }
+	sourceDir: "src",
+	outputDir: "dist/theme",
+	performance: {
+		maxBuildMs: 10_000,
+		maxThemeBytes: 5_000_000,
+		maxAssetBytes: 500_000
+	}
 });
 ```
 
@@ -296,11 +296,11 @@ Existing theme in a monorepo:
 
 ```ts
 export default defineConfig({
-  shopifySourceDir: "theme",
-  sourceDir: "src",
-  outputDir: "dist/theme",
-  viteConfig: false,
-  performance: false
+	shopifySourceDir: "theme",
+	sourceDir: "src",
+	outputDir: "dist/theme",
+	viteConfig: false,
+	performance: false
 });
 ```
 
@@ -308,18 +308,18 @@ All paths remain project-relative and portable.
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `liquid-loom init` | Add Liquid Loom to an existing Shopify theme without moving source |
-| `liquid-loom migrate [target]` | Preview or apply output-preserving source migration |
-| `liquid-loom build` | Build the merged deployable Shopify theme |
-| `liquid-loom build --clean` | Build from empty staging |
-| `liquid-loom watch` | Rebuild when managed source changes |
-| `liquid-loom dev` | Build, watch, and launch `shopify theme dev` |
-| `liquid-loom doctor` | Diagnose runtime, ownership, config, safety, assets, and privacy |
-| `liquid-loom check` | Validate ownership, source JSON, and build output |
-| `liquid-loom analyze` | Report output composition and largest files |
-| `liquid-loom clean` | Remove generated output and cache safely |
+| Command                        | Purpose                                                            |
+| ------------------------------ | ------------------------------------------------------------------ |
+| `liquid-loom init`             | Add Liquid Loom to an existing Shopify theme without moving source |
+| `liquid-loom migrate [target]` | Preview or apply output-preserving source migration                |
+| `liquid-loom build`            | Build the merged deployable Shopify theme                          |
+| `liquid-loom build --clean`    | Build from empty staging                                           |
+| `liquid-loom watch`            | Rebuild when managed source changes                                |
+| `liquid-loom dev`              | Build, watch, and launch `shopify theme dev`                       |
+| `liquid-loom doctor`           | Diagnose runtime, ownership, config, safety, assets, and privacy   |
+| `liquid-loom check`            | Validate ownership, source JSON, and build output                  |
+| `liquid-loom analyze`          | Report output composition and largest files                        |
+| `liquid-loom clean`            | Remove generated output and cache safely                           |
 
 Scaffolded projects expose package-manager scripts for the same commands. Existing-theme `init` uses namespaced `loom:*` scripts so it does not replace a project's existing `build` or `dev` commands.
 

@@ -39,7 +39,10 @@ describe("project doctor", () => {
 
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, true);
-		assert.equal(result.checks.every((check) => check.status === "pass"), true);
+		assert.equal(
+			result.checks.every((check) => check.status === "pass"),
+			true
+		);
 	});
 
 	it("reports missing project essentials and configured private content", async () => {
@@ -49,8 +52,14 @@ describe("project doctor", () => {
 
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, false);
-		assert.equal(result.checks.some((check) => check.name === "private-content" && check.status === "fail"), true);
-		assert.equal(result.checks.some((check) => check.name === "theme-source" && check.status === "fail"), true);
+		assert.equal(
+			result.checks.some((check) => check.name === "private-content" && check.status === "fail"),
+			true
+		);
+		assert.equal(
+			result.checks.some((check) => check.name === "theme-source" && check.status === "fail"),
+			true
+		);
 	});
 
 	it("treats missing docs as warnings for adopted themes and explains disabled bundling", async () => {
@@ -68,12 +77,30 @@ describe("project doctor", () => {
 
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, true);
-		assert.equal(result.checks.some((check) => check.name === "package-metadata" && check.status === "warn"), true);
-		assert.equal(result.checks.some((check) => check.name === "documentation" && check.status === "warn"), true);
-		assert.equal(result.checks.some((check) => check.name === "source-mode" && /native Shopify/.test(check.message)), true);
-		assert.equal(result.checks.some((check) => check.name === "vite-config" && /Disabled/.test(check.message)), true);
-		assert.equal(result.checks.some((check) => check.name === "asset-entrypoints" && check.status === "warn"), true);
-		assert.equal(result.checks.some((check) => check.name === "performance" && /Disabled/.test(check.message)), true);
+		assert.equal(
+			result.checks.some((check) => check.name === "package-metadata" && check.status === "warn"),
+			true
+		);
+		assert.equal(
+			result.checks.some((check) => check.name === "documentation" && check.status === "warn"),
+			true
+		);
+		assert.equal(
+			result.checks.some((check) => check.name === "source-mode" && /native Shopify/.test(check.message)),
+			true
+		);
+		assert.equal(
+			result.checks.some((check) => check.name === "vite-config" && /Disabled/.test(check.message)),
+			true
+		);
+		assert.equal(
+			result.checks.some((check) => check.name === "asset-entrypoints" && check.status === "warn"),
+			true
+		);
+		assert.equal(
+			result.checks.some((check) => check.name === "performance" && /Disabled/.test(check.message)),
+			true
+		);
 	});
 
 	it("fails a hybrid project when native and organized source collide", async () => {
@@ -85,7 +112,11 @@ describe("project doctor", () => {
 		await write(projectRoot, "layout/theme.liquid", "{{ content_for_layout }}");
 		await write(projectRoot, "sections/hero.liquid", "native");
 		await write(projectRoot, "src/theme/sections/home/hero.liquid", "organized");
-		await write(projectRoot, "liquid-loom.config.mjs", 'export default { shopifySourceDir: ".", viteConfig: false };\n');
+		await write(
+			projectRoot,
+			"liquid-loom.config.mjs",
+			'export default { shopifySourceDir: ".", viteConfig: false };\n'
+		);
 
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, false);

@@ -108,7 +108,10 @@ export function createBuildPlan(
 	sourceFiles: Array<string | SourceEntry>,
 	options?: { reservedOutputs?: string[] }
 ): { files: BuildFile[] };
-export function validateThemePlan(plan: { files: Array<Pick<BuildFile, "output">> }): { valid: boolean; missing: string[] };
+export function validateThemePlan(plan: { files: Array<Pick<BuildFile, "output">> }): {
+	valid: boolean;
+	missing: string[];
+};
 export function validateThemeSource(sourceRoot: string): Promise<{ valid: boolean; missing: string[] }>;
 export function scanForbiddenContent(root: string, forbiddenTerms?: string[]): Promise<unknown[]>;
 export function inspectBuild(outputRoot: string): Promise<BuildInspection>;

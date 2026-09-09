@@ -85,7 +85,8 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 		...(performanceEnabled ? (userConfig.performance ?? {}) : {})
 	};
 
-	for (const [name, value] of Object.entries({ cacheFile, outputDir, sourceDir })) assertProjectRelativePath(name, value);
+	for (const [name, value] of Object.entries({ cacheFile, outputDir, sourceDir }))
+		assertProjectRelativePath(name, value);
 	if (shopifySourceDir !== undefined) assertProjectRelativePath("shopifySourceDir", shopifySourceDir);
 	if (viteConfig !== false) assertProjectRelativePath("viteConfig", viteConfig);
 	assertStringList("forbiddenTerms", forbiddenTerms);

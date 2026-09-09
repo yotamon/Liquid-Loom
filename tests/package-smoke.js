@@ -78,10 +78,16 @@ try {
 	await run("npm", ["exec", "--", "liquid-loom", "migrate", "sections/hero.liquid", "--apply"], existingTarget);
 	await run("npm", ["run", "loom:build"], existingTarget);
 
-	if ((await readFile(path.join(existingTarget, "dist", "theme", "sections", "hero.liquid"), "utf8")) !== "<section>existing hero</section>") {
+	if (
+		(await readFile(path.join(existingTarget, "dist", "theme", "sections", "hero.liquid"), "utf8")) !==
+		"<section>existing hero</section>"
+	) {
 		throw new Error("Existing-theme migration changed the deployed hero output.");
 	}
-	if ((await readFile(path.join(existingTarget, "dist", "theme", "sections", "upsell.liquid"), "utf8")) !== "<section>upsell</section>") {
+	if (
+		(await readFile(path.join(existingTarget, "dist", "theme", "sections", "upsell.liquid"), "utf8")) !==
+		"<section>upsell</section>"
+	) {
 		throw new Error("Hybrid source did not produce the organized upsell output.");
 	}
 

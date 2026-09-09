@@ -102,14 +102,22 @@ describe("liquid-loom init", () => {
 		await write(
 			root,
 			"package.json",
-			JSON.stringify({ name: "client-theme", description: "Client theme", license: "MIT", scripts: { test: "node --test" } })
+			JSON.stringify({
+				name: "client-theme",
+				description: "Client theme",
+				license: "MIT",
+				scripts: { test: "node --test" }
+			})
 		);
 		await write(root, ".gitignore", "node_modules/\n");
 
 		const plan = await planExistingThemeInit({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm" });
 		assert.equal(plan.themeFiles, 5);
 		assert.equal(plan.packageManager, "npm");
-		assert.equal(plan.mutations.some((item) => item.path === "liquid-loom.config.mjs" && item.action === "create"), true);
+		assert.equal(
+			plan.mutations.some((item) => item.path === "liquid-loom.config.mjs" && item.action === "create"),
+			true
+		);
 		assert.equal(await readFile(path.join(root, "sections", "hero.liquid"), "utf8"), "<section>native hero</section>");
 
 		const dryRun = await initializeExistingTheme({
@@ -198,7 +206,12 @@ describe("dual-source builds and migration", () => {
 	it("builds native Shopify files and new organized files together", async () => {
 		const root = await createProject();
 		await createNativeTheme(root);
-		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false });
+		await initializeExistingTheme({
+			projectRoot: root,
+			packageVersion: "0.2.0",
+			packageManager: "npm",
+			install: false
+		});
 		await write(root, "src/theme/sections/product/upsell.liquid", "<section>upsell</section>");
 
 		const config = resolvedExistingThemeConfig(root);
@@ -211,15 +224,26 @@ describe("dual-source builds and migration", () => {
 			reservedOutputs: config.reservedOutputs
 		});
 		assert.equal(summary.total, 6);
-		assert.equal(await readFile(path.join(config.outputRoot, "sections", "hero.liquid"), "utf8"), "<section>native hero</section>");
-		assert.equal(await readFile(path.join(config.outputRoot, "sections", "upsell.liquid"), "utf8"), "<section>upsell</section>");
+		assert.equal(
+			await readFile(path.join(config.outputRoot, "sections", "hero.liquid"), "utf8"),
+			"<section>native hero</section>"
+		);
+		assert.equal(
+			await readFile(path.join(config.outputRoot, "sections", "upsell.liquid"), "utf8"),
+			"<section>upsell</section>"
+		);
 		assert.equal(await readFile(path.join(config.outputRoot, "assets", "theme.css"), "utf8"), "body{}");
 	});
 
 	it("fails instead of silently choosing between native and organized owners", async () => {
 		const root = await createProject();
 		await createNativeTheme(root);
-		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false });
+		await initializeExistingTheme({
+			projectRoot: root,
+			packageVersion: "0.2.0",
+			packageManager: "npm",
+			install: false
+		});
 		await write(root, "src/theme/sections/home/hero.liquid", "<section>organized hero</section>");
 		const config = resolvedExistingThemeConfig(root);
 		await assert.rejects(
@@ -238,10 +262,18 @@ describe("dual-source builds and migration", () => {
 	it("previews and applies an output-preserving single-file migration", async () => {
 		const root = await createProject();
 		await createNativeTheme(root);
-		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false });
+		await initializeExistingTheme({
+			projectRoot: root,
+			packageVersion: "0.2.0",
+			packageManager: "npm",
+			install: false
+		});
 		const config = resolvedExistingThemeConfig(root);
 
-		const preview = await applyMigration(config, { target: "sections/hero.liquid", to: "theme/sections/home/hero.liquid" });
+		const preview = await applyMigration(config, {
+			target: "sections/hero.liquid",
+			to: "theme/sections/home/hero.liquid"
+		});
 		assert.equal(preview.applied, false);
 		assert.equal(preview.moves[0].output, "sections/hero.liquid");
 		assert.equal(await exists(path.join(root, "sections", "hero.liquid")), true);
@@ -266,14 +298,22 @@ describe("dual-source builds and migration", () => {
 			cacheFile: config.cacheFile,
 			reservedOutputs: config.reservedOutputs
 		});
-		assert.equal(await readFile(path.join(config.outputRoot, "sections", "hero.liquid"), "utf8"), "<section>native hero</section>");
+		assert.equal(
+			await readFile(path.join(config.outputRoot, "sections", "hero.liquid"), "utf8"),
+			"<section>native hero</section>"
+		);
 		assert.equal(summary.removed, 0);
 	});
 
 	it("supports directory/full migration and rejects unsafe plans", async () => {
 		const root = await createProject();
 		await createNativeTheme(root);
-		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false });
+		await initializeExistingTheme({
+			projectRoot: root,
+			packageVersion: "0.2.0",
+			packageManager: "npm",
+			install: false
+		});
 		const config = resolvedExistingThemeConfig(root);
 
 		const sectionMoves = await planMigration(config, { target: "sections" });
@@ -283,18 +323,29 @@ describe("dual-source builds and migration", () => {
 			planMigration(config, { target: "sections/hero.liquid", to: "theme/snippets/hero.liquid" }),
 			/change Shopify output/
 		);
-		await assert.rejects(planMigration(config, { all: true, target: "sections" }), /either a migration target or --all/);
+		await assert.rejects(
+			planMigration(config, { all: true, target: "sections" }),
+			/either a migration target or --all/
+		);
 		await assert.rejects(planMigration(config, {}), /Provide a Shopify file/);
 
 		const all = await planMigration(config, { all: true });
 		assert.equal(all.length, 5);
-		assert.equal(all.some((move) => move.destination === "public/theme.css"), true);
+		assert.equal(
+			all.some((move) => move.destination === "public/theme.css"),
+			true
+		);
 	});
 
 	it("detects destination and future ownership collisions before moving files", async () => {
 		const root = await createProject();
 		await createNativeTheme(root);
-		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false });
+		await initializeExistingTheme({
+			projectRoot: root,
+			packageVersion: "0.2.0",
+			packageManager: "npm",
+			install: false
+		});
 		const config = resolvedExistingThemeConfig(root);
 		await write(root, "src/theme/sections/hero.liquid", "already here");
 		await assert.rejects(planMigration(config, { target: "sections/hero.liquid" }), /destination already exists/i);

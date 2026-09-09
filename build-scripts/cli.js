@@ -14,12 +14,7 @@ import { build as viteBuild } from "vite";
 
 import { loadProjectConfig } from "./lib/config.js";
 import { diagnoseProject } from "./lib/doctor.js";
-import {
-	applyMigration,
-	initializeExistingTheme,
-	planExistingThemeInit,
-	planMigration
-} from "./lib/existing-theme.js";
+import { applyMigration, initializeExistingTheme, planExistingThemeInit, planMigration } from "./lib/existing-theme.js";
 import { validatePerformanceBudgets } from "./lib/performance.js";
 import { scanForbiddenContent } from "./lib/public-readiness.js";
 import {
@@ -217,7 +212,8 @@ async function doctorProject() {
 	printHeader("project doctor");
 	const result = await diagnoseProject(config);
 	for (const item of result.checks) {
-		const symbol = item.status === "pass" ? chalk.green("✓") : item.status === "warn" ? chalk.yellow("!") : chalk.red("×");
+		const symbol =
+			item.status === "pass" ? chalk.green("✓") : item.status === "warn" ? chalk.yellow("!") : chalk.red("×");
 		console.log(`${symbol} ${item.name.padEnd(20)} ${item.message}`);
 	}
 	if (!result.healthy) throw new Error("Project doctor found blocking issues.");
@@ -284,7 +280,9 @@ async function watchProject({ shopify = false } = {}) {
 		console.log(`${chalk.dim(event.padEnd(8))} ${path.relative(config.projectRoot, changedPath)}`);
 		timer = setTimeout(rebuild, 100);
 	});
-	console.log(`${chalk.green("●")} watching ${watchTargets.length} Liquid Loom source target${watchTargets.length === 1 ? "" : "s"}`);
+	console.log(
+		`${chalk.green("●")} watching ${watchTargets.length} Liquid Loom source target${watchTargets.length === 1 ? "" : "s"}`
+	);
 
 	await new Promise((resolve) => {
 		let shuttingDown = false;
@@ -362,7 +360,9 @@ async function initExistingTheme(options) {
 	}
 	await initializeExistingTheme({ ...args, install: options.install });
 	console.log(`\n${chalk.green("✓")} Liquid Loom added without moving existing Shopify source`);
-	console.log(`${chalk.dim("next")} ${options.install ? "run" : "install dependencies, then run"} your loom:build script`);
+	console.log(
+		`${chalk.dim("next")} ${options.install ? "run" : "install dependencies, then run"} your loom:build script`
+	);
 }
 
 function printMigrationPlan(moves) {
@@ -395,8 +395,14 @@ program
 	.option("--clean", "remove previous output before building")
 	.option("--development", "keep readable bundles and source maps")
 	.action((options) => runBuild({ clean: options.clean, mode: options.development ? "development" : "production" }));
-program.command("watch").description("Rebuild when source files change").action(() => watchProject());
-program.command("dev").description("Build, watch, and launch Shopify theme dev").action(() => watchProject({ shopify: true }));
+program
+	.command("watch")
+	.description("Rebuild when source files change")
+	.action(() => watchProject());
+program
+	.command("dev")
+	.description("Build, watch, and launch Shopify theme dev")
+	.action(() => watchProject({ shopify: true }));
 program.command("clean").description("Remove generated output and cache files").action(cleanProject);
 program.command("check").description("Validate source ownership, JSON, and build output").action(checkProject);
 program.command("analyze").description("Report output composition and largest files").action(analyzeProject);

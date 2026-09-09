@@ -82,7 +82,9 @@ export async function diagnoseProject(config) {
 			check(
 				"theme-source",
 				source.valid ? "pass" : "fail",
-				source.valid ? "Shopify upload minimum present in the merged source plan" : `Missing: ${source.missing.join(", ")}`
+				source.valid
+					? "Shopify upload minimum present in the merged source plan"
+					: `Missing: ${source.missing.join(", ")}`
 			)
 		);
 		const nativeCount = entries.filter((entry) => entry.kind === "shopify").length;
@@ -113,7 +115,9 @@ export async function diagnoseProject(config) {
 		checks.push(check("vite-config", "pass", "Disabled; existing asset workflow is preserved"));
 		const entrypoints = path.join(config.sourceRoot, "entrypoints");
 		if (await fileExists(entrypoints)) {
-			checks.push(check("asset-entrypoints", "warn", "src/entrypoints exists but Vite is disabled, so it will not be compiled"));
+			checks.push(
+				check("asset-entrypoints", "warn", "src/entrypoints exists but Vite is disabled, so it will not be compiled")
+			);
 		}
 	}
 
@@ -137,7 +141,9 @@ export async function diagnoseProject(config) {
 		check(
 			"private-content",
 			findings.length ? "fail" : "pass",
-			findings.length ? `${findings.length} configured private-content match(es)` : "No configured private content found"
+			findings.length
+				? `${findings.length} configured private-content match(es)`
+				: "No configured private content found"
 		)
 	);
 

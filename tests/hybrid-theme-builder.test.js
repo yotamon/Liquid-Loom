@@ -44,7 +44,10 @@ describe("native Shopify mapping", () => {
 
 	it("rejects paths Shopify does not support", () => {
 		assert.throws(() => mapShopifyPath("sections/home/hero.liquid"), /sections\/ is flat/);
-		assert.throws(() => mapShopifyPath("templates/customers/account/default.json"), /Unsupported Shopify template nesting/);
+		assert.throws(
+			() => mapShopifyPath("templates/customers/account/default.json"),
+			/Unsupported Shopify template nesting/
+		);
 		assert.throws(() => mapShopifyPath("src/theme.liquid"), /Unsupported Shopify source path/);
 	});
 });
@@ -64,7 +67,10 @@ describe("dual-source planning", () => {
 			sourceRoot: path.join(root, "src"),
 			shopifySourceRoot: root
 		});
-		assert.equal(entries.some((entry) => entry.displayPath === "notes/private.txt"), false);
+		assert.equal(
+			entries.some((entry) => entry.displayPath === "notes/private.txt"),
+			false
+		);
 		assert.equal(entries.filter((entry) => entry.kind === "shopify").length, 3);
 		assert.equal(entries.filter((entry) => entry.kind === "organized").length, 2);
 	});

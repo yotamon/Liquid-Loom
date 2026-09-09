@@ -12,7 +12,12 @@ const PACKAGE_MANAGER_LOCKS = [
 	["bun", "bun.lockb"]
 ];
 const PACKAGE_MANAGERS = new Set(["npm", "pnpm", "yarn", "bun"]);
-const CONFIG_FILES = ["liquid-loom.config.ts", "liquid-loom.config.mts", "liquid-loom.config.js", "liquid-loom.config.mjs"];
+const CONFIG_FILES = [
+	"liquid-loom.config.ts",
+	"liquid-loom.config.mts",
+	"liquid-loom.config.js",
+	"liquid-loom.config.mjs"
+];
 const LOOM_SCRIPTS = {
 	"loom:build": "liquid-loom build",
 	"loom:watch": "liquid-loom watch",
@@ -45,7 +50,13 @@ function toPosix(value) {
 
 function normalizeProjectRelative(value, label) {
 	const normalized = path.posix.normalize(String(value).replaceAll("\\", "/").replace(/^\.\//, ""));
-	if (!normalized || normalized === "." || path.posix.isAbsolute(normalized) || normalized === ".." || normalized.startsWith("../")) {
+	if (
+		!normalized ||
+		normalized === "." ||
+		path.posix.isAbsolute(normalized) ||
+		normalized === ".." ||
+		normalized.startsWith("../")
+	) {
 		throw new Error(`${label} must be a path inside the project.`);
 	}
 	return normalized;
@@ -73,7 +84,8 @@ export async function detectPackageManager(projectRoot, explicit) {
 	}
 	try {
 		const packageJson = JSON.parse(await readFile(path.join(projectRoot, "package.json"), "utf8"));
-		const declared = typeof packageJson.packageManager === "string" ? packageJson.packageManager.split("@")[0] : undefined;
+		const declared =
+			typeof packageJson.packageManager === "string" ? packageJson.packageManager.split("@")[0] : undefined;
 		if (PACKAGE_MANAGERS.has(declared)) return declared;
 	} catch {
 		// Fall through to lockfile and invocation detection.
@@ -224,7 +236,8 @@ function runInstall(packageManager, projectRoot) {
 		child.once("error", reject);
 		child.once("exit", (code, signal) => {
 			if (code === 0) resolve();
-			else reject(new Error(`${packageManager} install failed${signal ? ` with ${signal}` : ` with exit code ${code}`}.`));
+			else
+				reject(new Error(`${packageManager} install failed${signal ? ` with ${signal}` : ` with exit code ${code}`}.`));
 		});
 	});
 }
@@ -353,7 +366,8 @@ export async function planMigration(config, { target, all = false, to } = {}) {
 		);
 		if (!selected.length) throw new Error(`No Shopify source files matched: ${normalizedTarget}`);
 	}
-	if (to && selected.length !== 1) throw new Error("--to requires a migration target that resolves to exactly one file.");
+	if (to && selected.length !== 1)
+		throw new Error("--to requires a migration target that resolves to exactly one file.");
 
 	const moves = [];
 	for (const entry of selected) {

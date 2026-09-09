@@ -23,10 +23,10 @@ The public configuration stays intentionally small:
 
 ```ts
 export default defineConfig({
-  shopifySourceDir: ".", // optional native Shopify source
-  sourceDir: "src",      // organized Liquid Loom source
-  outputDir: "dist/theme",
-  viteConfig: false
+	shopifySourceDir: ".", // optional native Shopify source
+	sourceDir: "src", // organized Liquid Loom source
+	outputDir: "dist/theme",
+	viteConfig: false
 });
 ```
 
