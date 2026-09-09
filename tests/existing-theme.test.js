@@ -4,7 +4,6 @@ import { access, mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promise
 import os from "node:os";
 import path from "node:path";
 
-import { loadProjectConfig } from "../build-scripts/lib/config.js";
 import {
 	applyMigration,
 	detectPackageManager,
@@ -49,6 +48,26 @@ async function createNativeTheme(projectRoot, prefix = "") {
 	return root;
 }
 
+function resolvedExistingThemeConfig(root) {
+	return {
+		projectRoot: root,
+		sourceRoot: path.join(root, "src"),
+		shopifySourceRoot: root,
+		outputRoot: path.join(root, "dist", "theme"),
+		cacheFile: path.join(root, ".cache", "manifest.json"),
+		reservedOutputs: [],
+		viteConfig: false,
+		viteEnabled: false,
+		performance: {
+			maxAssetBytes: 500_000,
+			maxBuildMs: 10_000,
+			maxThemeBytes: 5_000_000
+		},
+		performanceEnabled: false,
+		forbiddenTerms: []
+	};
+}
+
 afterEach(async () => {
 	await Promise.all(temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
 });
@@ -87,17 +106,28 @@ describe("liquid-loom init", () => {
 		);
 		await write(root, ".gitignore", "node_modules/\n");
 
-		const plan = await planExistingThemeInit({ projectRoot: root, packageVersion: "0.2.0" });
+		const plan = await planExistingThemeInit({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm" });
 		assert.equal(plan.themeFiles, 5);
 		assert.equal(plan.packageManager, "npm");
 		assert.equal(plan.mutations.some((item) => item.path === "liquid-loom.config.mjs" && item.action === "create"), true);
 		assert.equal(await readFile(path.join(root, "sections", "hero.liquid"), "utf8"), "<section>native hero</section>");
 
-		const dryRun = await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", install: false, dryRun: true });
+		const dryRun = await initializeExistingTheme({
+			projectRoot: root,
+			packageVersion: "0.2.0",
+			packageManager: "npm",
+			install: false,
+			dryRun: true
+		});
 		assert.equal(dryRun.applied, false);
 		assert.equal(await exists(path.join(root, "liquid-loom.config.mjs")), false);
 
-		const result = await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", install: false });
+		const result = await initializeExistingTheme({
+			projectRoot: root,
+			packageVersion: "0.2.0",
+			packageManager: "npm",
+			install: false
+		});
 		assert.equal(result.applied, true);
 		assert.equal(await exists(path.join(root, "src", "theme", "sections")), true);
 		assert.equal(await readFile(path.join(root, "sections", "hero.liquid"), "utf8"), "<section>native hero</section>");
@@ -110,10 +140,10 @@ describe("liquid-loom init", () => {
 		assert.match(ignore, /dist\//);
 		assert.match(ignore, /\.cache\//);
 
-		const config = await loadProjectConfig(root);
-		assert.equal(config.shopifySourceRoot, root);
-		assert.equal(config.viteEnabled, false);
-		assert.deepEqual(config.reservedOutputs, []);
+		const configText = await readFile(path.join(root, "liquid-loom.config.mjs"), "utf8");
+		assert.match(configText, /shopifySourceDir: "\."/);
+		assert.match(configText, /viteConfig: false/);
+		assert.match(configText, /performance: false/);
 	});
 
 	it("refuses to replace config or conflicting namespaced scripts", async () => {
@@ -121,16 +151,46 @@ describe("liquid-loom init", () => {
 		await createNativeTheme(root);
 		await write(root, "liquid-loom.config.ts", "export default {};");
 		await assert.rejects(
-			initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", install: false }),
+			initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false }),
 			/already exists/
 		);
 
 		await rm(path.join(root, "liquid-loom.config.ts"));
 		await write(root, "package.json", JSON.stringify({ scripts: { "loom:build": "something-else" } }));
 		await assert.rejects(
-			initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", install: false }),
+			initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false }),
 			/will not overwrite/
 		);
+	});
+
+	it("rolls back setup files and source directories when dependency installation fails", async () => {
+		const root = await createProject();
+		await createNativeTheme(root);
+		await write(root, "package.json", '{"name":"client","scripts":{"test":"keep"}}');
+		await write(root, ".gitignore", "node_modules/\n");
+		const beforePackage = await readFile(path.join(root, "package.json"), "utf8");
+		const beforeIgnore = await readFile(path.join(root, ".gitignore"), "utf8");
+
+		await assert.rejects(
+			initializeExistingTheme({
+				projectRoot: root,
+				packageVersion: "0.2.0",
+				packageManager: "npm",
+				install: true,
+				installRunner: async () => {
+					await write(root, "package-lock.json", "temporary lock");
+					throw new Error("install failed");
+				}
+			}),
+			/install failed/
+		);
+
+		assert.equal(await readFile(path.join(root, "package.json"), "utf8"), beforePackage);
+		assert.equal(await readFile(path.join(root, ".gitignore"), "utf8"), beforeIgnore);
+		assert.equal(await exists(path.join(root, "liquid-loom.config.mjs")), false);
+		assert.equal(await exists(path.join(root, "src")), false);
+		assert.equal(await exists(path.join(root, "package-lock.json")), false);
+		assert.equal(await exists(path.join(root, "sections", "hero.liquid")), true);
 	});
 });
 
@@ -138,10 +198,10 @@ describe("dual-source builds and migration", () => {
 	it("builds native Shopify files and new organized files together", async () => {
 		const root = await createProject();
 		await createNativeTheme(root);
-		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", install: false });
+		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false });
 		await write(root, "src/theme/sections/product/upsell.liquid", "<section>upsell</section>");
 
-		const config = await loadProjectConfig(root);
+		const config = resolvedExistingThemeConfig(root);
 		const summary = await buildTheme({
 			projectRoot: root,
 			sourceRoot: config.sourceRoot,
@@ -159,9 +219,9 @@ describe("dual-source builds and migration", () => {
 	it("fails instead of silently choosing between native and organized owners", async () => {
 		const root = await createProject();
 		await createNativeTheme(root);
-		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", install: false });
+		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false });
 		await write(root, "src/theme/sections/home/hero.liquid", "<section>organized hero</section>");
-		const config = await loadProjectConfig(root);
+		const config = resolvedExistingThemeConfig(root);
 		await assert.rejects(
 			buildTheme({
 				projectRoot: root,
@@ -178,8 +238,8 @@ describe("dual-source builds and migration", () => {
 	it("previews and applies an output-preserving single-file migration", async () => {
 		const root = await createProject();
 		await createNativeTheme(root);
-		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", install: false });
-		const config = await loadProjectConfig(root);
+		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false });
+		const config = resolvedExistingThemeConfig(root);
 
 		const preview = await applyMigration(config, { target: "sections/hero.liquid", to: "theme/sections/home/hero.liquid" });
 		assert.equal(preview.applied, false);
@@ -193,7 +253,10 @@ describe("dual-source builds and migration", () => {
 		});
 		assert.equal(applied.applied, true);
 		assert.equal(await exists(path.join(root, "sections", "hero.liquid")), false);
-		assert.equal(await readFile(path.join(root, "src", "theme", "sections", "home", "hero.liquid"), "utf8"), "<section>native hero</section>");
+		assert.equal(
+			await readFile(path.join(root, "src", "theme", "sections", "home", "hero.liquid"), "utf8"),
+			"<section>native hero</section>"
+		);
 
 		const summary = await buildTheme({
 			projectRoot: root,
@@ -210,13 +273,16 @@ describe("dual-source builds and migration", () => {
 	it("supports directory/full migration and rejects unsafe plans", async () => {
 		const root = await createProject();
 		await createNativeTheme(root);
-		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", install: false });
-		const config = await loadProjectConfig(root);
+		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false });
+		const config = resolvedExistingThemeConfig(root);
 
 		const sectionMoves = await planMigration(config, { target: "sections" });
 		assert.equal(sectionMoves.length, 1);
 		assert.equal(sectionMoves[0].destination, "theme/sections/hero.liquid");
-		await assert.rejects(planMigration(config, { target: "sections/hero.liquid", to: "theme/snippets/hero.liquid" }), /change Shopify output/);
+		await assert.rejects(
+			planMigration(config, { target: "sections/hero.liquid", to: "theme/snippets/hero.liquid" }),
+			/change Shopify output/
+		);
 		await assert.rejects(planMigration(config, { all: true, target: "sections" }), /either a migration target or --all/);
 		await assert.rejects(planMigration(config, {}), /Provide a Shopify file/);
 
@@ -228,8 +294,8 @@ describe("dual-source builds and migration", () => {
 	it("detects destination and future ownership collisions before moving files", async () => {
 		const root = await createProject();
 		await createNativeTheme(root);
-		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", install: false });
-		const config = await loadProjectConfig(root);
+		await initializeExistingTheme({ projectRoot: root, packageVersion: "0.2.0", packageManager: "npm", install: false });
+		const config = resolvedExistingThemeConfig(root);
 		await write(root, "src/theme/sections/hero.liquid", "already here");
 		await assert.rejects(planMigration(config, { target: "sections/hero.liquid" }), /destination already exists/i);
 
