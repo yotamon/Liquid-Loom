@@ -2,7 +2,7 @@ import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { scanForbiddenContent } from "./public-readiness.js";
-import { assertSafeOutput, validateThemeSource } from "./theme-builder.js";
+import { assertSafeOutput, createBuildPlan, discoverSourceEntries, validateThemePlan } from "./theme-builder.js";
 
 async function fileExists(filePath) {
 	try {
@@ -19,6 +19,7 @@ function check(name, status, message) {
 
 export async function diagnoseProject(config) {
 	const checks = [];
+	const hybrid = Boolean(config.shopifySourceRoot);
 	const nodeVersion = process.versions.node.split(".").map(Number);
 	const supportedRuntime = nodeVersion[0] > 22 || (nodeVersion[0] === 22 && nodeVersion[1] >= 12);
 	checks.push(
@@ -35,7 +36,7 @@ export async function diagnoseProject(config) {
 		checks.push(
 			check(
 				"package-metadata",
-				missing.length ? "fail" : "pass",
+				missing.length ? (hybrid ? "warn" : "fail") : "pass",
 				missing.length ? `Missing package fields: ${missing.join(", ")}` : `Package ${packageJson.name}`
 			)
 		);
@@ -50,7 +51,7 @@ export async function diagnoseProject(config) {
 	checks.push(
 		check(
 			"documentation",
-			missingDocs.length ? "fail" : "pass",
+			missingDocs.length ? (hybrid ? "warn" : "fail") : "pass",
 			missingDocs.length ? `Missing: ${missingDocs.join(", ")}` : "README and license present"
 		)
 	);
@@ -69,27 +70,64 @@ export async function diagnoseProject(config) {
 		checks.push(check("generated-files", "fail", "Missing .gitignore"));
 	}
 
-	const source = await validateThemeSource(config.sourceRoot);
-	checks.push(
-		check(
-			"theme-source",
-			source.valid ? "pass" : "fail",
-			source.valid ? "Shopify upload minimum present" : `Missing: ${source.missing.join(", ")}`
-		)
-	);
+	try {
+		const entries = await discoverSourceEntries({
+			projectRoot: config.projectRoot,
+			sourceRoot: config.sourceRoot,
+			shopifySourceRoot: config.shopifySourceRoot
+		});
+		const plan = createBuildPlan(entries, { reservedOutputs: config.reservedOutputs });
+		const source = validateThemePlan(plan);
+		checks.push(
+			check(
+				"theme-source",
+				source.valid ? "pass" : "fail",
+				source.valid ? "Shopify upload minimum present in the merged source plan" : `Missing: ${source.missing.join(", ")}`
+			)
+		);
+		const nativeCount = entries.filter((entry) => entry.kind === "shopify").length;
+		const organizedCount = entries.filter((entry) => entry.kind === "organized").length;
+		checks.push(
+			check(
+				"source-mode",
+				"pass",
+				hybrid
+					? `${nativeCount} native Shopify file(s) + ${organizedCount} organized file(s)`
+					: `${organizedCount} organized Liquid Loom file(s)`
+			)
+		);
+	} catch (error) {
+		checks.push(check("theme-source", "fail", error.message));
+	}
 
-	const viteConfigExists = await fileExists(config.viteConfig);
+	if (config.viteEnabled) {
+		const viteConfigExists = await fileExists(config.viteConfig);
+		checks.push(
+			check(
+				"vite-config",
+				viteConfigExists ? "pass" : "fail",
+				viteConfigExists ? path.basename(config.viteConfig) : `Missing ${path.basename(config.viteConfig)}`
+			)
+		);
+	} else {
+		checks.push(check("vite-config", "pass", "Disabled; existing asset workflow is preserved"));
+		const entrypoints = path.join(config.sourceRoot, "entrypoints");
+		if (await fileExists(entrypoints)) {
+			checks.push(check("asset-entrypoints", "warn", "src/entrypoints exists but Vite is disabled, so it will not be compiled"));
+		}
+	}
+
 	checks.push(
 		check(
-			"vite-config",
-			viteConfigExists ? "pass" : "fail",
-			viteConfigExists ? path.basename(config.viteConfig) : `Missing ${path.basename(config.viteConfig)}`
+			"performance",
+			config.performanceEnabled ? "pass" : "pass",
+			config.performanceEnabled ? "Performance budgets enabled" : "Disabled for non-invasive existing-theme adoption"
 		)
 	);
 
 	try {
 		assertSafeOutput(config);
-		checks.push(check("output-safety", "pass", "Build output is isolated inside the project"));
+		checks.push(check("output-safety", "pass", "Build output is isolated from every managed source directory"));
 	} catch (error) {
 		checks.push(check("output-safety", "fail", error.message));
 	}
@@ -99,9 +137,7 @@ export async function diagnoseProject(config) {
 		check(
 			"private-content",
 			findings.length ? "fail" : "pass",
-			findings.length
-				? `${findings.length} configured private-content match(es)`
-				: "No configured private content found"
+			findings.length ? `${findings.length} configured private-content match(es)` : "No configured private content found"
 		)
 	);
 
