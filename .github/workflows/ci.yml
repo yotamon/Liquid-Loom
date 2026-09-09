@@ -32,6 +32,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Show canonical formatting diff
+        run: |
+          pnpm format
+          git diff -- . ':(exclude).github/workflows/ci.yml'
+
       - name: Validate framework and theme
         run: pnpm validate
 
