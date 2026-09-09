@@ -13,6 +13,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  format-implementation-branch:
+    if: github.event_name == 'pull_request' && github.head_ref == 'design/existing-theme-adoption-docs'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format
+
+      - name: Commit canonical formatting when needed
+        run: |
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "style: apply canonical formatting"
+          git push origin HEAD:${{ github.head_ref }}
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -31,11 +61,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Show canonical formatting diff
-        run: |
-          pnpm format
-          git diff -- . ':(exclude).github/workflows/ci.yml'
 
       - name: Validate framework and theme
         run: pnpm validate
