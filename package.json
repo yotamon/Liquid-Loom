@@ -1,7 +1,7 @@
 {
 	"name": "liquid-loom",
-	"version": "0.1.1",
-	"description": "A source-first Shopify theme development framework with deterministic builds, incremental caching, Vite, and Tailwind CSS.",
+	"version": "0.2.0",
+	"description": "Modern Shopify theme tooling for new and existing themes, with deterministic builds, incremental adoption, Vite, and Tailwind CSS.",
 	"type": "module",
 	"license": "MIT",
 	"bin": {
@@ -20,6 +20,7 @@
 		"build-scripts/index.js",
 		"build-scripts/lib/config.js",
 		"build-scripts/lib/doctor.js",
+		"build-scripts/lib/existing-theme.js",
 		"build-scripts/lib/performance.js",
 		"build-scripts/lib/public-readiness.js",
 		"build-scripts/lib/theme-builder.js",
