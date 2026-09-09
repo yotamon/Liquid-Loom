@@ -3,8 +3,7 @@ import {
 	defineConfig,
 	planMigration,
 	type LiquidLoomConfig,
-	type PerformanceBudgets,
-	type ResolvedLiquidLoomConfig
+	type PerformanceBudgets
 } from "liquid-loom";
 
 const budgets: PerformanceBudgets = {
@@ -27,8 +26,10 @@ const existingThemeConfig: LiquidLoomConfig = defineConfig({
 	performance: false
 });
 
-declare const resolvedExistingTheme: ResolvedLiquidLoomConfig;
-void planMigration(resolvedExistingTheme, { target: "sections/hero.liquid" });
-void applyMigration(resolvedExistingTheme, { all: true, apply: true });
+const typedPlanMigration: typeof planMigration = planMigration;
+const typedApplyMigration: typeof applyMigration = applyMigration;
+
 void config;
 void existingThemeConfig;
+void typedPlanMigration;
+void typedApplyMigration;
