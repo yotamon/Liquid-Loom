@@ -79,15 +79,21 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 	const viteConfig = userConfig.viteConfig === false ? false : (userConfig.viteConfig ?? "vite.config.js");
 	const forbiddenTerms = userConfig.forbiddenTerms ?? [];
 	const reservedOutputs = userConfig.reservedOutputs ?? (viteConfig === false ? [] : DEFAULT_RESERVED_OUTPUTS);
-	const performance = { ...DEFAULT_PERFORMANCE, ...(userConfig.performance ?? {}) };
+	const performanceEnabled = userConfig.performance !== false;
+	const performance = {
+		...DEFAULT_PERFORMANCE,
+		...(performanceEnabled ? (userConfig.performance ?? {}) : {})
+	};
 
 	for (const [name, value] of Object.entries({ cacheFile, outputDir, sourceDir })) assertProjectRelativePath(name, value);
 	if (shopifySourceDir !== undefined) assertProjectRelativePath("shopifySourceDir", shopifySourceDir);
 	if (viteConfig !== false) assertProjectRelativePath("viteConfig", viteConfig);
 	assertStringList("forbiddenTerms", forbiddenTerms);
 	assertStringList("reservedOutputs", reservedOutputs);
-	for (const [name, value] of Object.entries(performance)) {
-		if (!Number.isFinite(value) || value <= 0) throw new TypeError(`performance.${name} must be a positive number.`);
+	if (performanceEnabled) {
+		for (const [name, value] of Object.entries(performance)) {
+			if (!Number.isFinite(value) || value <= 0) throw new TypeError(`performance.${name} must be a positive number.`);
+		}
 	}
 
 	const sourceRoot = path.resolve(resolvedRoot, sourceDir);
@@ -99,6 +105,7 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 		forbiddenTerms: [...forbiddenTerms],
 		outputRoot: path.resolve(resolvedRoot, outputDir),
 		performance,
+		performanceEnabled,
 		projectRoot: resolvedRoot,
 		reservedOutputs: [...reservedOutputs],
 		shopifySourceRoot,
