@@ -26,7 +26,11 @@ describe("project config", () => {
 		assert.equal(config.projectRoot, projectRoot);
 		assert.equal(config.sourceRoot, path.join(projectRoot, "src"));
 		assert.equal(config.outputRoot, path.join(projectRoot, "dist", "theme"));
+		assert.equal(config.shopifySourceRoot, undefined);
+		assert.equal(config.viteEnabled, true);
+		assert.equal(config.performanceEnabled, true);
 		assert.deepEqual(config.reservedOutputs, ["assets/style.css", "assets/theme.js"]);
+		assert.deepEqual(config.sourceLayers, [{ id: "loom", kind: "organized", root: path.join(projectRoot, "src") }]);
 	});
 
 	it("loads a TypeScript configuration file and merges custom settings", async () => {
@@ -50,6 +54,30 @@ describe("project config", () => {
 		assert.equal(config.performance.maxAssetBytes, 500_000);
 	});
 
+	it("resolves existing-theme source layers without reserving Vite outputs", async () => {
+		const projectRoot = await createProject();
+		await writeFile(
+			path.join(projectRoot, "liquid-loom.config.mjs"),
+			`export default {
+				shopifySourceDir: ".",
+				sourceDir: "src",
+				viteConfig: false,
+				performance: false
+			};\n`
+		);
+
+		const config = await loadProjectConfig(projectRoot);
+		assert.equal(config.shopifySourceRoot, projectRoot);
+		assert.equal(config.viteConfig, false);
+		assert.equal(config.viteEnabled, false);
+		assert.equal(config.performanceEnabled, false);
+		assert.deepEqual(config.reservedOutputs, []);
+		assert.deepEqual(config.sourceLayers, [
+			{ id: "shopify", kind: "shopify", root: projectRoot },
+			{ id: "loom", kind: "organized", root: path.join(projectRoot, "src") }
+		]);
+	});
+
 	it("returns the same strongly-typed shape from defineConfig", () => {
 		const input = { sourceDir: "theme-src" };
 		assert.equal(defineConfig(input), input);
@@ -61,7 +89,12 @@ describe("project config", () => {
 			path.join(projectRoot, "liquid-loom.config.mjs"),
 			'export default { outputDir: "../outside", performance: { maxBuildMs: -1 } };\n'
 		);
-
 		await assert.rejects(loadProjectConfig(projectRoot), /outputDir must be a project-relative path/i);
+
+		await writeFile(
+			path.join(projectRoot, "liquid-loom.config.mjs"),
+			'export default { shopifySourceDir: "../theme" };\n'
+		);
+		await assert.rejects(loadProjectConfig(projectRoot), /shopifySourceDir must be a project-relative path/i);
 	});
 });
