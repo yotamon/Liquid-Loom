@@ -19,6 +19,16 @@ const LOOM_SCRIPTS = {
 	"loom:dev": "liquid-loom dev",
 	"loom:doctor": "liquid-loom doctor"
 };
+const SOURCE_DIRECTORIES = [
+	"src/public",
+	"src/theme/blocks",
+	"src/theme/config",
+	"src/theme/layout",
+	"src/theme/locales",
+	"src/theme/sections",
+	"src/theme/snippets",
+	"src/theme/templates"
+];
 
 async function fileExists(filePath) {
 	try {
@@ -97,11 +107,13 @@ async function countThemeFiles(themeRoot) {
 }
 
 function packageNameFromRoot(projectRoot) {
-	return path
-		.basename(projectRoot)
-		.toLowerCase()
-		.replace(/[^a-z0-9._-]+/g, "-")
-		.replace(/^-+|-+$/g, "") || "shopify-theme";
+	return (
+		path
+			.basename(projectRoot)
+			.toLowerCase()
+			.replace(/[^a-z0-9._-]+/g, "-")
+			.replace(/^-+|-+$/g, "") || "shopify-theme"
+	);
 }
 
 async function buildInitFiles({ projectRoot, themeRoot, packageVersion }) {
@@ -113,6 +125,7 @@ async function buildInitFiles({ projectRoot, themeRoot, packageVersion }) {
 	} else {
 		packageJson = { name: packageNameFromRoot(projectRoot), private: true };
 	}
+
 	packageJson.scripts = { ...(packageJson.scripts ?? {}) };
 	for (const [name, command] of Object.entries(LOOM_SCRIPTS)) {
 		if (packageJson.scripts[name] && packageJson.scripts[name] !== command) {
@@ -120,8 +133,11 @@ async function buildInitFiles({ projectRoot, themeRoot, packageVersion }) {
 		}
 		packageJson.scripts[name] = command;
 	}
-	packageJson.devDependencies = { ...(packageJson.devDependencies ?? {}) };
-	packageJson.devDependencies["liquid-loom"] = `^${packageVersion}`;
+
+	const existingDependency = packageJson.devDependencies?.["liquid-loom"] ?? packageJson.dependencies?.["liquid-loom"];
+	if (!existingDependency) {
+		packageJson.devDependencies = { ...(packageJson.devDependencies ?? {}), "liquid-loom": `^${packageVersion}` };
+	}
 	mutations.push({ path: packageFile, content: `${JSON.stringify(packageJson, null, 2)}\n` });
 
 	for (const configName of CONFIG_FILES) {
@@ -133,14 +149,16 @@ async function buildInitFiles({ projectRoot, themeRoot, packageVersion }) {
 	const themeDir = themeDirConfigValue(projectRoot, themeRoot);
 	mutations.push({
 		path: configFile,
-		content: `import { defineConfig } from "liquid-loom";\n\nexport default defineConfig({\n\tshopifySourceDir: ${JSON.stringify(themeDir)},\n\tsourceDir: "src",\n\toutputDir: "dist/theme",\n\tviteConfig: false\n});\n`
+		content: `import { defineConfig } from "liquid-loom";\n\nexport default defineConfig({\n\tshopifySourceDir: ${JSON.stringify(themeDir)},\n\tsourceDir: "src",\n\toutputDir: "dist/theme",\n\tviteConfig: false,\n\tperformance: false\n});\n`
 	});
 
 	const gitignoreFile = path.join(projectRoot, ".gitignore");
 	let gitignore = (await fileExists(gitignoreFile)) ? await readFile(gitignoreFile, "utf8") : "";
 	const additions = [];
 	for (const entry of ["dist/", ".cache/"]) {
-		if (!gitignore.split(/\r?\n/).some((line) => line.trim() === entry || line.trim() === entry.replace(/\/$/, ""))) additions.push(entry);
+		if (!gitignore.split(/\r?\n/).some((line) => line.trim() === entry || line.trim() === entry.replace(/\/$/, ""))) {
+			additions.push(entry);
+		}
 	}
 	if (additions.length) {
 		if (gitignore && !gitignore.endsWith("\n")) gitignore += "\n";
@@ -150,22 +168,48 @@ async function buildInitFiles({ projectRoot, themeRoot, packageVersion }) {
 	return mutations;
 }
 
+async function captureFiles(filePaths) {
+	return Promise.all(
+		filePaths.map(async (filePath) => {
+			const existed = await fileExists(filePath);
+			return { path: filePath, existed, content: existed ? await readFile(filePath) : undefined };
+		})
+	);
+}
+
+async function restoreFiles(snapshots) {
+	const errors = [];
+	for (const snapshot of [...snapshots].reverse()) {
+		try {
+			if (snapshot.existed) {
+				await mkdir(path.dirname(snapshot.path), { recursive: true });
+				await writeFile(snapshot.path, snapshot.content);
+			} else {
+				await rm(snapshot.path, { force: true });
+			}
+		} catch (error) {
+			errors.push(error);
+		}
+	}
+	if (errors.length) throw new AggregateError(errors, "Could not fully restore files after a failed operation.");
+}
+
 async function applyTextTransaction(mutations) {
-	const originals = [];
+	const originals = await captureFiles(mutations.map((mutation) => mutation.path));
 	try {
 		for (const mutation of mutations) {
-			const existed = await fileExists(mutation.path);
-			originals.push({ path: mutation.path, existed, content: existed ? await readFile(mutation.path) : undefined });
 			await mkdir(path.dirname(mutation.path), { recursive: true });
 			await writeFile(mutation.path, mutation.content);
 		}
 	} catch (error) {
-		for (const original of originals.reverse()) {
-			if (original.existed) await writeFile(original.path, original.content);
-			else await rm(original.path, { force: true });
+		try {
+			await restoreFiles(originals);
+		} catch (rollbackError) {
+			throw new AggregateError([error, rollbackError], "Initialization failed and rollback was incomplete.");
 		}
 		throw error;
 	}
+	return async () => restoreFiles(originals);
 }
 
 function runInstall(packageManager, projectRoot) {
@@ -208,7 +252,8 @@ export async function initializeExistingTheme({
 	packageManager,
 	packageVersion,
 	install = true,
-	dryRun = false
+	dryRun = false,
+	installRunner = runInstall
 }) {
 	const themeRoot = await detectShopifyTheme(projectRoot, themeDir);
 	const manager = await detectPackageManager(projectRoot, packageManager);
@@ -217,27 +262,55 @@ export async function initializeExistingTheme({
 		packageManager: manager,
 		themeRoot,
 		themeFiles: await countThemeFiles(themeRoot),
-		mutations: mutations.map((mutation) => ({
-			path: toPosix(path.relative(projectRoot, mutation.path)),
-			action: "write"
-		}))
+		mutations: await Promise.all(
+			mutations.map(async (mutation) => ({
+				path: toPosix(path.relative(projectRoot, mutation.path)),
+				action: (await fileExists(mutation.path)) ? "update" : "create"
+			}))
+		)
 	};
 	if (dryRun) return { ...plan, applied: false };
 
-	await applyTextTransaction(mutations);
-	for (const directory of [
-		"src/public",
-		"src/theme/blocks",
-		"src/theme/config",
-		"src/theme/layout",
-		"src/theme/locales",
-		"src/theme/sections",
-		"src/theme/snippets",
-		"src/theme/templates"
-	]) {
-		await mkdir(path.join(projectRoot, ...directory.split("/")), { recursive: true });
+	const sourceRoot = path.join(projectRoot, "src");
+	const sourceRootExisted = await fileExists(sourceRoot);
+	const lockSnapshots = install
+		? await captureFiles(PACKAGE_MANAGER_LOCKS.map(([, lockFile]) => path.join(projectRoot, lockFile)))
+		: [];
+	let rollbackText;
+	try {
+		rollbackText = await applyTextTransaction(mutations);
+		for (const directory of SOURCE_DIRECTORIES) {
+			await mkdir(path.join(projectRoot, ...directory.split("/")), { recursive: true });
+		}
+		if (install) await installRunner(manager, projectRoot);
+	} catch (error) {
+		const rollbackErrors = [];
+		if (install) {
+			try {
+				await restoreFiles(lockSnapshots);
+			} catch (rollbackError) {
+				rollbackErrors.push(rollbackError);
+			}
+		}
+		if (rollbackText) {
+			try {
+				await rollbackText();
+			} catch (rollbackError) {
+				rollbackErrors.push(rollbackError);
+			}
+		}
+		if (!sourceRootExisted) {
+			try {
+				await rm(sourceRoot, { recursive: true, force: true });
+			} catch (rollbackError) {
+				rollbackErrors.push(rollbackError);
+			}
+		}
+		if (rollbackErrors.length) {
+			throw new AggregateError([error, ...rollbackErrors], "Initialization failed and rollback was incomplete.");
+		}
+		throw error;
 	}
-	if (install) await runInstall(manager, projectRoot);
 	return { ...plan, applied: true };
 }
 
