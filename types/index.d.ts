@@ -136,6 +136,7 @@ export interface UnresolvedProjectModelReference extends ProjectModelReference {
 export interface ProjectModel {
 	features: ProjectModelFeature[];
 	files: ProjectModelFile[];
+	generatedOutputs: string[];
 	liquidMode: ShopifyLiquidMode;
 	preview: ProjectModelPreviewUsage;
 	summary: {
