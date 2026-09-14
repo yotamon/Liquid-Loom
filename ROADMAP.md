@@ -1,6 +1,6 @@
 # Roadmap
 
-Liquid Loom favors a small, dependable core over a broad abstraction layer. The immediate goal is to prove the workflow on real Shopify projects before expanding the framework surface.
+Liquid Loom favors a small, dependable engineering layer over a broad storefront abstraction. Shopify owns the runtime, Liquid contract, CLI, and platform. Liquid Loom focuses on source architecture, deterministic ownership, safe adoption, diagnostics, and project understanding around those primitives.
 
 ## 0.1 - Ship and validate
 
@@ -46,7 +46,34 @@ Now proving:
 
 See [Existing-theme adoption](docs/EXISTING_THEME_ADOPTION.md) for the implemented contract and [Validation](docs/VALIDATION.md) for the evidence plan.
 
-## 0.3 - Extension surface, if earned
+## 0.3 - Project intelligence and Shopify-native evolution
+
+Liquid Loom should make a theme easier to understand for both developers and coding agents without becoming a second Liquid runtime.
+
+Implemented:
+
+- [x] deterministic machine-readable project model with no timestamps or random identifiers;
+- [x] `liquid-loom explain [target]` for whole-project, feature, and path-oriented architecture queries;
+- [x] `--json` output suitable for coding agents, CI, and future observability tooling;
+- [x] semantic feature grouping across organized source and unmigrated native Shopify source;
+- [x] static relationship discovery for snippets, sections, blocks, assets, JSON templates, and preview partials;
+- [x] unresolved-reference reporting without guessing dynamic Liquid relationships;
+- [x] explicit `stable` and `july-2026-preview` Liquid modes;
+- [x] `doctor` warnings for preview syntax and declared preview projects;
+- [x] public TypeScript contracts for the project model.
+
+Now proving:
+
+- [ ] evaluate `liquid-loom explain --json` in real Codex and other coding-agent workflows;
+- [ ] measure whether project-model context reduces unnecessary repository reads and incorrect cross-feature edits;
+- [ ] validate semantic grouping against several established themes with different naming conventions;
+- [ ] add machine-readable architectural diffs only if real workflows need them;
+- [ ] track Shopify's July 2026 Liquid preview and move behavior into stable expectations only after Shopify publishes a stable contract;
+- [ ] continue treating Tailwind and Vite as excellent integrations, not as Liquid Loom's reason to exist.
+
+See [Project model](docs/PROJECT_MODEL.md) and [Shopify Liquid July 2026 developer preview](docs/LIQUID_JULY_2026_PREVIEW.md).
+
+## 0.4 - Extension surface, if earned
 
 Only after repeated consumer needs justify a public extension API:
 
@@ -54,7 +81,7 @@ Only after repeated consumer needs justify a public extension API:
 - a stable extension compatibility contract;
 - additional source-root support if multiple real repositories require it;
 - asset-pipeline integration hooks when existing-theme evidence shows a repeated need;
-- machine-readable build/ownership reports for CI and observability consumers;
+- architectural/ownership report hooks for CI and observability consumers;
 - additional starter variants when they demonstrate distinct real-world workflows;
 - a community recipe registry if a community actually forms around reusable recipes.
 
@@ -62,9 +89,13 @@ Only after repeated consumer needs justify a public extension API:
 
 - Hiding Liquid, Shopify CLI, or Online Store 2.0 concepts.
 - Replacing Shopify's official Theme Store policy or approved starting point.
+- Competing with Shopify on the Liquid runtime, Shopify CLI, or Tailwind itself.
+- Treating Vite or Tailwind integration as the framework's durable moat.
 - Bundling analytics vendors, credentials, store data, or client-specific workflows.
 - Becoming a general storefront framework unrelated to Shopify themes.
 - Adding abstractions solely to make the project appear more framework-like.
 - Requiring migration before an existing theme can receive value from Liquid Loom.
+- Guessing dynamic Liquid relationships in order to make the project model look more complete.
+- Making developer-preview Liquid syntax the default before Shopify stabilizes it.
 
 See [Validation](docs/VALIDATION.md) for the evidence expected before broadening the public API.
