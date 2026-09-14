@@ -1,0 +1,47 @@
+name: Format artifact
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Format changed files
+        run: |
+          pnpm prettier --write \
+            build-scripts/cli.js \
+            build-scripts/lib/project-model.js \
+            docs/LIQUID_JULY_2026_PREVIEW.md \
+            docs/PROJECT_MODEL.md \
+            README.md \
+            tests/config.test.js \
+            tests/doctor.test.js \
+            tests/package-smoke.js \
+            tests/project-model.test.js
+      - name: Upload formatted files
+        uses: actions/upload-artifact@v4
+        with:
+          name: formatted-files
+          path: |
+            build-scripts/cli.js
+            build-scripts/lib/project-model.js
+            docs/LIQUID_JULY_2026_PREVIEW.md
+            docs/PROJECT_MODEL.md
+            README.md
+            tests/config.test.js
+            tests/doctor.test.js
+            tests/package-smoke.js
+            tests/project-model.test.js
+          if-no-files-found: error
