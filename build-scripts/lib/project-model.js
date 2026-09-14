@@ -10,6 +10,8 @@ const STATIC_LIQUID_REFERENCE_PATTERNS = [
 ];
 
 const ASSET_REFERENCE_PATTERN = /['"]([^'"]+)['"]\s*\|\s*asset_url\b/g;
+const CONTENT_FOR_BLOCK_TAG_PATTERN = /{%-?\s*content_for\s+['"]block['"][\s\S]*?-?%}/g;
+const CONTENT_FOR_BLOCK_TYPE_PATTERN = /\btype\s*:\s*['"]([^'"]+)['"]/;
 const PARTIAL_PATTERN = /{%-?\s*partial\s+['"]([^'"]+)['"]/g;
 const BLOCK_TAG_PATTERN = /{%-?\s*block\s+['"][^'"]+['"]/;
 const PARTIAL_TAG_PATTERN = /{%-?\s*partial\s+['"][^'"]+['"]/;
@@ -31,12 +33,15 @@ function stem(fileName) {
 }
 
 const FEATURE_ALIASES = new Map([
+	["articles", "article"],
+	["blogs", "blog"],
 	["collections", "collection"],
+	["customers", "customer"],
 	["pages", "page"],
 	["products", "product"]
 ]);
 
-const SHOPIFY_FEATURE_TOKENS = [
+const SHOPIFY_FEATURE_TOKENS = new Set([
 	"product",
 	"collection",
 	"cart",
@@ -48,17 +53,22 @@ const SHOPIFY_FEATURE_TOKENS = [
 	"customer",
 	"password",
 	"gift-card"
-];
+]);
+
+const GENERIC_NATIVE_PREFIXES = new Set(["main", "section", "component"]);
 
 function normalizeFeatureName(name) {
 	return FEATURE_ALIASES.get(name) ?? name;
 }
 
 function inferNativeFeature(output) {
-	const fileStem = stem(output);
-	const tokens = fileStem.split(/[-_.]/);
-	const semantic = SHOPIFY_FEATURE_TOKENS.find((candidate) => tokens.includes(candidate));
-	return semantic ?? themeType(output);
+	const tokens = stem(output)
+		.split(/[-_.]/)
+		.filter(Boolean)
+		.map(normalizeFeatureName);
+	const semantic = tokens.find((token) => SHOPIFY_FEATURE_TOKENS.has(token));
+	if (semantic) return semantic;
+	return tokens.find((token) => !GENERIC_NATIVE_PREFIXES.has(token)) ?? themeType(output);
 }
 
 function inferFeature(file) {
@@ -96,11 +106,22 @@ function collectPatternMatches(contents, pattern, kind) {
 	return references;
 }
 
+function collectStaticThemeBlocks(contents) {
+	CONTENT_FOR_BLOCK_TAG_PATTERN.lastIndex = 0;
+	const references = [];
+	for (const match of contents.matchAll(CONTENT_FOR_BLOCK_TAG_PATTERN)) {
+		const type = match[0].match(CONTENT_FOR_BLOCK_TYPE_PATTERN)?.[1];
+		if (type) references.push({ kind: "block", name: type, output: referenceOutput("block", type) });
+	}
+	return references;
+}
+
 function inspectLiquid(contents) {
 	const references = STATIC_LIQUID_REFERENCE_PATTERNS.flatMap(({ kind, pattern }) =>
 		collectPatternMatches(contents, pattern, kind)
 	);
 	references.push(...collectPatternMatches(contents, ASSET_REFERENCE_PATTERN, "asset"));
+	references.push(...collectStaticThemeBlocks(contents));
 	const partials = uniqueSorted([...contents.matchAll(PARTIAL_PATTERN)].map((match) => match[1]));
 	return {
 		partials,
