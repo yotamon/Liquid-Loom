@@ -39,9 +39,8 @@ const typedApplyMigration: typeof applyMigration = applyMigration;
 const typedProjectModel: typeof createProjectModel = createProjectModel;
 const typedSelectProjectModel: typeof selectProjectModel = selectProjectModel;
 const typedFormatProjectModel: typeof formatProjectModel = formatProjectModel;
-
-declare const model: ProjectModel;
-const modelVersion: 1 = model.version;
+type ProjectModelVersion = ProjectModel["version"];
+const modelVersion: ProjectModelVersion = 1;
 
 void config;
 void existingThemeConfig;
