@@ -27,6 +27,7 @@ describe("project config", () => {
 		assert.equal(config.sourceRoot, path.join(projectRoot, "src"));
 		assert.equal(config.outputRoot, path.join(projectRoot, "dist", "theme"));
 		assert.equal(config.shopifySourceRoot, undefined);
+		assert.equal(config.shopifyLiquidMode, "stable");
 		assert.equal(config.viteEnabled, true);
 		assert.equal(config.performanceEnabled, true);
 		assert.deepEqual(config.reservedOutputs, ["assets/style.css", "assets/theme.js"]);
@@ -41,6 +42,7 @@ describe("project config", () => {
 				sourceDir: "storefront",
 				outputDir: "build/shopify",
 				forbiddenTerms: ["private-client"],
+				shopifyLiquidMode: "july-2026-preview",
 				performance: { maxBuildMs: 2500, maxThemeBytes: 2000000 }
 			};\n`
 		);
@@ -50,6 +52,7 @@ describe("project config", () => {
 		assert.equal(config.sourceRoot, path.join(projectRoot, "storefront"));
 		assert.equal(config.outputRoot, path.join(projectRoot, "build", "shopify"));
 		assert.deepEqual(config.forbiddenTerms, ["private-client"]);
+		assert.equal(config.shopifyLiquidMode, "july-2026-preview");
 		assert.equal(config.performance.maxBuildMs, 2500);
 		assert.equal(config.performance.maxAssetBytes, 500_000);
 	});
@@ -68,6 +71,7 @@ describe("project config", () => {
 
 		const config = await loadProjectConfig(projectRoot);
 		assert.equal(config.shopifySourceRoot, projectRoot);
+		assert.equal(config.shopifyLiquidMode, "stable");
 		assert.equal(config.viteConfig, false);
 		assert.equal(config.viteEnabled, false);
 		assert.equal(config.performanceEnabled, false);
@@ -96,5 +100,15 @@ describe("project config", () => {
 			'export default { shopifySourceDir: "../theme" };\n'
 		);
 		await assert.rejects(loadProjectConfig(projectRoot), /shopifySourceDir must be a project-relative path/i);
+	});
+
+	it("rejects unknown Shopify Liquid modes instead of silently enabling preview behavior", async () => {
+		const projectRoot = await createProject();
+		await writeFile(
+			path.join(projectRoot, "liquid-loom.config.mjs"),
+			'export default { shopifyLiquidMode: "future-preview" };\n'
+		);
+
+		await assert.rejects(loadProjectConfig(projectRoot), /shopifyLiquidMode must be one of: stable, july-2026-preview/i);
 	});
 });
