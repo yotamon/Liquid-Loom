@@ -1,6 +1,7 @@
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 
+import { createProjectModel } from "./project-model.js";
 import { scanForbiddenContent } from "./public-readiness.js";
 import { assertSafeOutput, createBuildPlan, discoverSourceEntries, validateThemePlan } from "./theme-builder.js";
 
@@ -15,6 +16,30 @@ async function fileExists(filePath) {
 
 function check(name, status, message) {
 	return { message, name, status };
+}
+
+function previewCheck(model, liquidMode) {
+	const blockFiles = model.preview.blockTag.length;
+	const partialFiles = model.preview.partialTag.length;
+	const previewFiles = new Set([...model.preview.blockTag, ...model.preview.partialTag]).size;
+
+	if (liquidMode === "july-2026-preview") {
+		return check(
+			"liquid-mode",
+			"warn",
+			previewFiles
+				? `July '26 developer preview declared; ${previewFiles} file(s) use block/partial preview tags`
+				: "July '26 developer preview declared; preview tags are not currently used"
+		);
+	}
+	if (previewFiles) {
+		return check(
+			"liquid-mode",
+			"warn",
+			`${previewFiles} file(s) use July '26 preview tags (${blockFiles} block, ${partialFiles} partial); set shopifyLiquidMode to july-2026-preview when the target dev store has that preview enabled`
+		);
+	}
+	return check("liquid-mode", "pass", "Stable Shopify Liquid mode; no developer-preview tags detected");
 }
 
 export async function diagnoseProject(config) {
@@ -98,6 +123,16 @@ export async function diagnoseProject(config) {
 					: `${organizedCount} organized Liquid Loom file(s)`
 			)
 		);
+
+		const model = await createProjectModel(config);
+		checks.push(
+			check(
+				"project-model",
+				"pass",
+				`${model.summary.files} file(s), ${model.summary.features} feature(s), ${model.summary.references} static reference(s)`
+			)
+		);
+		checks.push(previewCheck(model, config.shopifyLiquidMode));
 	} catch (error) {
 		checks.push(check("theme-source", "fail", error.message));
 	}
@@ -124,7 +159,7 @@ export async function diagnoseProject(config) {
 	checks.push(
 		check(
 			"performance",
-			config.performanceEnabled ? "pass" : "pass",
+			"pass",
 			config.performanceEnabled ? "Performance budgets enabled" : "Disabled for non-invasive existing-theme adoption"
 		)
 	);
