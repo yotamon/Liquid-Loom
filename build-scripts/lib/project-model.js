@@ -62,7 +62,9 @@ function normalizeFeatureName(name) {
 }
 
 function inferNativeFeature(output) {
-	const tokens = stem(output)
+	const fileStem = stem(output);
+	if (/\bgift[-_.]card\b/.test(fileStem)) return "gift-card";
+	const tokens = fileStem
 		.split(/[-_.]/)
 		.filter(Boolean)
 		.map(normalizeFeatureName);
@@ -85,6 +87,7 @@ function inferFeature(file) {
 	const outputParts = file.output.split("/");
 	if (outputParts[0] === "templates") return normalizeFeatureName(stem(outputParts.at(-1)));
 	if (outputParts[0] === "assets") return "assets";
+	if (["config", "layout", "locales"].includes(outputParts[0])) return outputParts[0];
 	return inferNativeFeature(file.output);
 }
 
@@ -231,8 +234,8 @@ function previewUsage(files) {
 	};
 }
 
-function unresolvedReferences(files) {
-	const outputs = new Set(files.map((file) => file.output));
+function unresolvedReferences(files, knownOutputs = []) {
+	const outputs = new Set([...knownOutputs, ...files.map((file) => file.output)]);
 	const unresolved = [];
 	for (const file of files) {
 		for (const reference of file.references) {
@@ -264,12 +267,14 @@ export async function createProjectModel(config) {
 		left.output.localeCompare(right.output)
 	);
 	const features = summarizeFeatures(files);
+	const generatedOutputs = uniqueSorted(config.reservedOutputs ?? []);
 	const referenceCount = files.reduce((total, file) => total + file.references.length, 0);
-	const unresolved = unresolvedReferences(files);
+	const unresolved = unresolvedReferences(files, generatedOutputs);
 
 	return {
 		features,
 		files,
+		generatedOutputs,
 		liquidMode: config.shopifyLiquidMode ?? "stable",
 		preview: previewUsage(files),
 		summary: {
@@ -361,6 +366,9 @@ export function formatProjectModel(model, target) {
 		lines.push(
 			`  ${feature.name.padEnd(18)} ${String(feature.outputs.length).padStart(2)} outputs  ${String(feature.references.length).padStart(2)} refs`
 		);
+	}
+	if (model.generatedOutputs.length) {
+		lines.push("", `Generated outputs: ${model.generatedOutputs.length}`);
 	}
 	if (model.preview.blockTag.length || model.preview.partialTag.length) {
 		lines.push(
