@@ -1,10 +1,12 @@
 name: Format artifact
 
 on:
-  pull_request:
+  push:
+    branches:
+      - codex/shopify-tailwind-strategy
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   format:
@@ -13,6 +15,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: codex/shopify-tailwind-strategy
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -30,18 +35,23 @@ jobs:
             tests/doctor.test.js \
             tests/package-smoke.js \
             tests/project-model.test.js
-      - name: Upload formatted files
-        uses: actions/upload-artifact@v4
-        with:
-          name: formatted-files
-          path: |
-            build-scripts/cli.js
-            build-scripts/lib/project-model.js
-            docs/LIQUID_JULY_2026_PREVIEW.md
-            docs/PROJECT_MODEL.md
-            README.md
-            tests/config.test.js
-            tests/doctor.test.js
-            tests/package-smoke.js
+      - name: Commit exact formatter output
+        run: |
+          if git diff --quiet; then
+            echo "No formatting changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            build-scripts/cli.js \
+            build-scripts/lib/project-model.js \
+            docs/LIQUID_JULY_2026_PREVIEW.md \
+            docs/PROJECT_MODEL.md \
+            README.md \
+            tests/config.test.js \
+            tests/doctor.test.js \
+            tests/package-smoke.js \
             tests/project-model.test.js
-          if-no-files-found: error
+          git commit -m "style: apply Prettier"
+          git push origin HEAD:codex/shopify-tailwind-strategy
