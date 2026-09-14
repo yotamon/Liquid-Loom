@@ -1,9 +1,14 @@
 import {
 	applyMigration,
+	createProjectModel,
 	defineConfig,
+	formatProjectModel,
 	planMigration,
+	selectProjectModel,
 	type LiquidLoomConfig,
-	type PerformanceBudgets
+	type PerformanceBudgets,
+	type ProjectModel,
+	type ShopifyLiquidMode
 } from "liquid-loom";
 
 const budgets: PerformanceBudgets = {
@@ -12,10 +17,13 @@ const budgets: PerformanceBudgets = {
 	maxThemeBytes: 5_000_000
 };
 
+const liquidMode: ShopifyLiquidMode = "july-2026-preview";
+
 const config: LiquidLoomConfig = defineConfig({
 	outputDir: "dist/theme",
 	performance: budgets,
-	reservedOutputs: ["assets/theme.js", "assets/style.css"]
+	reservedOutputs: ["assets/theme.js", "assets/style.css"],
+	shopifyLiquidMode: liquidMode
 });
 
 const existingThemeConfig: LiquidLoomConfig = defineConfig({
@@ -28,8 +36,18 @@ const existingThemeConfig: LiquidLoomConfig = defineConfig({
 
 const typedPlanMigration: typeof planMigration = planMigration;
 const typedApplyMigration: typeof applyMigration = applyMigration;
+const typedProjectModel: typeof createProjectModel = createProjectModel;
+const typedSelectProjectModel: typeof selectProjectModel = selectProjectModel;
+const typedFormatProjectModel: typeof formatProjectModel = formatProjectModel;
+
+declare const model: ProjectModel;
+const modelVersion: 1 = model.version;
 
 void config;
 void existingThemeConfig;
 void typedPlanMigration;
 void typedApplyMigration;
+void typedProjectModel;
+void typedSelectProjectModel;
+void typedFormatProjectModel;
+void modelVersion;
