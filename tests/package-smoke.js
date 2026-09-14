@@ -47,6 +47,8 @@ try {
 	await run("npm", ["install", "--ignore-scripts"], target);
 	await run("npm", ["exec", "--", "liquid-loom", "--version"], target);
 	await run("npm", ["exec", "--", "create-liquid-loom", "--version"], target);
+	await run("npm", ["exec", "--", "liquid-loom", "explain", "--json"], target);
+	await run("npm", ["exec", "--", "liquid-loom", "explain", "product", "--json"], target);
 	await run("npm", ["run", "build"], target);
 
 	await mkdir(existingTarget, { recursive: true });
@@ -73,6 +75,7 @@ try {
 	await run("npm", ["install", "--ignore-scripts"], existingTarget);
 	await run("npm", ["exec", "--", "liquid-loom", "init", "--no-install", "--yes"], existingTarget);
 	await run("npm", ["run", "loom:build"], existingTarget);
+	await run("npm", ["exec", "--", "liquid-loom", "explain", "--json"], existingTarget);
 	await write(existingTarget, "src/theme/sections/product/upsell.liquid", "<section>upsell</section>");
 	await run("npm", ["run", "loom:build"], existingTarget);
 	await run("npm", ["exec", "--", "liquid-loom", "migrate", "sections/hero.liquid", "--apply"], existingTarget);
@@ -91,7 +94,7 @@ try {
 		throw new Error("Hybrid source did not produce the organized upsell output.");
 	}
 
-	console.log("✓ Packed CLIs scaffold new themes and adopt/migrate existing Shopify themes");
+	console.log("✓ Packed CLIs scaffold new themes, explain source architecture, and adopt/migrate existing Shopify themes");
 } finally {
 	try {
 		await rm(workspace, { force: true, maxRetries: 10, recursive: true, retryDelay: 200 });
