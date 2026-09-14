@@ -2,7 +2,7 @@
   <img src="docs/liquid-loom.svg" alt="Liquid Loom" width="760">
 </p>
 
-<p align="center"><strong>Modern tooling for Shopify themes, whether you are starting fresh or working with the theme you already have.</strong></p>
+<p align="center"><strong>A deterministic engineering layer for Shopify themes, from legacy adoption to agent-readable architecture.</strong></p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/liquid-loom"><img alt="npm version" src="https://img.shields.io/npm/v/liquid-loom?logo=npm"></a>
@@ -13,11 +13,11 @@
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-4DE3C1"></a>
 </p>
 
-Liquid Loom gives Shopify theme development a safer, source-first build layer while keeping Shopify's runtime completely standard.
+Liquid Loom gives Shopify theme development a safer, source-first engineering layer while keeping Shopify's runtime completely standard.
 
-Use it to organize new code by feature, add modern tooling to an existing client theme without a rewrite, migrate gradually when it is worth it, and still ship a normal Shopify theme through Shopify CLI.
+Use it to organize new code by feature, add modern tooling to an existing client theme without a rewrite, migrate gradually when it is worth it, understand source ownership before an agent edits the project, and still ship a normal Shopify theme through Shopify CLI.
 
-It does **not** replace Liquid, Online Store 2.0, or Shopify CLI.
+It does **not** replace Liquid, Online Store 2.0, Shopify CLI, or Shopify's runtime model. Vite and Tailwind are first-class integrations for fresh projects, not abstractions that Liquid Loom depends on for its identity.
 
 ## Start with the theme you already have
 
@@ -83,7 +83,7 @@ The scaffolder supports `--package-manager npm|pnpm|yarn|bun` and `--no-install`
 
 ## Why Liquid Loom
 
-Liquid Loom targets the parts of custom theme development that become painful as projects and teams grow:
+Liquid Loom targets the parts of custom theme development that become painful as projects, teams, and coding agents grow:
 
 - **Adopt incrementally.** Existing themes do not need an up-front rewrite.
 - **Feature-oriented source.** Organize authored Liquid by feature without inventing a new runtime.
@@ -92,10 +92,34 @@ Liquid Loom targets the parts of custom theme development that become painful as
 - **No silent overwrites.** Destination collisions fail before a new build is published.
 - **Last-known-good output.** Failed builds do not replace the previous working theme.
 - **Transactional migration.** Preview first, preserve Shopify output identity, and roll back completed moves if a later move fails.
+- **Project intelligence.** `explain` turns ownership and provable static relationships into deterministic human- and machine-readable data.
+- **Preview-aware, not preview-dependent.** Shopify developer-preview Liquid is explicit and observable instead of silently becoming a production requirement.
 - **Optional Vite + Tailwind.** Fresh projects get the modern asset workflow; existing themes can keep their current pipeline.
 - **Portable behavior.** Collision checks are case-insensitive and Unicode-normalized across filesystems.
 - **Useful diagnostics.** `doctor`, `check`, `analyze`, Theme Check, and performance budgets make failures explainable.
 - **Standard Shopify output.** `dist/theme` remains inspectable, pushable, and debuggable with Shopify's own tooling.
+
+## Understand the theme before editing it
+
+Liquid Loom can describe the source model without requiring a build first:
+
+```bash
+liquid-loom explain
+liquid-loom explain product
+```
+
+Coding agents and CI can request deterministic JSON:
+
+```bash
+liquid-loom explain --json
+liquid-loom explain product --json
+```
+
+The model reports source ownership, semantic feature groups, static snippet/section/block/asset relationships, JSON-template section references, preview partial regions, preview-tag usage, and unresolved static references.
+
+It does not evaluate Liquid or guess dynamic dependencies. The goal is a smaller truthful architecture model, not a second Liquid interpreter.
+
+Read [Project model](docs/PROJECT_MODEL.md) for the complete contract and recommended agent workflow.
 
 ## The source model
 
@@ -215,7 +239,7 @@ export default defineConfig({
 
 That means native `assets/*` pass through unchanged and your existing Sass/PostCSS/Webpack/Vite process can keep running independently.
 
-Fresh projects still use Liquid Loom's Vite + Tailwind workflow by default.
+Fresh projects still use Liquid Loom's Vite + Tailwind workflow by default. Tailwind remains an integration choice rather than part of the source-ownership contract.
 
 If `src/entrypoints` exists while Vite is disabled, `doctor` warns that those files are not being compiled.
 
@@ -270,7 +294,7 @@ does not cause `sections/hero.liquid` to be removed as stale.
 
 ### Consumer-shaped release validation
 
-CI packs the actual npm artifacts, installs both CLIs into independent temporary projects, validates a fresh scaffold, and validates an existing-theme `init -> hybrid build -> migrate -> build` flow.
+CI packs the actual npm artifacts, installs both CLIs into independent temporary projects, validates `explain` from the packed package, validates a fresh scaffold, and validates an existing-theme `init -> hybrid build -> migrate -> build` flow.
 
 Releases use npm Trusted Publishing with GitHub OIDC and signed provenance.
 
@@ -306,6 +330,16 @@ export default defineConfig({
 
 All paths remain project-relative and portable.
 
+Shopify's July 2026 Liquid developer-preview syntax is never enabled implicitly. Projects intentionally targeting that preview can declare:
+
+```ts
+export default defineConfig({
+	shopifyLiquidMode: "july-2026-preview"
+});
+```
+
+This only declares project intent to Liquid Loom; it does not enable the preview on a Shopify development store. See [Shopify Liquid July 2026 developer preview](docs/LIQUID_JULY_2026_PREVIEW.md).
+
 ## Commands
 
 | Command                        | Purpose                                                            |
@@ -316,6 +350,7 @@ All paths remain project-relative and portable.
 | `liquid-loom build --clean`    | Build from empty staging                                           |
 | `liquid-loom watch`            | Rebuild when managed source changes                                |
 | `liquid-loom dev`              | Build, watch, and launch `shopify theme dev`                       |
+| `liquid-loom explain [target]` | Explain ownership and static theme relationships                   |
 | `liquid-loom doctor`           | Diagnose runtime, ownership, config, safety, assets, and privacy   |
 | `liquid-loom check`            | Validate ownership, source JSON, and build output                  |
 | `liquid-loom analyze`          | Report output composition and largest files                        |
@@ -330,6 +365,7 @@ Liquid Loom is a good fit when you:
 - maintain a custom or client Shopify theme and want better tooling without rewriting it;
 - want new theme work organized by feature rather than only by Shopify's flat directories;
 - want deterministic build ownership and explicit collision behavior;
+- want coding agents to query a conservative architectural model before editing source;
 - expect modern frontend build and CI guarantees from the rest of your stack.
 
 It is probably not the right starting point when:
@@ -354,6 +390,7 @@ Useful evidence includes:
 - a real Shopify development-store preview;
 - existing-theme adoption without source migration;
 - incremental migration on a real client-style repository;
+- coding-agent use of the deterministic project model;
 - developers independently choosing the workflow again.
 
 If you try it, feedback about what is confusing, slower, or worse is especially useful.
@@ -367,6 +404,8 @@ If you try it, feedback about what is confusing, slower, or worse is especially 
 ## Documentation
 
 - [Existing-theme adoption](docs/EXISTING_THEME_ADOPTION.md) - zero-migration setup, hybrid source, and safe migration
+- [Project model](docs/PROJECT_MODEL.md) - deterministic architecture queries for developers, agents, and CI
+- [Shopify Liquid July 2026 developer preview](docs/LIQUID_JULY_2026_PREVIEW.md) - explicit preview-mode contract and safety boundaries
 - [First project](docs/FIRST_PROJECT.md) - short evaluation from public install to a real source edit
 - [Architecture](docs/ARCHITECTURE.md) - ownership, transactions, cache, and migration invariants
 - [Validation](docs/VALIDATION.md) - real-user and real-store validation plan
@@ -382,8 +421,11 @@ If you try it, feedback about what is confusing, slower, or worse is especially 
 - Adopt tooling before forcing migration.
 - Source ownership must be explicit.
 - Shopify's runtime contract stays visible.
+- Integrate with Shopify primitives instead of duplicating them.
 - Generated output is disposable; authored source is the product.
+- Prefer provable project intelligence over guessed relationships.
 - Fail early, explain specifically, and preserve the last-known-good build.
+- Treat Vite and Tailwind as replaceable integrations, not the framework's durable moat.
 - Prefer a dependable core over speculative abstractions.
 - Add framework surface only after real users demonstrate the need.
 
