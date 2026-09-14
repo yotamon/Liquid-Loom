@@ -60,6 +60,7 @@ describe("project model", () => {
 		assert.equal(model.liquidMode, "july-2026-preview");
 		assert.equal(model.summary.files, 6);
 		assert.equal(model.summary.unresolvedReferences, 0);
+		assert.deepEqual(model.generatedOutputs, []);
 		assert.deepEqual(model.preview.blockTag, ["src/theme/sections/products/main-product.liquid"]);
 		assert.deepEqual(model.preview.partialTag, ["src/theme/sections/products/main-product.liquid"]);
 
@@ -70,6 +71,17 @@ describe("project model", () => {
 			product.references.map(({ kind, name }) => `${kind}:${name}`),
 			["asset:theme.css", "block:buy-buttons", "section:main-product", "snippet:price"]
 		);
+	});
+
+	it("treats reserved Vite assets as known outputs instead of false unresolved references", async () => {
+		const config = await createFixture();
+		await rm(path.join(config.sourceRoot, "public", "theme.css"));
+		config.reservedOutputs = ["assets/theme.css", "assets/theme.js"];
+
+		const model = await createProjectModel(config);
+		assert.deepEqual(model.generatedOutputs, ["assets/theme.css", "assets/theme.js"]);
+		assert.equal(model.summary.unresolvedReferences, 0);
+		assert.deepEqual(model.unresolvedReferences, []);
 	});
 
 	it("models stable static theme blocks without marking them as preview syntax", async () => {
