@@ -72,6 +72,23 @@ describe("project model", () => {
 		);
 	});
 
+	it("models stable static theme blocks without marking them as preview syntax", async () => {
+		const config = await createFixture();
+		await write(
+			config.sourceRoot,
+			"theme/sections/home/hero.liquid",
+			`{% content_for 'block', type: "button", id: "hero-button", label: "Shop now" %}`
+		);
+		await write(config.sourceRoot, "theme/blocks/shared/button.liquid", "<a>{{ label }}</a>");
+
+		const model = await createProjectModel(config);
+		const hero = model.files.find((file) => file.output === "sections/hero.liquid");
+		assert.deepEqual(hero.references, [{ kind: "block", name: "button", output: "blocks/button.liquid" }]);
+		assert.equal(hero.preview.blockTag, false);
+		assert.equal(model.preview.blockTag.includes(hero.source), false);
+		assert.equal(model.summary.unresolvedReferences, 0);
+	});
+
 	it("selects semantic features and formats a stable human-readable explanation", async () => {
 		const model = await createProjectModel(await createFixture());
 		const selection = selectProjectModel(model, "product");
@@ -111,13 +128,21 @@ describe("project model", () => {
 		await rm(config.sourceRoot, { recursive: true, force: true });
 		await write(config.projectRoot, "layout/theme.liquid", "{{ content_for_layout }}");
 		await write(config.projectRoot, "sections/main-product.liquid", "{% render 'price' %}");
+		await write(config.projectRoot, "sections/main-collection-product-grid.liquid", "<div>Grid</div>");
 		await write(config.projectRoot, "snippets/price.liquid", "{{ product.price }}");
-		await write(config.projectRoot, "templates/product.json", '{"sections":{"main":{"type":"main-product"}},"order":["main"]}');
+		await write(
+			config.projectRoot,
+			"templates/product.json",
+			'{"sections":{"main":{"type":"main-product"}},"order":["main"]}'
+		);
 
 		const model = await createProjectModel(config);
 		const product = model.features.find((feature) => feature.name === "product");
+		const collection = model.features.find((feature) => feature.name === "collection");
 		assert.ok(product);
+		assert.ok(collection);
 		assert.deepEqual(product.outputs, ["sections/main-product.liquid", "templates/product.json"]);
+		assert.deepEqual(collection.outputs, ["sections/main-collection-product-grid.liquid"]);
 	});
 
 	it("supports file-path lookup and rejects unknown targets", async () => {
