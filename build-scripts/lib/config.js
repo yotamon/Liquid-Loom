@@ -18,6 +18,8 @@ const DEFAULT_PERFORMANCE = {
 	maxThemeBytes: 5_000_000
 };
 
+const SHOPIFY_LIQUID_MODES = new Set(["stable", "july-2026-preview"]);
+
 export function defineConfig(config) {
 	return config;
 }
@@ -74,6 +76,7 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 
 	const sourceDir = userConfig.sourceDir ?? "src";
 	const shopifySourceDir = userConfig.shopifySourceDir;
+	const shopifyLiquidMode = userConfig.shopifyLiquidMode ?? "stable";
 	const outputDir = userConfig.outputDir ?? "dist/theme";
 	const cacheFile = userConfig.cacheFile ?? ".cache/manifest.json";
 	const viteConfig = userConfig.viteConfig === false ? false : (userConfig.viteConfig ?? "vite.config.js");
@@ -91,6 +94,9 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 	if (viteConfig !== false) assertProjectRelativePath("viteConfig", viteConfig);
 	assertStringList("forbiddenTerms", forbiddenTerms);
 	assertStringList("reservedOutputs", reservedOutputs);
+	if (!SHOPIFY_LIQUID_MODES.has(shopifyLiquidMode)) {
+		throw new TypeError(`shopifyLiquidMode must be one of: ${[...SHOPIFY_LIQUID_MODES].join(", ")}.`);
+	}
 	if (performanceEnabled) {
 		for (const [name, value] of Object.entries(performance)) {
 			if (!Number.isFinite(value) || value <= 0) throw new TypeError(`performance.${name} must be a positive number.`);
@@ -109,6 +115,7 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 		performanceEnabled,
 		projectRoot: resolvedRoot,
 		reservedOutputs: [...reservedOutputs],
+		shopifyLiquidMode,
 		shopifySourceRoot,
 		sourceLayers: [
 			...(shopifySourceRoot ? [{ id: "shopify", kind: "shopify", root: shopifySourceRoot }] : []),

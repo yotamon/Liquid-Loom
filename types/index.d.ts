@@ -4,12 +4,15 @@ export interface PerformanceBudgets {
 	maxThemeBytes?: number;
 }
 
+export type ShopifyLiquidMode = "stable" | "july-2026-preview";
+
 export interface LiquidLoomConfig {
 	cacheFile?: string;
 	forbiddenTerms?: string[];
 	outputDir?: string;
 	performance?: PerformanceBudgets | false;
 	reservedOutputs?: string[];
+	shopifyLiquidMode?: ShopifyLiquidMode;
 	shopifySourceDir?: string;
 	sourceDir?: string;
 	viteConfig?: string | false;
@@ -30,6 +33,7 @@ export interface ResolvedLiquidLoomConfig extends Omit<LiquidLoomConfig, "perfor
 	performanceEnabled: boolean;
 	projectRoot: string;
 	reservedOutputs: string[];
+	shopifyLiquidMode: ShopifyLiquidMode;
 	shopifySourceRoot?: string;
 	sourceLayers: SourceLayer[];
 	sourceRoot: string;
@@ -88,6 +92,72 @@ export interface MigrationMove {
 	toDisplay: string;
 }
 
+export type ProjectModelReferenceKind = "asset" | "block" | "section" | "snippet";
+
+export interface ProjectModelReference {
+	kind: ProjectModelReferenceKind;
+	name: string;
+	output?: string;
+}
+
+export interface ProjectModelPreviewUsage {
+	blockTag: string[];
+	partialTag: string[];
+}
+
+export interface ProjectModelFile {
+	feature: string;
+	kind: "organized" | "shopify";
+	output: string;
+	partials: string[];
+	preview: {
+		blockTag: boolean;
+		partialTag: boolean;
+	};
+	references: ProjectModelReference[];
+	source: string;
+	sourceKey: string;
+	type: string;
+}
+
+export interface ProjectModelFeature {
+	files: string[];
+	name: string;
+	outputs: string[];
+	partials: string[];
+	references: ProjectModelReference[];
+}
+
+export interface UnresolvedProjectModelReference extends ProjectModelReference {
+	from: string;
+	output: string;
+}
+
+export interface ProjectModel {
+	features: ProjectModelFeature[];
+	files: ProjectModelFile[];
+	generatedOutputs: string[];
+	liquidMode: ShopifyLiquidMode;
+	preview: ProjectModelPreviewUsage;
+	summary: {
+		features: number;
+		files: number;
+		partials: number;
+		references: number;
+		unresolvedReferences: number;
+	};
+	unresolvedReferences: UnresolvedProjectModelReference[];
+	version: 1;
+}
+
+export interface ProjectModelSelection {
+	feature?: ProjectModelFeature;
+	files: ProjectModelFile[];
+	liquidMode: ShopifyLiquidMode;
+	preview: ProjectModelPreviewUsage;
+	version: 1;
+}
+
 export class BuildCollisionError extends Error {
 	destination: string;
 	sources: string[];
@@ -113,6 +183,9 @@ export function validateThemePlan(plan: { files: Array<Pick<BuildFile, "output">
 	missing: string[];
 };
 export function validateThemeSource(sourceRoot: string): Promise<{ valid: boolean; missing: string[] }>;
+export function createProjectModel(config: ResolvedLiquidLoomConfig): Promise<ProjectModel>;
+export function selectProjectModel(model: ProjectModel, target?: string): ProjectModel | ProjectModelSelection;
+export function formatProjectModel(model: ProjectModel, target?: string): string;
 export function scanForbiddenContent(root: string, forbiddenTerms?: string[]): Promise<unknown[]>;
 export function inspectBuild(outputRoot: string): Promise<BuildInspection>;
 export function validatePerformanceBudgets(

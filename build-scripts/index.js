@@ -21,6 +21,7 @@ export {
 	planExistingThemeInit,
 	planMigration
 } from "./lib/existing-theme.js";
+export { createProjectModel, formatProjectModel, selectProjectModel } from "./lib/project-model.js";
 export { scanForbiddenContent } from "./lib/public-readiness.js";
 export { inspectBuild, validatePerformanceBudgets } from "./lib/performance.js";
 export { diagnoseProject } from "./lib/doctor.js";

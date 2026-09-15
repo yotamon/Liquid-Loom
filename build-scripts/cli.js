@@ -16,6 +16,7 @@ import { loadProjectConfig } from "./lib/config.js";
 import { diagnoseProject } from "./lib/doctor.js";
 import { applyMigration, initializeExistingTheme, planExistingThemeInit, planMigration } from "./lib/existing-theme.js";
 import { validatePerformanceBudgets } from "./lib/performance.js";
+import { createProjectModel, formatProjectModel, selectProjectModel } from "./lib/project-model.js";
 import { scanForbiddenContent } from "./lib/public-readiness.js";
 import {
 	SHOPIFY_THEME_DIRECTORIES,
@@ -191,6 +192,17 @@ async function analyzeProject() {
 	for (const file of entries.sort((left, right) => right.size - left.size).slice(0, 8)) {
 		console.log(`  ${formatBytes(file.size).padStart(10)}  ${file.relative}`);
 	}
+}
+
+async function explainProject(target, options) {
+	const config = await getProjectConfig();
+	const model = await createProjectModel(config);
+	if (options.json) {
+		console.log(JSON.stringify(selectProjectModel(model, target), null, 2));
+		return;
+	}
+	printHeader(target ? `explain ${target}` : "project model");
+	console.log(formatProjectModel(model, target));
 }
 
 async function checkPublicReadiness() {
@@ -387,7 +399,10 @@ async function migrateExistingTheme(target, options) {
 }
 
 const program = new Command();
-program.name("liquid-loom").description("Source-first Shopify theme tooling").version(PACKAGE_METADATA.version);
+program
+	.name("liquid-loom")
+	.description("Deterministic engineering tooling for Shopify themes")
+	.version(PACKAGE_METADATA.version);
 
 program
 	.command("build")
@@ -406,6 +421,11 @@ program
 program.command("clean").description("Remove generated output and cache files").action(cleanProject);
 program.command("check").description("Validate source ownership, JSON, and build output").action(checkProject);
 program.command("analyze").description("Report output composition and largest files").action(analyzeProject);
+program
+	.command("explain [target]")
+	.description("Explain source ownership and static Shopify theme relationships")
+	.option("--json", "print deterministic machine-readable JSON")
+	.action(explainProject);
 program.command("doctor").description("Diagnose setup, safety, metadata, and source readiness").action(doctorProject);
 program.command("public-ready").description("Scan for excluded legacy content").action(checkPublicReadiness);
 program
