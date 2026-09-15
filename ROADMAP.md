@@ -73,7 +73,28 @@ Now proving:
 
 See [Project model](docs/PROJECT_MODEL.md) and [Shopify Liquid July 2026 developer preview](docs/LIQUID_JULY_2026_PREVIEW.md).
 
-## 0.4 - Extension surface, if earned
+## 0.4 - Shopify 2026 platform modernization
+
+Modernize fresh-project defaults and the reference storefront around Shopify's current native theme capabilities without weakening the `0.2` ownership/migration guarantees or the `0.3` project-intelligence model.
+
+Planned:
+
+- [ ] make Shopify-native `{% stylesheet %}` / `{% javascript %}` component assets the preferred fresh-project path where practical;
+- [ ] keep Vite and Tailwind as explicit, tested optional asset strategies rather than Liquid Loom's product identity;
+- [ ] make theme blocks and merchant-reorderable composition central to the reference storefront, especially product information and purchase surfaces;
+- [ ] implement relevant Shopify standard storefront events/actions in the reference theme;
+- [ ] move the reference color system to `color_palette` plus semantic CSS custom properties;
+- [ ] adopt the `<shopify-account>` component with a merchant-configurable account menu;
+- [ ] add a documented/generated compiled branch or deployment-repository workflow for Shopify GitHub integration;
+- [ ] align opt-in real-store testing with Shopify CLI 4.8+ dev-store commands;
+- [ ] extend project intelligence only where new block/component/deployment relationships are statically provable;
+- [ ] preserve explicit `stable` / `july-2026-preview` modes and keep preview syntax outside the stable release gate;
+- [ ] preserve zero-migration adoption and existing asset pipelines for established themes;
+- [ ] expand package, Theme Check, browser, Theme Editor, and deployment-loop validation around the new defaults.
+
+See [Shopify 2026 platform modernization](docs/SHOPIFY_2026_MODERNIZATION.md) for the full architecture decisions, compatibility constraints, implementation order, and acceptance criteria.
+
+## 0.5 - Extension surface, if earned
 
 Only after repeated consumer needs justify a public extension API:
 
@@ -97,5 +118,6 @@ Only after repeated consumer needs justify a public extension API:
 - Requiring migration before an existing theme can receive value from Liquid Loom.
 - Guessing dynamic Liquid relationships in order to make the project model look more complete.
 - Making developer-preview Liquid syntax the default before Shopify stabilizes it.
+- Introducing a second storefront runtime to imitate headless frameworks.
 
 See [Validation](docs/VALIDATION.md) for the evidence expected before broadening the public API.
