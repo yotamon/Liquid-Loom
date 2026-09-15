@@ -1,0 +1,61 @@
+name: Build Shopify deployment branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shopify-theme-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm validate
+
+      - name: Prepare compiled branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          deploy_dir="$RUNNER_TEMP/shopify-production"
+          if git ls-remote --exit-code --heads origin shopify-production >/dev/null 2>&1; then
+            git fetch origin shopify-production:refs/remotes/origin/shopify-production
+            git worktree add --detach "$deploy_dir" origin/shopify-production
+          else
+            git worktree add --detach "$deploy_dir" HEAD
+            find "$deploy_dir" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          fi
+
+          for directory in assets blocks config layout locales sections snippets templates; do
+            rm -rf "$deploy_dir/$directory"
+            if [ -d "dist/theme/$directory" ]; then
+              cp -R "dist/theme/$directory" "$deploy_dir/$directory"
+            fi
+          done
+
+          git -C "$deploy_dir" checkout -B shopify-production
+          git -C "$deploy_dir" config user.name "github-actions[bot]"
+          git -C "$deploy_dir" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$deploy_dir" add -A
+          if git -C "$deploy_dir" diff --cached --quiet; then
+            echo "No deployable theme changes."
+            exit 0
+          fi
+          git -C "$deploy_dir" commit -m "Deploy Shopify theme from ${GITHUB_SHA}"
+          git -C "$deploy_dir" push origin HEAD:shopify-production

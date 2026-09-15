@@ -1,59 +1,14 @@
 <header class="site-header">
 	<menu-disclosure>
 		<div class="page-width site-header__inner">
-			<nav class="site-header__nav" aria-label="Primary navigation">
-				{%- for link in section.settings.menu.links -%}
-					<a href="{{ link.url }}">{{ link.title | escape }}</a>
-				{%- endfor -%}
-			</nav>
-
-			<button class="site-header__menu-button" type="button" aria-expanded="false" aria-controls="MobileMenu">
-				<span class="sr-only">Menu</span>
-				<svg
-					aria-hidden="true"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="1.8"
-				>
-					<path d="M4 7h16M4 12h16M4 17h16" />
-				</svg>
-			</button>
-
-			<a class="site-header__brand" href="{{ routes.root_url }}">
-				{%- if section.settings.logo != blank -%}
-					{{
-						section.settings.logo
-						| image_url: width: 320
-						| image_tag: class: 'site-header__logo', widths: '120, 180, 240, 320', alt: shop.name
-					}}
-				{%- else -%}
-					{{ shop.name | escape }}
-				{%- endif -%}
-			</a>
-
-			<div class="site-header__actions">
-				<a href="{{ routes.search_url }}">{{ 'actions.search' | t }}</a>
-				<a href="{{ routes.cart_url }}">{{ 'cart.title' | t }} ({{ cart.item_count }})</a>
-			</div>
+			<nav class="site-header__nav" aria-label="Primary navigation">{%- for link in section.settings.menu.links -%}<a href="{{ link.url }}">{{ link.title | escape }}</a>{%- endfor -%}</nav>
+			<button class="site-header__menu-button" type="button" aria-expanded="false" aria-controls="MobileMenu"><span class="sr-only">Menu</span><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16" /></svg></button>
+			<a class="site-header__brand" href="{{ routes.root_url }}">{%- if section.settings.logo != blank -%}{{ section.settings.logo | image_url: width: 320 | image_tag: class: 'site-header__logo', widths: '120, 180, 240, 320', alt: shop.name }}{%- else -%}{{ shop.name | escape }}{%- endif -%}</a>
+			<div class="site-header__actions"><a href="{{ routes.search_url }}">{{ 'actions.search' | t }}</a>{%- if shop.customer_accounts_enabled -%}<shopify-account menu="{{ section.settings.customer_account_menu }}"></shopify-account>{%- endif -%}<a href="{{ routes.cart_url }}">{{ 'cart.title' | t }} (<span data-cart-count>{{ cart.item_count }}</span>)</a></div>
 		</div>
-
-		<nav id="MobileMenu" class="mobile-menu" data-menu-panel hidden aria-label="Mobile navigation">
-			{%- for link in section.settings.menu.links -%}
-				<a href="{{ link.url }}">{{ link.title | escape }}</a>
-			{%- endfor -%}
-		</nav>
+		<nav id="MobileMenu" class="mobile-menu" data-menu-panel hidden aria-label="Mobile navigation">{%- for link in section.settings.menu.links -%}<a href="{{ link.url }}">{{ link.title | escape }}</a>{%- endfor -%}</nav>
 	</menu-disclosure>
 </header>
-
-{% schema %}
-{
-	"name": "Header",
-	"settings": [
-		{ "type": "image_picker", "id": "logo", "label": "Logo" },
-		{ "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" }
-	]
-}
-{% endschema %}
+{% stylesheet %}.site-header{position:sticky;top:0;z-index:40;border-bottom:1px solid color-mix(in srgb,var(--color-border) 75%,transparent);background:color-mix(in srgb,var(--color-background) 88%,transparent);backdrop-filter:blur(18px)}.site-header__inner{display:grid;min-height:4.8rem;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem}.site-header__brand{justify-self:center;font-size:1.1rem;font-weight:800;letter-spacing:-.03em;text-decoration:none}.site-header__logo{width:auto;max-height:2.3rem}.site-header__nav,.site-header__actions{display:flex;align-items:center;gap:1.25rem}.site-header__nav a,.site-header__actions a{font-size:.9rem;font-weight:650;text-decoration:none}.site-header__actions{justify-self:end}.site-header__menu-button{display:none;border:0;background:transparent;cursor:pointer;padding:.5rem}.mobile-menu{border-top:1px solid var(--color-border);background:var(--color-background);padding:1rem}.mobile-menu[hidden]{display:none}.mobile-menu a{display:block;padding:.8rem;font-size:1.15rem;font-weight:700;text-decoration:none}shopify-account{--shopify-account-signed-in-avatar-size:2rem;--shopify-account-signed-in-avatar-color-background:var(--color-accent);--shopify-account-signed-in-avatar-color-text:var(--color-accent-contrast)}@media(max-width:900px){.site-header__nav{display:none}.site-header__menu-button{display:inline-flex}}@media(max-width:600px){.site-header__actions>a:first-child{display:none}}{% endstylesheet %}
+{% javascript %}class MenuDisclosure extends HTMLElement{connectedCallback(){this.button=this.querySelector("button");this.panel=this.querySelector("[data-menu-panel]");if(!this.button||!this.panel)return;this.button.addEventListener("click",()=>this.toggle());this.addEventListener("keydown",event=>{if(event.key==="Escape"&&this.isOpen()){this.close();this.button.focus()}})}isOpen(){return this.button.getAttribute("aria-expanded")==="true"}toggle(){this.isOpen()?this.close():this.open()}open(){this.button.setAttribute("aria-expanded","true");this.panel.removeAttribute("hidden")}close(){this.button.setAttribute("aria-expanded","false");this.panel.setAttribute("hidden","")}}if(!customElements.get("menu-disclosure"))customElements.define("menu-disclosure",MenuDisclosure);{% endjavascript %}
+{% schema %}{"name":"Header","settings":[{"type":"image_picker","id":"logo","label":"Logo"},{"type":"link_list","id":"menu","label":"Menu","default":"main-menu"},{"type":"link_list","id":"customer_account_menu","label":"Customer account menu","default":"customer-account-main-menu"}]}{% endschema %}

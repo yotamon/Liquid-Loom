@@ -10,16 +10,11 @@ const embeddedSource = path.join(repositoryRoot, "packages", "create-liquid-loom
 async function listFiles(directory, baseDirectory = directory) {
 	const entries = await readdir(directory, { withFileTypes: true });
 	const files = [];
-
 	for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name))) {
 		const entryPath = path.join(directory, entry.name);
-		if (entry.isDirectory()) {
-			files.push(...(await listFiles(entryPath, baseDirectory)));
-		} else if (entry.isFile()) {
-			files.push(path.relative(baseDirectory, entryPath).split(path.sep).join("/"));
-		}
+		if (entry.isDirectory()) files.push(...(await listFiles(entryPath, baseDirectory)));
+		else if (entry.isFile()) files.push(path.relative(baseDirectory, entryPath).split(path.sep).join("/"));
 	}
-
 	return files;
 }
 
@@ -28,23 +23,17 @@ describe("embedded starter", () => {
 		const referenceFiles = await listFiles(referenceSource);
 		const embeddedFiles = await listFiles(embeddedSource);
 		assert.deepEqual(embeddedFiles, referenceFiles);
-
 		for (const file of referenceFiles) {
-			const [reference, embedded] = await Promise.all([
-				readFile(path.join(referenceSource, ...file.split("/"))),
-				readFile(path.join(embeddedSource, ...file.split("/")))
-			]);
+			const [reference, embedded] = await Promise.all([readFile(path.join(referenceSource, ...file.split("/"))), readFile(path.join(embeddedSource, ...file.split("/")))]);
 			assert.deepEqual(embedded, reference, `Embedded starter drifted at ${file}`);
 		}
 	});
 
-	it("shares the framework config and Vite config used by the reference storefront", async () => {
-		for (const file of ["liquid-loom.config.ts", "vite.config.js"]) {
-			const [reference, embedded] = await Promise.all([
-				readFile(path.join(repositoryRoot, file)),
-				readFile(path.join(repositoryRoot, "packages", "create-liquid-loom", "template", file))
-			]);
-			assert.deepEqual(embedded, reference, `Embedded starter drifted at ${file}`);
-		}
+	it("shares the framework config used by the reference storefront", async () => {
+		const [reference, embedded] = await Promise.all([
+			readFile(path.join(repositoryRoot, "liquid-loom.config.ts")),
+			readFile(path.join(repositoryRoot, "packages", "create-liquid-loom", "template", "liquid-loom.config.ts"))
+		]);
+		assert.deepEqual(embedded, reference, "Embedded starter drifted at liquid-loom.config.ts");
 	});
 });

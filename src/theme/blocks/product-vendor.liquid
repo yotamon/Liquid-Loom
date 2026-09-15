@@ -1,0 +1,2 @@
+{%- if product.vendor != blank -%}<p class="eyebrow" {{ block.shopify_attributes }}>{{ product.vendor | escape }}</p>{%- endif -%}
+{% schema %}{"name":"Product vendor","presets":[{"name":"Product vendor"}]}{% endschema %}
