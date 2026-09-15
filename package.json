@@ -1,7 +1,7 @@
 {
 	"name": "liquid-loom",
 	"version": "0.2.0",
-	"description": "A deterministic engineering layer for Shopify themes: source architecture, safe incremental adoption, Vite, and Tailwind CSS.",
+	"description": "A deterministic engineering layer for Shopify Liquid themes: safe adoption, explicit ownership, project intelligence, and modern platform defaults.",
 	"type": "module",
 	"license": "MIT",
 	"bin": {
