@@ -15,6 +15,7 @@
 		"clean": "liquid-loom clean",
 		"dev": "liquid-loom dev",
 		"doctor": "liquid-loom doctor",
+		"explain": "liquid-loom explain",
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"shopify:push": "shopify theme push --path dist/theme",
@@ -24,12 +25,10 @@
 		"watch": "liquid-loom watch"
 	},
 	"devDependencies": {
-		"@shopify/cli": "^4.6.0",
+		"@shopify/cli": "^4.8.0",
 		"@shopify/prettier-plugin-liquid": "^1.11.0",
-		"@tailwindcss/vite": "^4.3.3",
 		"liquid-loom": "^0.2.0",
 		"prettier": "^3.9.6",
-		"tailwindcss": "^4.3.3",
 		"typescript": "^7.0.2"
 	}
 }

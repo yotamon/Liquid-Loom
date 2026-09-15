@@ -2,7 +2,7 @@
   <img src="docs/liquid-loom.svg" alt="Liquid Loom" width="760">
 </p>
 
-<p align="center"><strong>A deterministic engineering layer for Shopify themes, from legacy adoption to agent-readable architecture.</strong></p>
+<p align="center"><strong>A deterministic engineering layer for Shopify Liquid themes, from legacy adoption to agent-readable architecture.</strong></p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/liquid-loom"><img alt="npm version" src="https://img.shields.io/npm/v/liquid-loom?logo=npm"></a>
@@ -15,9 +15,9 @@
 
 Liquid Loom gives Shopify theme development a safer, source-first engineering layer while keeping Shopify's runtime completely standard.
 
-Use it to organize new code by feature, add modern tooling to an existing client theme without a rewrite, migrate gradually when it is worth it, understand source ownership before an agent edits the project, and still ship a normal Shopify theme through Shopify CLI.
+Use it to organize theme code by feature, adopt better tooling inside an existing client theme without a rewrite, migrate source gradually, inspect project ownership before a developer or coding agent edits it, and still ship a conventional Shopify theme through Shopify CLI.
 
-It does **not** replace Liquid, Online Store 2.0, Shopify CLI, or Shopify's runtime model. Vite and Tailwind are first-class integrations for fresh projects, not abstractions that Liquid Loom depends on for its identity.
+Liquid Loom does **not** replace Liquid, Online Store 2.0, Shopify CLI, the Theme Editor, or Shopify's storefront runtime.
 
 ## Start with the theme you already have
 
@@ -29,7 +29,7 @@ npx liquid-loom@latest init
 
 Liquid Loom shows the complete setup plan before writing anything. Existing Shopify source is not moved.
 
-After setup, keep the current theme exactly as it is:
+You can keep the theme exactly as it is:
 
 ```text
 assets/
@@ -39,19 +39,19 @@ snippets/
 templates/
 ```
 
-and put only new work into organized source when you want to:
+and put only new work into organized source when that helps:
 
 ```text
 src/theme/sections/product/upsell.liquid
 src/theme/snippets/product/upsell-price.liquid
 ```
 
-Both become one normal deployable theme:
+Both source layers become one normal deployable theme:
 
 ```text
 existing Shopify source ----+
                              |
-organized Liquid Loom source +--> deterministic ownership plan --> dist/theme --> Shopify CLI
+organized Liquid Loom source +--> ownership plan --> dist/theme --> Shopify CLI
 ```
 
 Build with the namespaced script added by `init`:
@@ -60,9 +60,9 @@ Build with the namespaced script added by `init`:
 npm run loom:build
 ```
 
-Use your preferred package manager. `init` detects npm, pnpm, Yarn, or Bun and supports `--package-manager`, `--no-install`, `--dry-run`, `--theme-dir`, and `--yes`.
+`init` detects npm, pnpm, Yarn, or Bun and supports `--package-manager`, `--no-install`, `--dry-run`, `--theme-dir`, and `--yes`.
 
-Read the full [existing-theme adoption guide](docs/EXISTING_THEME_ADOPTION.md).
+Read [Existing-theme adoption](docs/EXISTING_THEME_ADOPTION.md) for the full zero-migration workflow.
 
 ## Or start a new theme
 
@@ -71,37 +71,114 @@ corepack enable
 pnpm create liquid-loom@latest my-storefront
 cd my-storefront
 pnpm build
-```
-
-Then preview against a Shopify development store:
-
-```bash
 pnpm dev
 ```
 
-The scaffolder supports `--package-manager npm|pnpm|yarn|bun` and `--no-install`.
+A fresh project uses Shopify-native component CSS and JavaScript by default. Vite and Tailwind remain supported integrations when a project actually needs bundling, module graphs, or utility-first CSS.
 
 ## Why Liquid Loom
 
-Liquid Loom targets the parts of custom theme development that become painful as projects, teams, and coding agents grow:
+Liquid Loom targets the engineering problems that become painful as custom themes, teams, and coding agents grow:
 
 - **Adopt incrementally.** Existing themes do not need an up-front rewrite.
 - **Feature-oriented source.** Organize authored Liquid by feature without inventing a new runtime.
 - **Dual-source builds.** Native Shopify source and organized Liquid Loom source can coexist safely.
-- **No silent precedence.** Every Shopify output path has exactly one owner.
-- **No silent overwrites.** Destination collisions fail before a new build is published.
-- **Last-known-good output.** Failed builds do not replace the previous working theme.
-- **Transactional migration.** Preview first, preserve Shopify output identity, and roll back completed moves if a later move fails.
+- **One output, one owner.** No silent overlay or last-write-wins behavior.
+- **Transactional builds.** Failed builds never replace the last-known-good theme.
+- **Safe migration.** Preview ownership transfers before moving source and preserve Shopify output identity.
 - **Project intelligence.** `explain` turns ownership and provable static relationships into deterministic human- and machine-readable data.
-- **Preview-aware, not preview-dependent.** Shopify developer-preview Liquid is explicit and observable instead of silently becoming a production requirement.
-- **Optional Vite + Tailwind.** Fresh projects get the modern asset workflow; existing themes can keep their current pipeline.
-- **Portable behavior.** Collision checks are case-insensitive and Unicode-normalized across filesystems.
+- **Shopify-native defaults.** Theme blocks, app blocks, component asset tags, color palettes, customer accounts, and standard storefront interoperability stay visible as Shopify concepts.
+- **Optional advanced assets.** Vite and Tailwind remain available without defining the framework's architecture.
+- **Portable behavior.** Destination collisions are case-insensitive and Unicode-normalized across filesystems.
 - **Useful diagnostics.** `doctor`, `check`, `analyze`, Theme Check, and performance budgets make failures explainable.
-- **Standard Shopify output.** `dist/theme` remains inspectable, pushable, and debuggable with Shopify's own tooling.
+- **Standard output.** `dist/theme` remains inspectable, pushable, and debuggable with Shopify's own tools.
+
+## Shopify-native fresh-project architecture
+
+The reference storefront now demonstrates Shopify's 2026-native theme model instead of loading one application bundle for ordinary theme behavior.
+
+A fresh source tree can look like:
+
+```text
+src/
+├── public/
+│   └── theme.css
+└── theme/
+    ├── blocks/
+    │   ├── product-title.liquid
+    │   ├── product-price.liquid
+    │   └── product-purchase.liquid
+    ├── sections/
+    │   ├── products/main-product.liquid
+    │   └── global/header.liquid
+    ├── snippets/
+    ├── templates/
+    └── layout/theme.liquid
+```
+
+Component-local behavior lives with the Liquid component when practical:
+
+```liquid
+{% stylesheet %}
+	.product-purchase { ... }
+{% endstylesheet %}
+
+{% javascript %}
+	customElements.define(...)
+{% endjavascript %}
+```
+
+Shopify can then process component assets through its own render-aware pipeline. Global CSS is reserved for genuinely global concerns such as base styles, design tokens, accessibility defaults, and shared layout primitives.
+
+The output stays conventional:
+
+```text
+dist/theme/
+├── assets/theme.css
+├── blocks/product-title.liquid
+├── blocks/product-price.liquid
+├── blocks/product-purchase.liquid
+├── sections/main-product.liquid
+├── snippets/
+├── templates/product.json
+└── layout/theme.liquid
+```
+
+## Theme-block-first composition
+
+The reference product page is composed from Shopify theme blocks rather than hard-coding all product information into one monolithic section.
+
+```text
+Main product
+├── Product media
+└── Merchant-reorderable blocks
+    ├── Vendor
+    ├── Title
+    ├── Price
+    ├── Purchase controls
+    ├── Description
+    ├── @theme
+    └── @app
+```
+
+This keeps customization inside Shopify's Theme Editor and makes the structure understandable to merchants, developers, apps, and coding agents without adding a Liquid Loom component runtime.
+
+## Storefront interoperability
+
+The reference storefront adopts Shopify's standard storefront events and actions where the theme owns the interaction.
+
+Examples include:
+
+- standardized product, collection, recommendation, and cart view events through `s-view-event` and `standard_event_data`;
+- cart mutation through `Shopify.actions.updateCart()` with the native product form retained as the no-JavaScript fallback;
+- merchant-configurable `<shopify-account>` integration in the header;
+- `color_palette` as the source for semantic CSS design tokens.
+
+The goal is interoperability with Shopify, apps, and agents, not a Liquid Loom-specific browser protocol.
 
 ## Understand the theme before editing it
 
-Liquid Loom can describe the source model without requiring a build first:
+Liquid Loom can describe the project without evaluating Liquid or requiring a build first:
 
 ```bash
 liquid-loom explain
@@ -117,55 +194,13 @@ liquid-loom explain product --json
 
 The model reports source ownership, semantic feature groups, static snippet/section/block/asset relationships, JSON-template section references, preview partial regions, preview-tag usage, and unresolved static references.
 
-It does not evaluate Liquid or guess dynamic dependencies. The goal is a smaller truthful architecture model, not a second Liquid interpreter.
-
-Read [Project model](docs/PROJECT_MODEL.md) for the complete contract and recommended agent workflow.
-
-## The source model
-
-A fresh Liquid Loom project can look like this:
-
-```text
-src/theme/sections/home/hero.liquid
-src/theme/sections/product/recommendations.liquid
-src/theme/snippets/product/price.liquid
-src/entrypoints/theme.js
-src/styles/theme.css
-```
-
-Liquid Loom produces:
-
-```text
-dist/theme/sections/hero.liquid
-dist/theme/sections/recommendations.liquid
-dist/theme/snippets/price.liquid
-dist/theme/assets/theme.js
-dist/theme/assets/style.css
-```
-
-An adopted project may simultaneously contain:
-
-```text
-sections/header.liquid
-assets/legacy-theme.css
-src/theme/sections/product/upsell.liquid
-```
-
-and produce:
-
-```text
-dist/theme/sections/header.liquid
-dist/theme/sections/upsell.liquid
-dist/theme/assets/legacy-theme.css
-```
-
-Shopify still receives the conventional structure it expects.
+It intentionally does not guess dynamic Liquid relationships. Read [Project model](docs/PROJECT_MODEL.md) for the complete contract.
 
 ## One output, one owner
 
 There is intentionally no "new source wins" rule.
 
-This fails:
+This is invalid:
 
 ```text
 sections/hero.liquid
@@ -178,13 +213,13 @@ because both map to:
 sections/hero.liquid
 ```
 
-Liquid Loom validates the global ownership plan before changing the last-known-good output and tells you which sources collide.
+Liquid Loom plans the complete ownership map before publishing a build and reports the conflicting owners instead of silently overwriting one of them.
 
-The same ownership model includes generated asset reservations when Vite is enabled.
+Generated Vite outputs participate in the same ownership map when Vite is enabled.
 
 ## Migrate only when it helps
 
-Preview migration of one file:
+Preview a migration:
 
 ```bash
 liquid-loom migrate sections/hero.liquid
@@ -196,7 +231,7 @@ Apply it:
 liquid-loom migrate sections/hero.liquid --apply
 ```
 
-Organize it during migration:
+Organize it while preserving its Shopify identity:
 
 ```bash
 liquid-loom migrate sections/hero.liquid \
@@ -204,133 +239,62 @@ liquid-loom migrate sections/hero.liquid \
   --apply
 ```
 
-The Shopify output must remain `sections/hero.liquid`. If the requested destination would change the deployable path, Liquid Loom refuses the migration.
+The deployable path must remain `sections/hero.liquid`. Liquid Loom rejects a migration that would silently rename Shopify output.
 
-Migrate a directory:
+Bulk migration remains optional:
 
 ```bash
 liquid-loom migrate sections --apply
-```
-
-Or preview/apply all remaining native theme source:
-
-```bash
 liquid-loom migrate --all
 liquid-loom migrate --all --apply
 ```
 
-Liquid Loom never invents your feature taxonomy during bulk migration.
+Liquid Loom never invents a feature taxonomy for existing source.
 
-## Existing asset pipelines are allowed
+## Asset strategies
 
-Existing-theme initialization defaults to:
+### Shopify-native default
 
-```js
-import { defineConfig } from "liquid-loom";
+Fresh projects default to `viteConfig: false` and use static global assets plus `{% stylesheet %}` / `{% javascript %}` for component-local code.
 
-export default defineConfig({
-	shopifySourceDir: ".",
-	sourceDir: "src",
-	outputDir: "dist/theme",
-	viteConfig: false,
-	performance: false
-});
-```
+### Existing pipeline
 
-That means native `assets/*` pass through unchanged and your existing Sass/PostCSS/Webpack/Vite process can keep running independently.
+An adopted theme can keep Sass, PostCSS, Webpack, Vite, Tailwind, or another existing pipeline unchanged. Native `assets/*` pass through as Shopify assets.
 
-Fresh projects still use Liquid Loom's Vite + Tailwind workflow by default. Tailwind remains an integration choice rather than part of the source-ownership contract.
+### Optional Vite and Tailwind
 
-If `src/entrypoints` exists while Vite is disabled, `doctor` warns that those files are not being compiled.
+Projects that need bundling can explicitly enable Vite and reserve stable generated Shopify asset names. Tailwind remains available through the native Tailwind Vite plugin.
 
-## Shopify mapping contract
+The framework still validates static and generated outputs in one collision map.
 
-| Authoring source                                | Deployable Shopify path                | Rule                                  |
-| ----------------------------------------------- | -------------------------------------- | ------------------------------------- |
-| `sections/hero.liquid`                          | `sections/hero.liquid`                 | Native Shopify identity mapping       |
-| `src/theme/sections/home/hero.liquid`           | `sections/hero.liquid`                 | Organized source flattens by filename |
-| `src/theme/snippets/product/price.liquid`       | `snippets/price.liquid`                | Organized source flattens by filename |
-| `src/theme/config/editor/settings_schema.json`  | `config/settings_schema.json`          | Flatten by filename                   |
-| `src/theme/locales/markets/en.default.json`     | `locales/en.default.json`              | Flatten by filename                   |
-| `src/theme/templates/catalog/product.json`      | `templates/product.json`               | Feature folders flatten               |
-| `templates/customers/account.json`              | `templates/customers/account.json`     | Preserve Shopify-supported nesting    |
-| `src/theme/templates/metaobject/book.json`      | `templates/metaobject/book.json`       | Preserve Shopify-supported nesting    |
-| `src/public/icons/cart.svg`                     | `assets/cart.svg`                      | Flatten passthrough assets            |
-| `src/entrypoints/theme.js` + `src/styles/*.css` | `assets/theme.js` + `assets/style.css` | Vite-generated outputs when enabled   |
+See [Recipes](docs/RECIPES.md) for setup examples.
 
-Framework validation checks Shopify's upload minimum from the final ownership plan: `layout/theme.liquid` must exist in deployable output, regardless of which source layer owns it.
+## Shopify GitHub deployment
 
-For Shopify's canonical directory rules, see the official [theme architecture documentation](https://shopify.dev/docs/storefronts/themes/architecture).
+A Liquid Loom source branch contains development files that Shopify's GitHub theme integration does not treat as the deployable theme root.
 
-## Build guarantees
-
-### Complete planning before publish
-
-Source discovery, Shopify path validation, traversal guards, collision detection, and generated-output reservations happen before a new output is promoted.
-
-### Last-known-good output
-
-Static mapping and optional Vite bundling happen in isolated staging paths. Output and cache are promoted together only after the build succeeds.
-
-### Safe concurrent builds
-
-Independent CLI processes serialize through a recoverable project lock. An abandoned lock from a terminated process is detected and removed.
-
-### Migration-safe caching
-
-Hybrid manifests track source-layer identity. Moving ownership from:
+For GitHub-connected themes, use a generated `shopify-production` branch or a separate deployment repository containing only the canonical Shopify theme directories:
 
 ```text
-sections/hero.liquid
+main
+  |
+  | validate + build
+  v
+shopify-production
+  |
+  v
+Shopify GitHub integration
 ```
 
-to:
+The repository includes an opt-in deployment recipe that publishes compiled output without force-pushing and avoids deployment loops from Shopify-originated commits.
 
-```text
-src/theme/sections/home/hero.liquid
-```
+Read [Shopify GitHub deployment](docs/GITHUB_DEPLOYMENT.md).
 
-does not cause `sections/hero.liquid` to be removed as stale.
+## Shopify Liquid preview mode
 
-### Consumer-shaped release validation
+Shopify's July 2026 `{% block %}` / `{% partial %}` developer preview is never enabled implicitly.
 
-CI packs the actual npm artifacts, installs both CLIs into independent temporary projects, validates `explain` from the packed package, validates a fresh scaffold, and validates an existing-theme `init -> hybrid build -> migrate -> build` flow.
-
-Releases use npm Trusted Publishing with GitHub OIDC and signed provenance.
-
-## Configuration
-
-Fresh project example:
-
-```ts
-import { defineConfig } from "liquid-loom";
-
-export default defineConfig({
-	sourceDir: "src",
-	outputDir: "dist/theme",
-	performance: {
-		maxBuildMs: 10_000,
-		maxThemeBytes: 5_000_000,
-		maxAssetBytes: 500_000
-	}
-});
-```
-
-Existing theme in a monorepo:
-
-```ts
-export default defineConfig({
-	shopifySourceDir: "theme",
-	sourceDir: "src",
-	outputDir: "dist/theme",
-	viteConfig: false,
-	performance: false
-});
-```
-
-All paths remain project-relative and portable.
-
-Shopify's July 2026 Liquid developer-preview syntax is never enabled implicitly. Projects intentionally targeting that preview can declare:
+Projects intentionally targeting it can declare:
 
 ```ts
 export default defineConfig({
@@ -338,7 +302,22 @@ export default defineConfig({
 });
 ```
 
-This only declares project intent to Liquid Loom; it does not enable the preview on a Shopify development store. See [Shopify Liquid July 2026 developer preview](docs/LIQUID_JULY_2026_PREVIEW.md).
+This records project intent for diagnostics and project intelligence. It does not enable the preview on a Shopify store.
+
+Read [Shopify Liquid July 2026 developer preview](docs/LIQUID_JULY_2026_PREVIEW.md).
+
+## Build guarantees
+
+Liquid Loom keeps the existing engineering guarantees regardless of asset strategy:
+
+1. discover all managed source;
+2. map the complete Shopify ownership plan;
+3. validate paths, collisions, and Shopify's upload minimum;
+4. build in isolated staging;
+5. optionally run Vite and performance budgets;
+6. atomically promote output and cache together.
+
+A failed build leaves the previous deployable output intact. Independent CLI processes serialize through a recoverable project lock.
 
 ## Commands
 
@@ -358,58 +337,64 @@ This only declares project intent to Liquid Loom; it does not enable the preview
 
 Scaffolded projects expose package-manager scripts for the same commands. Existing-theme `init` uses namespaced `loom:*` scripts so it does not replace a project's existing `build` or `dev` commands.
 
+## Reference storefront
+
+The fresh-project scaffold is a merchant-neutral reference theme that demonstrates:
+
+- Shopify theme blocks and app blocks;
+- merchant-reorderable product information and purchase controls;
+- Shopify-native component CSS and JavaScript;
+- standard storefront view events and cart actions;
+- `color_palette` design tokens;
+- `<shopify-account>` customer-account integration;
+- JSON templates and editable header/footer section groups;
+- storefront filtering and predictive search;
+- variant URL state, selling plans, quantities, and progressive enhancement;
+- responsive images, semantic navigation, skip links, visible focus states, reduced-motion support, and no-JavaScript fallbacks.
+
+It is a reference implementation. The product is Liquid Loom's engineering layer and workflow.
+
 ## Who it is for
 
 Liquid Loom is a good fit when you:
 
-- maintain a custom or client Shopify theme and want better tooling without rewriting it;
+- maintain a custom or client Shopify theme and want stronger tooling without rewriting it;
 - want new theme work organized by feature rather than only by Shopify's flat directories;
-- want deterministic build ownership and explicit collision behavior;
-- want coding agents to query a conservative architectural model before editing source;
-- expect modern frontend build and CI guarantees from the rest of your stack.
+- need deterministic ownership and collision behavior;
+- want coding agents to inspect a conservative architectural model before editing source;
+- want Shopify-native theme capabilities without giving up modern engineering guarantees.
 
 It is probably not the right starting point when:
 
 - the theme is tiny and needs no build pipeline;
 - you are building a headless storefront rather than a Shopify Liquid theme;
-- your primary goal is Shopify Theme Store submission, where Shopify's official starting points and policies should remain authoritative.
+- your primary goal is Shopify Theme Store submission, where Shopify's official starting points and policies remain authoritative.
 
-## Reference storefront
+## Validation
 
-The fresh-project scaffolder includes a merchant-neutral Online Store 2.0 reference theme with theme blocks, JSON templates, editable header/footer groups, storefront filtering, predictive search, variant URL state, selling plans, responsive images, semantic navigation, reduced-motion support, visible focus states, and no-JavaScript fallbacks.
+Protected CI validates:
 
-It is a reference implementation. The product is the tooling and workflow.
+- unit and integration tests with coverage thresholds;
+- transactional clean builds;
+- zero-offense Shopify Theme Check;
+- Linux/Node 22, Windows/Node 24, and macOS/Node 24 portability;
+- packed-package installation and fresh-scaffold smoke tests;
+- Dependency Review and CodeQL;
+- a non-blocking Node 26 canary.
 
-## Validation and feedback
-
-Liquid Loom is being validated against real Shopify workflows, not just repository metrics.
-
-Useful evidence includes:
-
-- a successful public-package install;
-- a real Shopify development-store preview;
-- existing-theme adoption without source migration;
-- incremental migration on a real client-style repository;
-- coding-agent use of the deterministic project model;
-- developers independently choosing the workflow again.
-
-If you try it, feedback about what is confusing, slower, or worse is especially useful.
-
-- [Run the first-project test](docs/FIRST_PROJECT.md)
-- [Read the existing-theme adoption guide](docs/EXISTING_THEME_ADOPTION.md)
-- [Share first-project feedback](https://github.com/yotamon/Liquid-Loom/issues/new?template=early_adopter_feedback.yml)
-- [Report a bug](https://github.com/yotamon/Liquid-Loom/issues/new?template=bug_report.yml)
-- [Start a discussion](https://github.com/yotamon/Liquid-Loom/discussions)
+Real-store validation remains separate from public CI so contributors do not need Shopify credentials.
 
 ## Documentation
 
+- [Shopify 2026 platform modernization](docs/SHOPIFY_2026_MODERNIZATION.md) - architecture decisions and acceptance criteria
 - [Existing-theme adoption](docs/EXISTING_THEME_ADOPTION.md) - zero-migration setup, hybrid source, and safe migration
 - [Project model](docs/PROJECT_MODEL.md) - deterministic architecture queries for developers, agents, and CI
 - [Shopify Liquid July 2026 developer preview](docs/LIQUID_JULY_2026_PREVIEW.md) - explicit preview-mode contract and safety boundaries
+- [Shopify GitHub deployment](docs/GITHUB_DEPLOYMENT.md) - compiled deployment branches and write-back constraints
 - [First project](docs/FIRST_PROJECT.md) - short evaluation from public install to a real source edit
 - [Architecture](docs/ARCHITECTURE.md) - ownership, transactions, cache, and migration invariants
 - [Validation](docs/VALIDATION.md) - real-user and real-store validation plan
-- [Recipes](docs/RECIPES.md) - entrypoints, static assets, private-term policies, and budgets
+- [Recipes](docs/RECIPES.md) - native assets, optional bundling, private-term policies, and budgets
 - [Troubleshooting](docs/TROUBLESHOOTING.md) - collisions, locks, Shopify CLI, and build failures
 - [Benchmarks](docs/BENCHMARKS.md) - reproducible build measurements
 - [Releasing](docs/RELEASING.md) - provenance-backed npm release process
@@ -421,12 +406,12 @@ If you try it, feedback about what is confusing, slower, or worse is especially 
 - Adopt tooling before forcing migration.
 - Source ownership must be explicit.
 - Shopify's runtime contract stays visible.
-- Integrate with Shopify primitives instead of duplicating them.
+- Prefer Shopify primitives over competing abstractions.
 - Generated output is disposable; authored source is the product.
 - Prefer provable project intelligence over guessed relationships.
 - Fail early, explain specifically, and preserve the last-known-good build.
 - Treat Vite and Tailwind as replaceable integrations, not the framework's durable moat.
-- Prefer a dependable core over speculative abstractions.
+- Keep preview APIs explicit until Shopify stabilizes them.
 - Add framework surface only after real users demonstrate the need.
 
 <p align="center">

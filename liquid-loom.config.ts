@@ -1,6 +1,7 @@
 import { defineConfig } from "liquid-loom";
 
 export default defineConfig({
+	viteConfig: false,
 	performance: {
 		maxAssetBytes: 500_000,
 		maxBuildMs: 10_000,

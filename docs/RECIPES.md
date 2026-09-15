@@ -8,21 +8,53 @@ Place a file anywhere under `src/public/`. Its basename becomes the Shopify asse
 src/public/icons/cart.svg → dist/theme/assets/cart.svg
 ```
 
-Basenames must be unique across the entire public tree and cannot be `theme.js` or `style.css` unless generated-output configuration changes with matching Vite output.
+Basenames must be unique across the entire public tree. When Vite is enabled, static assets also cannot collide with any configured generated output.
 
-## Add a section or snippet
+## Add component CSS or JavaScript
 
-Organize by feature; Shopify’s destination remains flat:
+Fresh Liquid Loom projects prefer Shopify-native component assets:
+
+```liquid
+{% stylesheet %}
+	.product-card {
+		display: grid;
+	}
+{% endstylesheet %}
+
+{% javascript %}
+	customElements.define('product-card', class extends HTMLElement {});
+{% endjavascript %}
+```
+
+Keep truly global styles in a static file such as `src/public/theme.css`. Liquid doesn't render inside `{% stylesheet %}` or `{% javascript %}` tags, so pass dynamic values through markup, data attributes, or CSS custom properties.
+
+## Add a section, block, or snippet
+
+Organize by feature; Shopify's destination remains flat:
 
 ```text
 src/theme/sections/editorial/story.liquid → dist/theme/sections/story.liquid
+src/theme/blocks/product/title.liquid → dist/theme/blocks/title.liquid
 ```
 
 Run `pnpm build` immediately after adding the file. Portable collisions fail before the output changes.
 
-## Add another Vite entrypoint
+## Opt into Vite or Tailwind
 
-Extend `rollupOptions.input` and give its output a stable name in `vite.config.js`. Add that output to `reservedOutputs` in `liquid-loom.config.ts` so a public asset cannot overwrite it.
+The fresh starter uses Shopify-native assets by default, but the framework still supports Vite and Tailwind. Add a Vite config and enable it explicitly:
+
+```ts
+export default defineConfig({
+	viteConfig: "vite.config.js",
+	reservedOutputs: ["assets/theme.js", "assets/style.css"]
+});
+```
+
+Install the asset tooling your project needs and configure stable output names. Generated outputs participate in the same ownership/collision plan as authored Shopify assets.
+
+## Deploy compiled output through Shopify GitHub integration
+
+If your source repository contains `src`, tests, and build tooling, connect Shopify to a generated branch or separate deployment repository that contains only canonical Shopify theme directories. See [GitHub deployment](GITHUB_DEPLOYMENT.md).
 
 ## Scan for organization-specific terms
 

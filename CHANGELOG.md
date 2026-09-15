@@ -4,6 +4,28 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 
 ## [Unreleased]
 
+### Added
+
+- Shopify-native component CSS and JavaScript in the reference storefront through `{% stylesheet %}` and `{% javascript %}` tags.
+- Theme-block-first product composition with merchant-reorderable vendor, title, price, purchase, description, `@theme`, and `@app` blocks.
+- Shopify standard storefront view events for product, collection, recommendation, and cart surfaces, plus cart mutation through `Shopify.actions.updateCart()` with the native product form retained as the no-JavaScript fallback.
+- Shopify `color_palette` design tokens and `<shopify-account>` customer-account integration in the fresh reference theme.
+- A documented compiled-branch/deployment-repository workflow and opt-in GitHub Actions recipe for Shopify GitHub theme integration.
+- A complete Shopify 2026 modernization plan covering architecture, compatibility constraints, implementation order, and real-store acceptance criteria.
+
+### Changed
+
+- Fresh projects now default to Shopify-native static/component assets with `viteConfig: false` instead of requiring a Vite/Tailwind storefront bundle.
+- Vite and Tailwind remain supported framework integrations but are now documented as explicit optional asset strategies rather than the framework's product identity.
+- The reference product, header, predictive search, collection, featured collection, and cart surfaces now demonstrate current Shopify-native platform primitives.
+- The embedded `create-liquid-loom` starter stays byte-for-byte synchronized with the modernized reference storefront and targets Shopify CLI 4.8+ for new projects.
+- README, recipes, and roadmap now describe Liquid Loom as a deterministic engineering layer for Shopify Liquid themes and sequence platform modernization after the `0.3` project-intelligence work.
+
+### Removed
+
+- The fresh starter's default global Vite entrypoint, Tailwind stylesheet source, and bundled `theme.js`/`style.css` architecture.
+- The obsolete default Vite configuration from the reference project and embedded starter. Existing projects that explicitly enable Vite remain supported.
+
 ## [0.2.0] - 2026-09-09
 
 ### Added
