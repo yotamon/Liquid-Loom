@@ -77,20 +77,30 @@ See [Project model](docs/PROJECT_MODEL.md) and [Shopify Liquid July 2026 develop
 
 Modernize fresh-project defaults and the reference storefront around Shopify's current native theme capabilities without weakening the `0.2` ownership/migration guarantees or the `0.3` project-intelligence model.
 
-Planned:
+Implemented in the modernization PR:
 
-- [ ] make Shopify-native `{% stylesheet %}` / `{% javascript %}` component assets the preferred fresh-project path where practical;
-- [ ] keep Vite and Tailwind as explicit, tested optional asset strategies rather than Liquid Loom's product identity;
-- [ ] make theme blocks and merchant-reorderable composition central to the reference storefront, especially product information and purchase surfaces;
-- [ ] implement relevant Shopify standard storefront events/actions in the reference theme;
-- [ ] move the reference color system to `color_palette` plus semantic CSS custom properties;
-- [ ] adopt the `<shopify-account>` component with a merchant-configurable account menu;
-- [ ] add a documented/generated compiled branch or deployment-repository workflow for Shopify GitHub integration;
-- [ ] align opt-in real-store testing with Shopify CLI 4.8+ dev-store commands;
-- [ ] extend project intelligence only where new block/component/deployment relationships are statically provable;
-- [ ] preserve explicit `stable` / `july-2026-preview` modes and keep preview syntax outside the stable release gate;
-- [ ] preserve zero-migration adoption and existing asset pipelines for established themes;
-- [ ] expand package, Theme Check, browser, Theme Editor, and deployment-loop validation around the new defaults.
+- [x] make Shopify-native `{% stylesheet %}` / `{% javascript %}` component assets the preferred fresh-project path where practical;
+- [x] keep Vite and Tailwind as explicit, tested optional asset strategies rather than Liquid Loom's product identity;
+- [x] make theme blocks and merchant-reorderable composition central to the reference storefront, especially product information and purchase surfaces;
+- [x] implement relevant Shopify standard storefront view events and cart actions in the reference theme;
+- [x] move the reference color system to `color_palette` plus semantic CSS custom properties;
+- [x] adopt the `<shopify-account>` component with a merchant-configurable account menu;
+- [x] add a documented compiled branch/deployment-repository workflow and opt-in GitHub Actions recipe for Shopify GitHub integration;
+- [x] target Shopify CLI 4.8+ in fresh scaffolds and document disposable dev-store validation;
+- [x] preserve explicit `stable` / `july-2026-preview` modes and keep preview syntax outside the stable release gate;
+- [x] preserve zero-migration adoption and existing asset pipelines for established themes;
+- [x] add automated capability tests and keep the reference storefront byte-for-byte synchronized with the embedded starter.
+
+Still requiring real Shopify evidence before calling the milestone complete:
+
+- [ ] preview the modernized fresh scaffold on a Shopify development store;
+- [ ] verify product-block reordering and app-block placement in Theme Editor;
+- [ ] verify `<shopify-account>` with customer accounts enabled and disabled;
+- [ ] verify palette editing through Theme Editor;
+- [ ] verify standard storefront event/action behavior in a real browser session;
+- [ ] verify the compiled deployment branch against Shopify GitHub integration and confirm Shopify-originated commits do not create a deployment loop;
+- [ ] run the modernization against at least one established client-style theme without changing its existing asset pipeline;
+- [ ] extend project intelligence only if those real workflows expose new statically provable relationships worth modeling.
 
 See [Shopify 2026 platform modernization](docs/SHOPIFY_2026_MODERNIZATION.md) for the full architecture decisions, compatibility constraints, implementation order, and acceptance criteria.
 
