@@ -16,11 +16,13 @@ Fresh Liquid Loom projects prefer Shopify-native component assets:
 
 ```liquid
 {% stylesheet %}
-.product-card { display: grid; }
+	.product-card {
+		display: grid;
+	}
 {% endstylesheet %}
 
 {% javascript %}
-customElements.define("product-card", class extends HTMLElement {});
+	customElements.define('product-card', class extends HTMLElement {});
 {% endjavascript %}
 ```
 

@@ -8,7 +8,17 @@ const read = (relativePath) => readFile(path.join(root, ...relativePath.split("/
 
 describe("reference theme capabilities", () => {
 	it("ships composable Shopify theme blocks and keeps block validation enabled", async () => {
-		for (const block of ["button", "heading", "image", "text", "product-vendor", "product-title", "product-price", "product-purchase", "product-description"]) {
+		for (const block of [
+			"button",
+			"heading",
+			"image",
+			"text",
+			"product-vendor",
+			"product-title",
+			"product-price",
+			"product-purchase",
+			"product-description"
+		]) {
 			assert.match(await read(`src/theme/blocks/${block}.liquid`), /block\.shopify_attributes/);
 		}
 		assert.match(await read("src/theme/sections/pages/flexible-content.liquid"), /content_for 'blocks'/);

@@ -24,7 +24,10 @@ describe("embedded starter", () => {
 		const embeddedFiles = await listFiles(embeddedSource);
 		assert.deepEqual(embeddedFiles, referenceFiles);
 		for (const file of referenceFiles) {
-			const [reference, embedded] = await Promise.all([readFile(path.join(referenceSource, ...file.split("/"))), readFile(path.join(embeddedSource, ...file.split("/")))]);
+			const [reference, embedded] = await Promise.all([
+				readFile(path.join(referenceSource, ...file.split("/"))),
+				readFile(path.join(embeddedSource, ...file.split("/")))
+			]);
 			assert.deepEqual(embedded, reference, `Embedded starter drifted at ${file}`);
 		}
 	});

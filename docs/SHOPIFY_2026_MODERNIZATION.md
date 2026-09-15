@@ -64,11 +64,11 @@ Fresh projects should prefer component-local assets for component-local behavior
 
 ```liquid
 {% stylesheet %}
-.product-card { ... }
+	.product-card { ... }
 {% endstylesheet %}
 
 {% javascript %}
-customElements.define(...)
+	customElements.define(...)
 {% endjavascript %}
 ```
 
@@ -168,15 +168,15 @@ The reference theme should define one semantic palette in `settings_schema.json`
 
 ```json
 {
-  "type": "color_palette",
-  "id": "colors",
-  "default": {
-    "background": "#F8F7F2",
-    "foreground": "#111820",
-    "surface": "#FFFFFF",
-    "accent": "#176C5B",
-    "accent_contrast": "#FFFFFF"
-  }
+	"type": "color_palette",
+	"id": "colors",
+	"default": {
+		"background": "#F8F7F2",
+		"foreground": "#111820",
+		"surface": "#FFFFFF",
+		"accent": "#176C5B",
+		"accent_contrast": "#FFFFFF"
+	}
 }
 ```
 
