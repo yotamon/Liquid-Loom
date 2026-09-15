@@ -120,11 +120,11 @@ Component-local behavior lives with the Liquid component when practical:
 
 ```liquid
 {% stylesheet %}
-.product-purchase { ... }
+	.product-purchase { ... }
 {% endstylesheet %}
 
 {% javascript %}
-customElements.define(...)
+	customElements.define(...)
 {% endjavascript %}
 ```
 
