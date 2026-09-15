@@ -6,11 +6,27 @@
 		<meta name="theme-color" content="{{ settings.colors.accent }}">
 		<link rel="canonical" href="{{ canonical_url }}">
 		<link rel="icon" href="{{ 'favicon.svg' | asset_url }}" type="image/svg+xml">
+
 		{% render 'meta-tags' %}
+
 		{{ 'theme.css' | asset_url | stylesheet_tag: preload: true }}
-		<style>:root { --color-background: {{ settings.colors.background }}; --color-foreground: {{ settings.colors.foreground }}; --color-surface: {{ settings.colors.surface }}; --color-muted: {{ settings.colors.muted }}; --color-border: {{ settings.colors.border }}; --color-accent: {{ settings.colors.accent }}; --color-accent-contrast: {{ settings.colors.accent_contrast }}; --page-width: {{ settings.page_width }}px; }</style>
+
+		<style>
+			:root {
+			  --color-background: {{ settings.colors.background }};
+			  --color-foreground: {{ settings.colors.foreground }};
+			  --color-surface: {{ settings.colors.surface }};
+			  --color-muted: {{ settings.colors.muted }};
+			  --color-border: {{ settings.colors.border }};
+			  --color-accent: {{ settings.colors.accent }};
+			  --color-accent-contrast: {{ settings.colors.accent_contrast }};
+			  --page-width: {{ settings.page_width }}px;
+			}
+		</style>
+
 		{{ content_for_header }}
 	</head>
+
 	<body>
 		<a class="skip-link" href="#MainContent">{{ 'accessibility.skip_to_content' | t }}</a>
 		{% sections 'header-group' %}

@@ -1,10 +1,35 @@
 [
 	{
 		"name": "Layout",
-		"settings": [{ "type": "range", "id": "page_width", "min": 960, "max": 1600, "step": 40, "unit": "px", "label": "Page width", "default": 1200 }]
+		"settings": [
+			{
+				"type": "range",
+				"id": "page_width",
+				"min": 960,
+				"max": 1600,
+				"step": 40,
+				"unit": "px",
+				"label": "Page width",
+				"default": 1200
+			}
+		]
 	},
 	{
 		"name": "Colors",
-		"settings": [{ "type": "color_palette", "id": "colors", "default": { "background": "#F8F7F2", "foreground": "#111820", "surface": "#FFFFFF", "muted": "#66717C", "border": "#DCE1DD", "accent": "#176C5B", "accent_contrast": "#FFFFFF" } }]
+		"settings": [
+			{
+				"type": "color_palette",
+				"id": "colors",
+				"default": {
+					"background": "#F8F7F2",
+					"foreground": "#111820",
+					"surface": "#FFFFFF",
+					"muted": "#66717C",
+					"border": "#DCE1DD",
+					"accent": "#176C5B",
+					"accent_contrast": "#FFFFFF"
+				}
+			}
+		]
 	}
 ]

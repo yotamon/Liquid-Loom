@@ -1,4 +1,10 @@
 {
-	"current": { "page_width": 1200 },
-	"presets": { "Default": { "page_width": 1200 } }
+	"current": {
+		"page_width": 1200
+	},
+	"presets": {
+		"Default": {
+			"page_width": 1200
+		}
+	}
 }
