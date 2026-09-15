@@ -45,22 +45,22 @@ A simplified model looks like this:
 
 ```json
 {
-  "version": 1,
-  "liquidMode": "stable",
-  "features": [
-    {
-      "name": "product",
-      "files": ["src/theme/sections/products/main-product.liquid"],
-      "outputs": ["sections/main-product.liquid"],
-      "references": []
-    }
-  ],
-  "files": [],
-  "preview": {
-    "blockTag": [],
-    "partialTag": []
-  },
-  "unresolvedReferences": []
+	"version": 1,
+	"liquidMode": "stable",
+	"features": [
+		{
+			"name": "product",
+			"files": ["src/theme/sections/products/main-product.liquid"],
+			"outputs": ["sections/main-product.liquid"],
+			"references": []
+		}
+	],
+	"files": [],
+	"preview": {
+		"blockTag": [],
+		"partialTag": []
+	},
+	"unresolvedReferences": []
 }
 ```
 

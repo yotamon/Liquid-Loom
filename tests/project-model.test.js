@@ -117,11 +117,7 @@ describe("project model", () => {
 
 	it("reports unresolved static references without failing the model", async () => {
 		const config = await createFixture();
-		await write(
-			config.sourceRoot,
-			"theme/sections/search/main-search.liquid",
-			"{% render 'missing-result' %}"
-		);
+		await write(config.sourceRoot, "theme/sections/search/main-search.liquid", "{% render 'missing-result' %}");
 
 		const model = await createProjectModel(config);
 		assert.deepEqual(model.unresolvedReferences, [

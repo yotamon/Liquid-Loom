@@ -410,8 +410,14 @@ program
 	.option("--clean", "remove previous output before building")
 	.option("--development", "keep readable bundles and source maps")
 	.action((options) => runBuild({ clean: options.clean, mode: options.development ? "development" : "production" }));
-program.command("watch").description("Rebuild when source files change").action(() => watchProject());
-program.command("dev").description("Build, watch, and launch Shopify theme dev").action(() => watchProject({ shopify: true }));
+program
+	.command("watch")
+	.description("Rebuild when source files change")
+	.action(() => watchProject());
+program
+	.command("dev")
+	.description("Build, watch, and launch Shopify theme dev")
+	.action(() => watchProject({ shopify: true }));
 program.command("clean").description("Remove generated output and cache files").action(cleanProject);
 program.command("check").description("Validate source ownership, JSON, and build output").action(checkProject);
 program.command("analyze").description("Report output composition and largest files").action(analyzeProject);

@@ -9,7 +9,7 @@ Liquid Loom is aware of those primitives, but **does not enable or require them 
 Without configuration, Liquid Loom resolves:
 
 ```js
-shopifyLiquidMode: "stable"
+shopifyLiquidMode: "stable";
 ```
 
 That is deliberate. A framework should not silently make a developer-preview runtime contract part of a production theme.
@@ -24,7 +24,7 @@ When a project is intentionally targeting a Shopify development store with the J
 import { defineConfig } from "liquid-loom";
 
 export default defineConfig({
-  shopifyLiquidMode: "july-2026-preview"
+	shopifyLiquidMode: "july-2026-preview"
 });
 ```
 

@@ -64,10 +64,7 @@ function normalizeFeatureName(name) {
 function inferNativeFeature(output) {
 	const fileStem = stem(output);
 	if (/\bgift[-_.]card\b/.test(fileStem)) return "gift-card";
-	const tokens = fileStem
-		.split(/[-_.]/)
-		.filter(Boolean)
-		.map(normalizeFeatureName);
+	const tokens = fileStem.split(/[-_.]/).filter(Boolean).map(normalizeFeatureName);
 	const semantic = tokens.find((token) => SHOPIFY_FEATURE_TOKENS.has(token));
 	if (semantic) return semantic;
 	return tokens.find((token) => !GENERIC_NATIVE_PREFIXES.has(token)) ?? themeType(output);
@@ -147,7 +144,12 @@ function inspectJson(contents) {
 
 	if (document && typeof document === "object" && document.sections && typeof document.sections === "object") {
 		for (const section of Object.values(document.sections)) {
-			if (!section || typeof section !== "object" || typeof section.type !== "string" || section.type.startsWith("shopify://")) {
+			if (
+				!section ||
+				typeof section !== "object" ||
+				typeof section.type !== "string" ||
+				section.type.startsWith("shopify://")
+			) {
 				continue;
 			}
 			references.push({
@@ -229,8 +231,14 @@ function summarizeFeatures(files) {
 
 function previewUsage(files) {
 	return {
-		blockTag: files.filter((file) => file.preview.blockTag).map((file) => file.source).sort(),
-		partialTag: files.filter((file) => file.preview.partialTag).map((file) => file.source).sort()
+		blockTag: files
+			.filter((file) => file.preview.blockTag)
+			.map((file) => file.source)
+			.sort(),
+		partialTag: files
+			.filter((file) => file.preview.partialTag)
+			.map((file) => file.source)
+			.sort()
 	};
 }
 
@@ -330,17 +338,14 @@ export function selectProjectModel(model, target) {
 export function formatProjectModel(model, target) {
 	const selection = selectProjectModel(model, target);
 	if (selection.feature) {
-		const lines = [
-			`Feature: ${selection.feature.name}`,
-			`Liquid mode: ${selection.liquidMode}`,
-			"",
-			"Sources"
-		];
+		const lines = [`Feature: ${selection.feature.name}`, `Liquid mode: ${selection.liquidMode}`, "", "Sources"];
 		for (const file of selection.files) lines.push(`  ${file.source} -> ${file.output}`);
 		if (selection.feature.references.length) {
 			lines.push("", "Static references");
 			for (const reference of selection.feature.references) {
-				lines.push(`  ${reference.kind.padEnd(7)} ${reference.name}${reference.output ? ` -> ${reference.output}` : ""}`);
+				lines.push(
+					`  ${reference.kind.padEnd(7)} ${reference.name}${reference.output ? ` -> ${reference.output}` : ""}`
+				);
 			}
 		}
 		if (selection.feature.partials.length) {

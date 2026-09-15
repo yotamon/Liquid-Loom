@@ -109,6 +109,9 @@ describe("project config", () => {
 			'export default { shopifyLiquidMode: "future-preview" };\n'
 		);
 
-		await assert.rejects(loadProjectConfig(projectRoot), /shopifyLiquidMode must be one of: stable, july-2026-preview/i);
+		await assert.rejects(
+			loadProjectConfig(projectRoot),
+			/shopifyLiquidMode must be one of: stable, july-2026-preview/i
+		);
 	});
 });

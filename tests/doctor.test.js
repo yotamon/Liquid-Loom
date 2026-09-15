@@ -118,31 +118,37 @@ describe("project doctor", () => {
 	it("warns explicitly about July 2026 preview tags and declared preview mode", async () => {
 		const stableRoot = await project();
 		await writeHealthyProject(stableRoot);
-		await write(stableRoot, "src/theme/sections/search/results.liquid", "{% partial 'results' %}<p>Results</p>{% endpartial %}");
+		await write(
+			stableRoot,
+			"src/theme/sections/search/results.liquid",
+			"{% partial 'results' %}<p>Results</p>{% endpartial %}"
+		);
 
 		const stableResult = await diagnoseProject(await loadProjectConfig(stableRoot));
 		assert.equal(stableResult.healthy, true);
 		assert.equal(
 			stableResult.checks.some(
-				(check) => check.name === "liquid-mode" && check.status === "warn" && /set shopifyLiquidMode/.test(check.message)
+				(check) =>
+					check.name === "liquid-mode" && check.status === "warn" && /set shopifyLiquidMode/.test(check.message)
 			),
 			true
 		);
 
 		const previewRoot = await project();
 		await writeHealthyProject(previewRoot);
-		await write(previewRoot, "src/theme/sections/search/results.liquid", "{% partial 'results' %}<p>Results</p>{% endpartial %}");
 		await write(
 			previewRoot,
-			"liquid-loom.config.mjs",
-			'export default { shopifyLiquidMode: "july-2026-preview" };\n'
+			"src/theme/sections/search/results.liquid",
+			"{% partial 'results' %}<p>Results</p>{% endpartial %}"
 		);
+		await write(previewRoot, "liquid-loom.config.mjs", 'export default { shopifyLiquidMode: "july-2026-preview" };\n');
 
 		const previewResult = await diagnoseProject(await loadProjectConfig(previewRoot));
 		assert.equal(previewResult.healthy, true);
 		assert.equal(
 			previewResult.checks.some(
-				(check) => check.name === "liquid-mode" && check.status === "warn" && /developer preview declared/.test(check.message)
+				(check) =>
+					check.name === "liquid-mode" && check.status === "warn" && /developer preview declared/.test(check.message)
 			),
 			true
 		);

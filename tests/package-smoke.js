@@ -94,7 +94,9 @@ try {
 		throw new Error("Hybrid source did not produce the organized upsell output.");
 	}
 
-	console.log("✓ Packed CLIs scaffold new themes, explain source architecture, and adopt/migrate existing Shopify themes");
+	console.log(
+		"✓ Packed CLIs scaffold new themes, explain source architecture, and adopt/migrate existing Shopify themes"
+	);
 } finally {
 	try {
 		await rm(workspace, { force: true, maxRetries: 10, recursive: true, retryDelay: 200 });
