@@ -26,13 +26,13 @@ importers:
         version: 4.6.0
       '@shopify/prettier-plugin-liquid':
         specifier: ^1.11.0
-        version: 1.11.0(prettier@3.9.6)
+        version: 1.11.0(prettier@3.9.8)
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(vite@8.2.0(esbuild@0.28.1)(jiti@2.7.0))
       prettier:
-        specifier: ^3.9.6
-        version: 3.9.6
+        specifier: ^3.9.8
+        version: 3.9.8
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
@@ -884,8 +884,8 @@ packages:
     resolution: {integrity: sha512-DTPx3RWSSnWyzLxQnlH0rJP+EW5ekl16ZU4/psbIhA0e53kJfdgaN5vKM+xP7yJtXVu+nfdVFmlgFDEKAe4Pyw==}
     engines: {node: ^10 || ^12 || >=14}
 
-  prettier@3.9.6:
-    resolution: {integrity: sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==}
+  prettier@3.9.8:
+    resolution: {integrity: sha512-WRFq3Wn3WId7LLROfMLdH7xaFr2jR62wU8nLO6rQUOLOxNZUviyJQs1M0iIhLexSFy+L+w0ch66wtoO2jRjG0A==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -1178,11 +1178,11 @@ snapshots:
     dependencies:
       line-column: 1.0.2
 
-  '@shopify/prettier-plugin-liquid@1.11.0(prettier@3.9.6)':
+  '@shopify/prettier-plugin-liquid@1.11.0(prettier@3.9.8)':
     dependencies:
       '@shopify/liquid-html-parser': 2.10.0
       html-styles: 1.0.0
-      prettier: 3.9.6
+      prettier: 3.9.8
 
   '@tailwindcss/node@4.3.3':
     dependencies:
@@ -1546,7 +1546,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  prettier@3.9.6: {}
+  prettier@3.9.8: {}
 
   readdirp@5.0.0: {}
 
