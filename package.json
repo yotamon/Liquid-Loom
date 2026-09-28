@@ -91,7 +91,7 @@
 	},
 	"devDependencies": {
 		"@shopify/cli": "^4.6.0",
-		"@shopify/prettier-plugin-liquid": "^1.11.0",
+		"@shopify/prettier-plugin-liquid": "^1.11.1",
 		"@tailwindcss/vite": "^4.3.3",
 		"prettier": "^3.9.6",
 		"tailwindcss": "^4.3.3",
