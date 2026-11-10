@@ -18,7 +18,7 @@ Current release engineering evidence:
 - [ ] real Shopify development-store preview from a fresh scaffold;
 - [ ] real Shopify development-store preview from an adopted existing theme;
 - [ ] at least three external Shopify developers completing a real workflow;
-- [ ] one concise before/after case study.
+- [ ] optional, consented real-project before/after case study (not a release gate).
 
 ## Fresh-project session
 
@@ -101,7 +101,7 @@ For existing themes, add two more milestones:
 
 That distinction matters. A successful product should not require migration merely to justify the migration feature.
 
-## Case study template
+## Optional case study template
 
 ### Project
 
