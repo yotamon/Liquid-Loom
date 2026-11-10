@@ -275,6 +275,8 @@ An adopted theme can keep Sass, PostCSS, Webpack, Vite, Tailwind, or another exi
 
 Projects that need bundling can explicitly enable Vite and reserve stable generated Shopify asset names. Tailwind remains available through the native Tailwind Vite plugin.
 
+Native-only projects no longer install Vite or Tailwind as framework dependencies. Liquid Loom uses the lightweight Jiti loader for `.ts` and `.mjs` configuration files instead. For a bundled project, install `vite` explicitly and point `viteConfig` to its configuration file. Add `tailwindcss` and `@tailwindcss/vite` only when needed. Existing projects with Vite installed continue to work without migration.
+
 The framework still validates static and generated outputs in one collision map.
 
 See [Recipes](docs/RECIPES.md) for setup examples.
