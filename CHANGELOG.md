@@ -6,6 +6,12 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 
 ### Added
 
+- A high-variant-ready reference product picker based on `product.options_with_values` and Shopify Section Rendering API instead of loading a capped `product.variants` collection.
+- Product section refreshes that synchronize variant-specific pricing, imagery, inventory availability, and shareable option URLs.
+- Keyboard-operable, locale-aware predictive search with Shopify-native listbox semantics.
+- English and German localized reference storefront labels, plus focused behavioral regression tests.
+- A concrete real-store acceptance checklist for variant limits, accessibility, merchant customization, and localization.
+
 - Shopify-native component CSS and JavaScript in the reference storefront through `{% stylesheet %}` and `{% javascript %}` tags.
 - Theme-block-first product composition with merchant-reorderable vendor, title, price, purchase, description, `@theme`, and `@app` blocks.
 - Shopify standard storefront view events for product, collection, recommendation, and cart surfaces, plus cart mutation through `Shopify.actions.updateCart()` with the native product form retained as the no-JavaScript fallback.
@@ -14,6 +20,9 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 - A complete Shopify 2026 modernization plan covering architecture, compatibility constraints, implementation order, and real-store acceptance criteria.
 
 ### Changed
+
+- Vite is loaded lazily only for projects that enable bundling; the package dependency remains unchanged.
+- The reference storefront preserves quantity and selling-plan selection across product-option refreshes.
 
 - Fresh projects now default to Shopify-native static/component assets with `viteConfig: false` instead of requiring a Vite/Tailwind storefront bundle.
 - Vite and Tailwind remain supported framework integrations but are now documented as explicit optional asset strategies rather than the framework's product identity.
