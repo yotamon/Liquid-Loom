@@ -1,33 +1,40 @@
-<product-form {{ block.shopify_attributes }}>
+<product-form
+	{{ block.shopify_attributes }}
+	data-cart-added="{{ 'cart.added' | t | escape }}"
+	data-cart-error="{{ 'cart.add_error' | t | escape }}"
+	data-variant-error="{{ 'products.variant_error' | t | escape }}"
+>
 	{%- form 'product', product, id: 'ProductForm-' | append: block.id, novalidate: 'novalidate', data-product-form: '' -%}
+		<input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
 		{%- unless product.has_only_default_variant -%}
-			<div class="field">
-				<label for="Variant-{{ block.id }}">Options</label
-				><select id="Variant-{{ block.id }}" name="id" data-variant-select>
-					{%- for variant in product.variants -%}
-						<option
-							value="{{ variant.id }}"
-							{% if variant == product.selected_or_first_available_variant %}
-								selected
-							{% endif %}
-							{% unless variant.available %}
-								disabled
-							{% endunless %}
-						>
-							{{ variant.title | escape }} — {{ variant.price | money }}
-							{%- unless variant.available %} — {{ 'products.sold_out' | t }}{% endunless %}
-						</option>
-					{%- endfor -%}
-				</select>
-			</div>
-		{%- else -%}
-			<input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+			{%- for product_option in product.options_with_values -%}
+				<div class="field">
+					<label for="Option-{{ block.id }}-{{ product_option.position }}">{{ product_option.name | escape }}</label>
+					<select id="Option-{{ block.id }}-{{ product_option.position }}" data-product-option>
+						{%- for option_value in product_option.values -%}
+							<option
+								value="{{ option_value.id }}"
+								data-product-url="{{ option_value.product_url | escape }}"
+								{% if option_value.selected %}
+									selected
+								{% endif %}
+							>
+								{{- option_value.name | escape -}}
+								{%- unless option_value.available %} ({{ 'products.sold_out' | t }}){% endunless -%}
+							</option>
+						{%- endfor -%}
+					</select>
+				</div>
+			{%- endfor -%}
+			<noscript>
+				<p class="muted">{{ 'products.options_require_javascript' | t }}</p>
+			</noscript>
 		{%- endunless -%}
 		{%- if product.selling_plan_groups.size > 0 -%}
 			<div class="field">
-				<label for="SellingPlan-{{ block.id }}">Purchase option</label
-				><select id="SellingPlan-{{ block.id }}" name="selling_plan">
-					<option value="">One-time purchase</option>
+				<label for="SellingPlan-{{ block.id }}">{{ 'products.purchase_option' | t }}</label>
+				<select id="SellingPlan-{{ block.id }}" name="selling_plan">
+					<option value="">{{ 'products.one_time_purchase' | t }}</option>
 					{%- for group in product.selling_plan_groups -%}
 						<optgroup label="{{ group.name | escape }}">
 							{%- for plan in group.selling_plans -%}
@@ -39,12 +46,24 @@
 			</div>
 		{%- endif -%}
 		<div class="field">
-			<label for="Quantity-{{ block.id }}">{{ 'products.quantity' | t }}</label
-			><quantity-input class="quantity"
-				><button type="button" data-quantity-action="decrease" aria-label="Decrease quantity">−</button
-				><input id="Quantity-{{ block.id }}" type="number" name="quantity" value="1" min="1"
-				><button type="button" data-quantity-action="increase" aria-label="Increase quantity">+</button></quantity-input
-			>
+			<label for="Quantity-{{ block.id }}">{{ 'products.quantity' | t }}</label>
+			<quantity-input class="quantity">
+				<button
+					type="button"
+					data-quantity-action="decrease"
+					aria-label="{{ 'products.decrease_quantity' | t | escape }}"
+				>
+					−
+				</button>
+				<input id="Quantity-{{ block.id }}" type="number" name="quantity" value="1" min="1">
+				<button
+					type="button"
+					data-quantity-action="increase"
+					aria-label="{{ 'products.increase_quantity' | t | escape }}"
+				>
+					+
+				</button>
+			</quantity-input>
 		</div>
 		<button
 			class="button button--full"
@@ -61,9 +80,6 @@
 		</button>
 		<p class="muted product-form__status" data-product-form-status aria-live="polite"></p>
 	{%- endform -%}
-	<script type="application/json" data-product-variants>
-		{{ product.variants | json }}
-	</script>
 </product-form>
 
 {% stylesheet %}
@@ -132,35 +148,91 @@
 	class ProductForm extends HTMLElement {
 		connectedCallback() {
 			this.form = this.querySelector('form');
-			this.select = this.querySelector('[data-variant-select]');
+			this.options = Array.from(this.querySelectorAll('[data-product-option]'));
+			this.appliedValues = this.options.map((select) => select.value);
 			this.submit = this.querySelector("button[type='submit']");
 			this.status = this.querySelector('[data-product-form-status]');
-			const data = this.querySelector('[data-product-variants]');
-			if (data) this.variants = JSON.parse(data.textContent);
-			this.select?.addEventListener('change', () => this.variantChanged());
+			this.canSubmit = Boolean(this.form?.elements.namedItem('id')?.value && !this.submit?.disabled);
+			this.options.forEach((select, index) => select.addEventListener('change', () => this.refreshProduct(index)));
 			this.form?.addEventListener('submit', (event) => this.submitWithStandardAction(event));
 		}
-		variantChanged() {
-			const variant = this.variants?.find(({ id }) => String(id) === this.select.value);
-			if (!variant) return;
-			this.submit?.toggleAttribute('disabled', !variant.available);
-			const url = new URL(window.location.href);
-			url.searchParams.set('variant', variant.id);
-			window.history.replaceState({}, '', url);
+		disconnectedCallback() {
+			this.controller?.abort();
+		}
+		async refreshProduct(focusIndex) {
+			const section = this.closest('[data-product-section]');
+			if (!section?.dataset.sectionId) return;
+			const selected = this.options[focusIndex].selectedOptions[0];
+			const currentUrl = new URL(section.dataset.productUrl, window.location.origin);
+			const nextProduct = selected?.dataset.productUrl
+				? new URL(selected.dataset.productUrl, window.location.origin)
+				: currentUrl;
+			if (nextProduct.pathname !== currentUrl.pathname) {
+				window.location.assign(nextProduct.href);
+				return;
+			}
+			const nextUrl = new URL(window.location.href);
+			nextUrl.searchParams.delete('variant');
+			nextUrl.searchParams.set('option_values', this.options.map((select) => select.value).join(','));
+			const requestUrl = new URL(nextUrl);
+			requestUrl.searchParams.set('section_id', section.dataset.sectionId);
+			this.controller?.abort();
+			const controller = new AbortController();
+			this.controller = controller;
+			this.submit.disabled = true;
+			this.setAttribute('aria-busy', 'true');
+			const quantity = this.form.elements.namedItem('quantity')?.value;
+			const sellingPlan = this.form.elements.namedItem('selling_plan')?.value;
+			try {
+				const response = await fetch(requestUrl, { signal: controller.signal });
+				if (!response.ok) throw new Error('Product section request failed: ' + response.status);
+				const html = new DOMParser().parseFromString(await response.text(), 'text/html');
+				const replacement = html.querySelector('[data-product-section]');
+				if (!replacement) throw new Error('Product section missing from response');
+				if (controller.signal.aborted || !this.isConnected) return;
+				const newForm = replacement.querySelector('product-form form');
+				if (quantity && newForm?.elements.namedItem('quantity')) {
+					newForm.elements.namedItem('quantity').value = quantity;
+				}
+				if (sellingPlan && newForm?.elements.namedItem('selling_plan')) {
+					newForm.elements.namedItem('selling_plan').value = sellingPlan;
+				}
+				section.replaceWith(replacement);
+				window.history.replaceState(window.history.state, '', nextUrl);
+				replacement.querySelectorAll('[data-product-option]')[focusIndex]?.focus();
+			} catch (error) {
+				if (error.name === 'AbortError') return;
+				console.error(error);
+				this.options.forEach((select, index) => {
+					select.value = this.appliedValues[index];
+				});
+				if (this.status) this.status.textContent = this.dataset.variantError;
+			} finally {
+				if (this.isConnected && this.controller === controller) {
+					this.removeAttribute('aria-busy');
+					this.submit.disabled = !this.canSubmit;
+				}
+			}
 		}
 		async submitWithStandardAction(event) {
-			if (!window.Shopify?.actions?.updateCart || !this.form) return;
-			event.preventDefault();
 			const formData = new FormData(this.form);
 			const merchandiseId = formData.get('id');
-			if (!merchandiseId) return;
+			if (!merchandiseId) {
+				event.preventDefault();
+				if (this.status) this.status.textContent = this.dataset.variantError;
+				return;
+			}
+			// Shopify's standard action may reload the page when a theme has no local action override.
+			// Retain the native form for browsers without standard actions.
+			if (!window.Shopify?.actions?.updateCart) return;
+			event.preventDefault();
 			const line = {
 				merchandiseId: String(merchandiseId),
 				quantity: Math.max(1, Number(formData.get('quantity')) || 1)
 			};
 			const sellingPlanId = formData.get('selling_plan');
 			if (sellingPlanId) line.sellingPlanId = String(sellingPlanId);
-			this.submit?.setAttribute('disabled', '');
+			this.submit.disabled = true;
 			if (this.status) this.status.textContent = '';
 			try {
 				const { cart, userErrors, warnings } = await window.Shopify.actions.updateCart(
@@ -171,17 +243,16 @@
 					if (this.status) this.status.textContent = userErrors[0].message;
 					return;
 				}
-				if (this.status) this.status.textContent = warnings?.[0]?.message || 'Added to cart.';
+				if (this.status) this.status.textContent = warnings?.[0]?.message || this.dataset.cartAdded;
 				if (cart)
 					document.querySelectorAll('[data-cart-count]').forEach((node) => {
 						node.textContent = String(cart.totalQuantity);
 					});
 			} catch (error) {
 				console.error(error);
-				if (this.status) this.status.textContent = 'Unable to update the cart. Try again.';
+				if (this.status) this.status.textContent = this.dataset.cartError;
 			} finally {
-				const variant = this.variants?.find(({ id }) => String(id) === String(formData.get('id')));
-				this.submit?.toggleAttribute('disabled', variant ? !variant.available : false);
+				this.submit.disabled = !this.canSubmit;
 			}
 		}
 	}

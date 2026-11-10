@@ -12,10 +12,35 @@
 	"cart": {
 		"empty": "Your cart is empty",
 		"subtotal": "Subtotal",
-		"title": "Cart"
+		"title": "Cart",
+		"added": "Added to cart.",
+		"add_error": "Unable to update the cart. Try again."
 	},
 	"products": {
 		"quantity": "Quantity",
-		"sold_out": "Sold out"
+		"sold_out": "Sold out",
+		"purchase_option": "Purchase option",
+		"one_time_purchase": "One-time purchase",
+		"decrease_quantity": "Decrease quantity",
+		"increase_quantity": "Increase quantity",
+		"options_require_javascript": "Enable JavaScript to change product options.",
+		"variant_error": "Unable to update this product option. Please try again.",
+		"unavailable": "Unavailable"
+	},
+	"search": {
+		"heading": "Find what you need",
+		"label": "Search the store",
+		"products": "Products",
+		"suggestions": "Product suggestions",
+		"no_results_for": "No results for",
+		"no_matching_products": "No matching products."
+	},
+	"collections": {
+		"label": "Collection",
+		"minimum": "Minimum",
+		"maximum": "Maximum",
+		"apply_filters": "Apply filters",
+		"clear": "Clear",
+		"no_products": "No products found."
 	}
 }

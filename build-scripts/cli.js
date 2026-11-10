@@ -10,7 +10,6 @@ import { fileURLToPath } from "node:url";
 import chalk from "chalk";
 import chokidar from "chokidar";
 import { Command } from "commander";
-import { build as viteBuild } from "vite";
 
 import { loadProjectConfig } from "./lib/config.js";
 import { diagnoseProject } from "./lib/doctor.js";
@@ -87,6 +86,7 @@ async function runBuild({ clean = false, mode = "production", quiet = false } = 
 		clean,
 		bundle: async ({ outputRoot }) => {
 			if (config.viteEnabled) {
+				const { build: viteBuild } = await import("vite");
 				await viteBuild({
 					configFile: config.viteConfig,
 					logLevel: quiet ? "silent" : "warn",

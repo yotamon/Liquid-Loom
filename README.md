@@ -348,8 +348,8 @@ The fresh-project scaffold is a merchant-neutral reference theme that demonstrat
 - `color_palette` design tokens;
 - `<shopify-account>` customer-account integration;
 - JSON templates and editable header/footer section groups;
-- storefront filtering and predictive search;
-- variant URL state, selling plans, quantities, and progressive enhancement;
+- storefront filtering, keyboard-accessible predictive search, and locale-aware search URLs;
+- high-variant option-value selection with Shopify section refreshes, selling plans, quantities, and progressive enhancement;
 - responsive images, semantic navigation, skip links, visible focus states, reduced-motion support, and no-JavaScript fallbacks.
 
 It is a reference implementation. The product is Liquid Loom's engineering layer and workflow.

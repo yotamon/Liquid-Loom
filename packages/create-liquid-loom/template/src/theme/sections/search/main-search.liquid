@@ -1,12 +1,12 @@
 <section class="section">
 	<div class="page-width">
 		<header class="collection-header">
-			<p class="eyebrow">Search</p>
-			<h1 class="heading heading--medium">Find what you need</h1>
-			<predictive-search>
+			<p class="eyebrow">{{ 'actions.search' | t }}</p>
+			<h1 class="heading heading--medium">{{ 'search.heading' | t }}</h1>
+			<predictive-search data-suggest-url="{{ routes.predictive_search_url | escape }}">
 				<form action="{{ routes.search_url }}" method="get" role="search" data-predictive-search-form>
 					<div class="search-field">
-						<label for="SearchInput">Search the store</label
+						<label for="SearchInput">{{ 'search.label' | t }}</label
 						><input
 							id="SearchInput"
 							type="search"
@@ -14,10 +14,13 @@
 							value="{{ search.terms | escape }}"
 							role="combobox"
 							aria-expanded="false"
-							aria-controls="PredictiveSearchResults"
+							aria-controls="PredictiveSearchListbox"
+							aria-autocomplete="list"
+							aria-haspopup="listbox"
 							autocomplete="off"
 						>
 					</div>
+					<input type="hidden" name="options[prefix]" value="last">
 					<button class="button" type="submit">{{ 'actions.search' | t }}</button>
 				</form>
 				<div id="PredictiveSearchResults" data-predictive-search-results aria-live="polite"></div>
@@ -39,7 +42,7 @@
 						</div>
 					</article>
 				{%- else -%}
-					<p>No results for “{{ search.terms | escape }}”.</p>
+					<p>{{ 'search.no_results_for' | t }} “{{ search.terms | escape }}”.</p>
 				{%- endfor -%}
 			</div>
 		{%- endif -%}
@@ -92,33 +95,79 @@
 		connectedCallback() {
 			this.input = this.querySelector("input[type='search']");
 			this.results = this.querySelector('[data-predictive-search-results]');
+			this.activeIndex = -1;
 			if (!this.input || !this.results) return;
 			this.input.addEventListener('input', () => {
 				clearTimeout(this.timer);
+				this.controller?.abort();
+				this.close();
 				this.timer = setTimeout(() => this.search(), 180);
 			});
+			this.input.addEventListener('keydown', (event) => this.onKeyDown(event));
+		}
+		disconnectedCallback() {
+			clearTimeout(this.timer);
+			this.controller?.abort();
+		}
+		get options() {
+			return Array.from(this.results.querySelectorAll('[role="option"]'));
+		}
+		close() {
+			this.activeIndex = -1;
+			this.input.removeAttribute('aria-activedescendant');
+			this.input.setAttribute('aria-expanded', 'false');
+			this.results.replaceChildren();
+		}
+		onKeyDown(event) {
+			if (event.key === 'Escape') {
+				if (this.input.getAttribute('aria-expanded') === 'true') {
+					event.preventDefault();
+					this.close();
+				}
+				return;
+			}
+			const options = this.options;
+			if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && options.length) {
+				event.preventDefault();
+				const delta = event.key === 'ArrowDown' ? 1 : -1;
+				this.activeIndex = (this.activeIndex + delta + options.length) % options.length;
+				options.forEach((option, index) => {
+					option.setAttribute('aria-selected', String(index === this.activeIndex));
+				});
+				this.input.setAttribute('aria-activedescendant', options[this.activeIndex].id);
+			}
+			if (event.key === 'Enter' && this.activeIndex >= 0) {
+				const href = options[this.activeIndex]?.querySelector('a')?.href;
+				if (href) {
+					event.preventDefault();
+					window.location.assign(href);
+				}
+			}
 		}
 		async search() {
 			const query = this.input.value.trim();
-			this.controller?.abort();
-			if (query.length < 2) {
-				this.results.replaceChildren();
-				this.input.setAttribute('aria-expanded', 'false');
-				return;
-			}
-			this.controller = new AbortController();
+			if (query.length < 2) return;
+			const controller = new AbortController();
+			this.controller = controller;
 			try {
-				const response = await fetch(
-					`/search/suggest?q=${encodeURIComponent(query)}&resources[type]=product&section_id=predictive-search`,
-					{ signal: this.controller.signal }
-				);
-				if (!response.ok) throw new Error(`Search request failed: ${response.status}`);
-				const documentFragment = new DOMParser().parseFromString(await response.text(), 'text/html');
-				const content = documentFragment.querySelector('.predictive-search__results');
+				const url = new URL(this.dataset.suggestUrl, window.location.origin);
+				url.searchParams.set('q', query);
+				url.searchParams.set('resources[type]', 'product');
+				url.searchParams.set('section_id', 'predictive-search');
+				const response = await fetch(url, { signal: controller.signal });
+				if (!response.ok) throw new Error('Search request failed: ' + response.status);
+				const fragment = new DOMParser().parseFromString(await response.text(), 'text/html');
+				const content = fragment.querySelector('.predictive-search__results');
+				if (controller.signal.aborted || !this.isConnected || query !== this.input.value.trim()) return;
 				this.results.replaceChildren(...(content ? [content] : []));
-				this.input.setAttribute('aria-expanded', content ? 'true' : 'false');
+				this.activeIndex = -1;
+				this.input.removeAttribute('aria-activedescendant');
+				this.input.setAttribute('aria-expanded', this.options.length ? 'true' : 'false');
 			} catch (error) {
-				if (error.name !== 'AbortError') console.error(error);
+				if (error.name !== 'AbortError') {
+					console.error(error);
+					this.close();
+				}
 			}
 		}
 	}
