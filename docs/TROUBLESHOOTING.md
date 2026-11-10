@@ -1,5 +1,11 @@
 # Troubleshooting
 
+## Get actionable diagnostics
+
+Run `liquid-loom doctor` for human-readable checks and suggested fixes, or `liquid-loom doctor --json` for deterministic machine-readable diagnostics. Every finding has a stable `code` (`LL_OK` when passing), `name`, `status`, `message`, and an optional `fix` for recoverable warnings and failures. The JSON command returns a nonzero exit status when blocking issues exist without putting decoration or extra text into standard output. For automation, branch on `code` rather than parsing English error messages. A passing Shopify CLI check means the executable was found, **not** that store access or authentication succeeded.
+
+## `BuildCollisionError`
+
 ## `BuildCollisionError`
 
 Two source files resolve to the same portable Shopify path, or a static file claims a generated asset. The error lists every source. Rename one basename; changing only capitalization or Unicode composition is not portable.
