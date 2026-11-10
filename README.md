@@ -146,6 +146,10 @@ dist/theme/
 └── layout/theme.liquid
 ```
 
+## Merchant-editable content sections
+
+The starter includes an accessible **Frequently asked questions** section and responsive **Image with text** layout. Both use native Shopify section schemas and work without a client-side component runtime. See [Starter patterns](docs/STARTER_PATTERNS.md) for editable settings, authored/deployed paths, and validation limitations.
+
 ## Theme-block-first composition
 
 The reference product page is composed from Shopify theme blocks rather than hard-coding all product information into one monolithic section.

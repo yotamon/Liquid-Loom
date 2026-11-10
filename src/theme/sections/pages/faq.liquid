@@ -1,0 +1,82 @@
+<section class="section faq-section">
+	<div class="page-width faq-section__layout">
+		<div class="faq-section__intro">
+			{%- if section.settings.eyebrow != blank -%}
+				<p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>
+			{%- endif -%}
+			<h2 class="heading heading--medium">{{ section.settings.heading | escape }}</h2>
+			{%- if section.settings.intro != blank -%}
+				<div class="rte muted">{{ section.settings.intro }}</div>
+			{%- endif -%}
+		</div>
+		<div class="faq-section__questions">
+			{%- for block in section.blocks -%}
+				{%- if block.settings.question != blank -%}
+					<details class="faq-section__question" {{ block.shopify_attributes }}>
+						<summary>{{ block.settings.question | escape }}</summary>
+						{%- if block.settings.answer != blank -%}
+							<div class="faq-section__answer rte">{{ block.settings.answer }}</div>
+						{%- endif -%}
+					</details>
+				{%- endif -%}
+			{%- endfor -%}
+		</div>
+	</div>
+</section>
+
+{% stylesheet %}
+	.faq-section__layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+		gap: clamp(2rem, 6vw, 6rem);
+	}
+	.faq-section__intro .rte {
+		margin-block-start: 1.25rem;
+	}
+	.faq-section__question {
+		border-bottom: 1px solid var(--color-border);
+	}
+	.faq-section__question summary {
+		cursor: pointer;
+		font-size: 1.05rem;
+		font-weight: 700;
+		padding: 1.25rem 0;
+	}
+	.faq-section__answer {
+		color: var(--color-muted);
+		padding-block: 0 1.5rem;
+	}
+	@media (max-width: 750px) {
+		.faq-section__layout {
+			grid-template-columns: 1fr;
+		}
+	}
+{% endstylesheet %}
+
+{% schema %}
+{
+	"name": "FAQ",
+	"settings": [
+		{ "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Good to know" },
+		{ "type": "text", "id": "heading", "label": "Heading", "default": "Questions, answered" },
+		{ "type": "richtext", "id": "intro", "label": "Introduction" }
+	],
+	"max_blocks": 12,
+	"blocks": [
+		{
+			"type": "question",
+			"name": "Question",
+			"settings": [
+				{ "type": "text", "id": "question", "label": "Question", "default": "What should customers know?" },
+				{
+					"type": "richtext",
+					"id": "answer",
+					"label": "Answer",
+					"default": "<p>Explain an important detail in your own words.</p>"
+				}
+			]
+		}
+	],
+	"presets": [{ "name": "FAQ", "blocks": [{ "type": "question" }] }]
+}
+{% endschema %}
