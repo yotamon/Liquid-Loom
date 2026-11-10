@@ -176,6 +176,10 @@ Examples include:
 
 The goal is interoperability with Shopify, apps, and agents, not a Liquid Loom-specific browser protocol.
 
+## Shopify-native agent context
+
+Fresh projects include Shopify's optional theme-root `AGENTS.md` and `DESIGN.md`. Liquid Loom preserves them in `dist/theme`, maps native existing-theme context safely, and groups them under `explain theme-context --json`. They describe theme architecture and design intent for compatible coding agents and Shopify Sidekick. See [Shopify agent context](docs/SHOPIFY_AGENT_CONTEXT.md) for size, security, and deployment details.
+
 ## Understand the theme before editing it
 
 Liquid Loom can describe the project without evaluating Liquid or requiring a build first:
