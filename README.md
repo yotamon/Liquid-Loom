@@ -428,6 +428,7 @@ The current [go-to Shopify theme starter implementation plan](docs/GO_TO_STARTER
 - [Validation](docs/VALIDATION.md) - real-user and real-store validation plan
 - [Recipes](docs/RECIPES.md) - native assets, optional bundling, private-term policies, and budgets
 - [Shopify browser acceptance](docs/SHOPIFY_BROWSER_ACCEPTANCE.md) - protected, opt-in buyer-flow testing on a development store (not run in public CI)
+- [Independent developer trial](docs/DEVELOPER_TRIAL.md) - version-aware, consent-based onboarding tests and repeat-adoption evidence
 - [Troubleshooting](docs/TROUBLESHOOTING.md) - collisions, locks, Shopify CLI, and build failures
 - [Benchmarks](docs/BENCHMARKS.md) - reproducible build measurements
 - [Releasing](docs/RELEASING.md) - provenance-backed npm release process

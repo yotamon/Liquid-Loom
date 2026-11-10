@@ -5,14 +5,14 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for trying Liquid Loom. During the 0.1.x cycle, concrete workflow feedback is more useful than broad feature requests. Partial attempts and failed setups are useful too.
+        Thanks for trying Liquid Loom. Please record the exact published npm versions or checked-out source commit; they can differ. Concrete friction and partial/failed attempts are useful. Do not paste client data, store passwords, access tokens, or private URLs.
 
   - type: dropdown
     id: project
     attributes:
       label: What were you building?
       options:
-        - A client or production custom theme
+        - A copy of a client theme tested safely outside production
         - A Shopify development-store theme
         - A personal or experimental theme
         - Evaluating Liquid Loom without a store
@@ -56,6 +56,22 @@ body:
         - No
     validations:
       required: true
+
+  - type: textarea
+    id: evaluated_version
+    attributes:
+      label: What version did you evaluate?
+      description: Both published npm package versions or the exact Git commit SHA. Never paste credentials.
+      placeholder: liquid-loom X.Y.Z / create-liquid-loom X.Y.Z, or commit SHA
+    validations:
+      required: true
+
+  - type: textarea
+    id: timings
+    attributes:
+      label: Unassisted steps and approximate time
+      description: Optional. Record time to first local build and time to first development-store preview separately, or say offline-only.
+      placeholder: Local build 4m, development preview 9m, two hints needed, or no store access
 
   - type: textarea
     id: environment
