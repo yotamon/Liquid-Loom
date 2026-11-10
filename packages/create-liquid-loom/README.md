@@ -17,7 +17,7 @@ pnpm dev
 
 The generated project includes Liquid Loom's source-first theme structure, Shopify CLI, Theme Check, typed configuration, diagnostics, and a merchant-neutral Online Store 2.0 starter. By default it uses Shopify-native component CSS/JavaScript **without Vite or Tailwind dependencies**. Add optional bundling through `--preset vite` or `--preset vite-tailwind`; both generate ready-to-build entrypoints and a correctly referenced Vite asset bundle.
 
-Use `--no-install` to generate files without installing dependencies, or `--package-manager npm|pnpm|yarn|bun` to choose the installer.
+Use `--no-install` to generate files without installing dependencies, `--package-manager npm|pnpm|yarn|bun` to choose the installer, or `--preset native|vite|vite-tailwind` to select the asset strategy. Native is the default. These options require a source version containing the preset implementation; see the root README for the difference between the npm `@latest` release and unreleased `main`.
 
 The target is created through an isolated staging directory and is never merged into a non-empty folder.
 
