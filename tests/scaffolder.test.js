@@ -19,6 +19,28 @@ async function createWorkspace() {
 }
 
 describe("create-liquid-loom", () => {
+	it("generates package-manager-specific metadata and starter commands", async () => {
+		const workspace = await createWorkspace();
+		for (const manager of ["pnpm", "npm", "yarn", "bun"]) {
+			const targetDirectory = path.join(workspace, "store-" + manager);
+			await scaffoldProject({
+				targetDirectory,
+				projectName: "store-" + manager,
+				packageManager: manager,
+				install: false
+			});
+			const manifest = JSON.parse(await readFile(path.join(targetDirectory, "package.json"), "utf8"));
+			const readme = await readFile(path.join(targetDirectory, "README.md"), "utf8");
+			assert.equal(manifest.packageManager, manager === "pnpm" ? "pnpm@11.11.0" : undefined);
+			const run = manager === "npm" ? "npm run" : manager;
+			assert.ok(readme.includes(manager + " install"));
+			assert.ok(readme.includes(run + " dev"));
+			assert.ok(readme.includes(run + " build"));
+			assert.ok(readme.includes(run + " doctor"));
+			assert.doesNotMatch(readme, /__[A-Z_]+__/);
+		}
+	});
+
 	it("creates a complete, independently installable starter", async () => {
 		const workspace = await createWorkspace();
 		const targetDirectory = path.join(workspace, "my-storefront");
