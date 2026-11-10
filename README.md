@@ -29,7 +29,9 @@ pnpm build
 pnpm dev
 ```
 
-A fresh project uses Shopify-native component CSS and JavaScript by default. Vite and Tailwind remain optional. Run `pnpm build` and `pnpm doctor` locally without a Shopify store; `pnpm dev` launches a live Shopify CLI preview and requires development-store access.
+**Release status (verified November 10, 2026):** The public npm `@latest` versions of both packages are still **0.1.1**. The source manifests on `main` are **0.2.0**, and features described below are not necessarily available in the published starter. The public scaffolder also lacks the newer `--no-install` fix. See [the actual registry smoke result](https://github.com/yotamon/Liquid-Loom/actions/runs/42880676580) and [release tracking #12](https://github.com/yotamon/Liquid-Loom/issues/12). This note should be updated after the next verified release.
+
+The current `main` starter uses Shopify-native component CSS and JavaScript by default. Vite and Tailwind remain optional. Run `pnpm build` and `pnpm doctor` locally without a Shopify store; `pnpm dev` launches a live Shopify CLI preview and requires development-store access.
 
 **First edit:** Change the heading or section schema in `src/theme/sections/home/hero.liquid`. Liquid Loom compiles this feature-organized file into `dist/theme/sections/hero.liquid`. See the [five-step first-project walkthrough](docs/FIRST_PROJECT.md), or use [`explain product --json`](docs/PROJECT_MODEL.md) to inspect the product page before modifying it.
 
