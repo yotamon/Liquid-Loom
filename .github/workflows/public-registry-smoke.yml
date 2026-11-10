@@ -1,0 +1,25 @@
+name: Public npm registry smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/public-registry-smoke]
+    paths:
+      - .github/workflows/public-registry-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  public-registry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Verify public packages in independent temporary projects
+        run: node tests/public-registry-smoke.mjs
