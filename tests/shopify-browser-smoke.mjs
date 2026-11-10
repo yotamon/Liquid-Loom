@@ -121,6 +121,7 @@ try {
 
 	const withoutJavaScript = await browser.newContext({ javaScriptEnabled: false });
 	const noJsPage = await withoutJavaScript.newPage();
+	await navigate(noJsPage, base.href);
 	await navigate(noJsPage, productUrl.href);
 	const inactiveOptions = noJsPage.locator("product-form [data-product-option]");
 	if ((await inactiveOptions.count()) > 0) {
