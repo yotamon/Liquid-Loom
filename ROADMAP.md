@@ -17,7 +17,7 @@ Still proving in public use:
 - [ ] Validate a clean install directly from the public npm registry.
 - [ ] Run the reference storefront against a real Shopify development store.
 - [ ] Put at least three external Shopify developers through a real edit/build/preview workflow.
-- [ ] Publish one concise before/after case study.
+- [ ] (Optional, non-gating) Publish a real, consented before/after case study when an appropriate project exists.
 - [ ] Fix onboarding and diagnostics issues discovered by those sessions.
 
 ## 0.2 - Existing-theme adoption
