@@ -66,7 +66,7 @@ export async function scaffoldProject({
 		if (packageManager !== "pnpm") delete packageJson.packageManager;
 		await writeFile(packageFile, `${JSON.stringify(packageJson, null, 2)}\n`);
 
-		const script = (name) => `${packageManager === "npm" ? "npm run" : packageManager} ${name}`;
+		const script = (name) => `${packageManager === "npm" || packageManager === "bun" ? `${packageManager} run` : packageManager} ${name}`;
 		const explainArgs = packageManager === "npm" || packageManager === "pnpm" ? "-- --json" : "--json";
 		const instructions = {
 			"__PROJECT_NAME__": projectName,
