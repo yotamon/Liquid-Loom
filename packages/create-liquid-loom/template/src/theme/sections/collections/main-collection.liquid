@@ -38,20 +38,23 @@
 									{%- endfor -%}
 								{%- when 'price_range' -%}
 									<label>
-										{{- 'collections.minimum' | t -}}
+										<span>{{ 'collections.minimum' | t }}</span>
 										<input
 											type="number"
 											name="{{ filter.min_value.param_name }}"
 											value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
-											min="0"></label
-									><label>
-										{{- 'collections.maximum' | t -}}
+											min="0"
+										>
+									</label>
+									<label>
+										<span>{{ 'collections.maximum' | t }}</span>
 										<input
 											type="number"
 											name="{{ filter.max_value.param_name }}"
 											value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
 											min="0"
-									></label>
+										>
+									</label>
 							{%- endcase -%}
 						</div>
 					</details>
