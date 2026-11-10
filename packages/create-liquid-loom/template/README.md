@@ -2,7 +2,7 @@
 
 A Shopify-native custom storefront built with [Liquid Loom](https://github.com/yotamon/Liquid-Loom).
 
-The starter uses Shopify-native component CSS/JavaScript by default. Vite and Tailwind are optional.
+The starter uses __ASSET_STRATEGY_DESCRIPTION__.
 
 ## Build locally
 
