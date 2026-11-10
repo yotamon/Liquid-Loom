@@ -114,6 +114,8 @@ The tag workflow validates again, packs both exact artifacts, creates GitHub att
 
 ## Verify
 
+For independent public npm consumer verification, run the opt-in **Public npm registry smoke** workflow or execute `node tests/public-registry-smoke.mjs` on a networked machine with Node 24+ and npm. It does not read or use any merchant Shopify store: it installs both public `@latest` packages into disposable projects, builds a fresh theme, adopts an existing theme, compares published versions, and checks the preserved native output.
+
 Check that **both** registry versions match the tagged commit. Download the release tarball before verifying its attestation; the variable below uses the current repository package version.
 
 ```bash
