@@ -37,6 +37,12 @@
 				</p>
 			</div>
 		{%- endunless -%}
+		{%- assign selected_variant = product.selected_or_first_available_variant -%}
+		{%- assign available_plan_ids = selected_variant.selling_plan_allocations | map: 'selling_plan' | map: 'id' -%}
+		{%- assign purchase_available = selected_variant.available -%}
+		{%- if selected_variant.requires_selling_plan and available_plan_ids.size == 0 -%}
+			{%- assign purchase_available = false -%}
+		{%- endif -%}
 		{%- if product.selling_plan_groups.size > 0 -%}
 			<div class="field">
 				<label for="SellingPlan-{{ block.id }}">{{ 'products.purchase_option' | t }}</label>
@@ -47,7 +53,9 @@
 					{%- for group in product.selling_plan_groups -%}
 						<optgroup label="{{ group.name | escape }}">
 							{%- for plan in group.selling_plans -%}
-								<option value="{{ plan.id }}">{{ plan.name | escape }}</option>
+								{%- if available_plan_ids contains plan.id -%}
+									<option value="{{ plan.id }}">{{ plan.name | escape }}</option>
+								{%- endif -%}
 							{%- endfor -%}
 						</optgroup>
 					{%- endfor -%}
@@ -77,12 +85,14 @@
 		<button
 			class="button button--full"
 			type="submit"
-			{% unless product.selected_or_first_available_variant.available %}
+			{% unless purchase_available %}
 				disabled
 			{% endunless %}
 		>
-			{%- if product.selected_or_first_available_variant.available -%}
+			{%- if purchase_available -%}
 				{{ 'actions.add_to_cart' | t }}
+			{%- elsif selected_variant.available -%}
+				{{ 'products.unavailable' | t }}
 			{%- else -%}
 				{{ 'products.sold_out' | t }}
 			{%- endif -%}
