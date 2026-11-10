@@ -1,0 +1,37 @@
+name: One-off cart Liquid formatting
+on:
+  push:
+    branches: [fix/cart-localization-selling-plans]
+    paths: [.github/workflows/one-off-cart-format.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: fix/cart-localization-selling-plans
+          persist-credentials: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --write src/theme/sections/cart/main-cart.liquid packages/create-liquid-loom/template/src/theme/sections/cart/main-cart.liquid
+      - name: Commit formatted files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "Already formatted"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/theme/sections/cart/main-cart.liquid packages/create-liquid-loom/template/src/theme/sections/cart/main-cart.liquid
+          git commit -m "style: format Shopify cart Liquid"
+          git push origin HEAD:fix/cart-localization-selling-plans
