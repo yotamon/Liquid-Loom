@@ -47,6 +47,8 @@ A concurrent Shopify write will make the push fail rather than silently overwrit
 
 See [`docs/examples/shopify-deploy.yml`](examples/shopify-deploy.yml) for an opt-in workflow recipe.
 
+The optional theme-root `AGENTS.md` and `DESIGN.md` also deploy from `dist/theme` using the example workflow. They are supported by Shopify CLI 4.8.4+ and travel with the connected theme. See [Shopify agent context](SHOPIFY_AGENT_CONTEXT.md).
+
 ## Theme Editor writes
 
 A compiled branch can't automatically translate Theme Editor changes back into organized source. Choose one of these policies explicitly:
