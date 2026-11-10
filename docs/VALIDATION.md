@@ -152,6 +152,7 @@ Before declaring the storefront production-validated, use a development store wi
 - German and English storefront languages, including the localized predictive-search endpoint;
 - keyboard-only search interaction (Arrow Up/Down, Enter, Escape), and screen reader output;
 - cart mutations with and without Shopify standard actions, including no-JavaScript form submission;
+- English/German cart column headings and quantity labels, update and checkout controls, and the subscription plan name on recurring-purchase line items;
 - a combined listing if the store supports one.
 
 Verify option changes update the URL, product form variant ID, price, availability, and selected media together. Intentionally simulate a failed Section Rendering request and confirm the UI does not silently purchase an older variant. Verify cart and search behavior in the actual browser before marking these items complete.
