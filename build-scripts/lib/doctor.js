@@ -16,7 +16,10 @@ async function fileExists(filePath) {
 
 export async function findShopifyCli(projectRoot, searchPath = process.env.PATH ?? "") {
 	const binaries = process.platform === "win32" ? ["shopify.cmd", "shopify.exe", "shopify.bat"] : ["shopify"];
-	const directories = [path.join(projectRoot, "node_modules", ".bin"), ...searchPath.split(path.delimiter).filter(Boolean)];
+	const directories = [
+		path.join(projectRoot, "node_modules", ".bin"),
+		...searchPath.split(path.delimiter).filter(Boolean)
+	];
 	for (const directory of directories) {
 		for (const binary of binaries) {
 			const executable = path.join(directory, binary);
