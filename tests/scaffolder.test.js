@@ -62,11 +62,10 @@ describe("create-liquid-loom", () => {
 		const workspace = await createWorkspace();
 		const targetDirectory = path.join(workspace, "new-store");
 		const cli = path.resolve(import.meta.dirname, "../packages/create-liquid-loom/cli.js");
-		const result = spawnSync(
-			process.execPath,
-			[cli, targetDirectory, "--no-install", "--package-manager", "npm"],
-			{ cwd: workspace, encoding: "utf8" }
-		);
+		const result = spawnSync(process.execPath, [cli, targetDirectory, "--no-install", "--package-manager", "npm"], {
+			cwd: workspace,
+			encoding: "utf8"
+		});
 		assert.equal(result.status, 0, result.stderr);
 		assert.match(result.stdout, /npm run dev/);
 		assert.doesNotMatch(result.stdout, /pnpm dev/);
