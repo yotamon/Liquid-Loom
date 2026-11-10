@@ -8,7 +8,9 @@ const optionValueId = process.env.LIQUID_LOOM_OPTION_VALUE_ID;
 const expectedVariantId = process.env.LIQUID_LOOM_EXPECTED_VARIANT_ID;
 
 if (process.env.LIQUID_LOOM_DEV_STORE_CONFIRMED !== "true") {
-	throw new Error("Confirm a non-production Shopify development store before setting LIQUID_LOOM_DEV_STORE_CONFIRMED=true.");
+	throw new Error(
+		"Confirm a non-production Shopify development store before setting LIQUID_LOOM_DEV_STORE_CONFIRMED=true."
+	);
 }
 
 if (Boolean(optionValueId) !== Boolean(expectedVariantId)) {
@@ -114,9 +116,7 @@ try {
 	await navigate(page, new URL("cart", base).href);
 	const cartLines = page.locator(".cart-table tbody tr");
 	assert.ok((await cartLines.count()) > 0, "Cart must contain the product after purchase-form submission.");
-	assert.ok(
-		(await page.locator(".cart-product a").allTextContents()).some((title) => title.includes(productTitle))
-	);
+	assert.ok((await page.locator(".cart-product a").allTextContents()).some((title) => title.includes(productTitle)));
 	pass("Add-to-cart persists a line item through the native cart page");
 
 	const withoutJavaScript = await browser.newContext({ javaScriptEnabled: false });
