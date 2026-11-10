@@ -10,6 +10,8 @@ import {
 	buildProject,
 	buildTheme,
 	createBuildPlan,
+	discoverSourceEntries,
+	mapShopifyPath,
 	mapThemePath,
 	validateThemeSource
 } from "../build-scripts/lib/theme-builder.js";
@@ -49,6 +51,15 @@ afterEach(async () => {
 });
 
 describe("mapThemePath", () => {
+	it("maps exact-case Shopify theme agent files at the deployable root", () => {
+		assert.equal(mapThemePath("theme/AGENTS.md"), "AGENTS.md");
+		assert.equal(mapThemePath("theme/DESIGN.md"), "DESIGN.md");
+		assert.equal(mapShopifyPath("AGENTS.md"), "AGENTS.md");
+		assert.equal(mapShopifyPath("DESIGN.md"), "DESIGN.md");
+		assert.throws(() => mapThemePath("theme/agents.md"), /Unsupported source path/);
+		assert.throws(() => mapShopifyPath("Design.md"), /Unsupported Shopify source path/);
+	});
+
 	it("flattens feature-organized Liquid files into Shopify directories", () => {
 		assert.equal(mapThemePath("theme/sections/marketing/hero.liquid"), "sections/hero.liquid");
 		assert.equal(mapThemePath("theme/snippets/product/card.liquid"), "snippets/card.liquid");
@@ -82,6 +93,17 @@ describe("mapThemePath", () => {
 });
 
 describe("createBuildPlan", () => {
+	it("rejects ownership collisions between native and organized agent context", () => {
+		assert.throws(
+			() =>
+				createBuildPlan([
+					{ kind: "shopify", relativePath: "AGENTS.md" },
+					{ kind: "organized", relativePath: "theme/AGENTS.md" }
+				]),
+			(error) => error instanceof BuildCollisionError && error.destination === "agents.md"
+		);
+	});
+
 	it("reports destination collisions before anything is copied", () => {
 		assert.throws(
 			() => createBuildPlan(["theme/sections/home/hero.liquid", "theme/sections/product/hero.liquid"]),
@@ -131,6 +153,49 @@ describe("theme source validation", () => {
 });
 
 describe("buildTheme", () => {
+	it("preserves theme agent context at the Shopify root during organized builds", async () => {
+		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
+		await createUploadableTheme(sourceRoot);
+		await writeSource(sourceRoot, "theme/AGENTS.md", "# Store rules");
+		await writeSource(sourceRoot, "theme/DESIGN.md", "# Store design");
+
+		await buildTheme({ projectRoot, sourceRoot, outputRoot, cacheFile, reservedOutputs: [] });
+		assert.equal(await readFile(path.join(outputRoot, "AGENTS.md"), "utf8"), "# Store rules");
+		assert.equal(await readFile(path.join(outputRoot, "DESIGN.md"), "utf8"), "# Store design");
+	});
+
+	it("preserves native Shopify root context files in hybrid builds", async () => {
+		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
+		await writeSource(projectRoot, "layout/theme.liquid", "<main>{{ content_for_layout }}</main>");
+		await writeSource(projectRoot, "AGENTS.md", "# Merchant context");
+		const entries = await discoverSourceEntries({ projectRoot, sourceRoot, shopifySourceRoot: projectRoot });
+		assert.ok(entries.some((entry) => entry.relativePath === "AGENTS.md"));
+		await buildTheme({
+			projectRoot,
+			sourceRoot,
+			shopifySourceRoot: projectRoot,
+			outputRoot,
+			cacheFile,
+			reservedOutputs: []
+		});
+		assert.equal(await readFile(path.join(outputRoot, "AGENTS.md"), "utf8"), "# Merchant context");
+	});
+
+	it("rejects oversized or incorrectly cased Shopify root context files", async () => {
+		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
+		await createUploadableTheme(sourceRoot);
+		await writeSource(sourceRoot, "theme/AGENTS.md", "x".repeat(50_001));
+		await assert.rejects(
+			buildTheme({ projectRoot, sourceRoot, outputRoot, cacheFile, reservedOutputs: [] }),
+			/50 KB limit/
+		);
+		await writeSource(projectRoot, "agents.md", "Incorrect casing");
+		await assert.rejects(
+			discoverSourceEntries({ projectRoot, sourceRoot, shopifySourceRoot: projectRoot }),
+			/exact Shopify casing/
+		);
+	});
+
 	it("builds Shopify's upload minimum without requiring config or index template files", async () => {
 		const { projectRoot, sourceRoot, outputRoot, cacheFile } = await createTemporaryProject();
 		await createUploadableTheme(sourceRoot);

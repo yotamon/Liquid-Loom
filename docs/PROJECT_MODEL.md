@@ -66,6 +66,8 @@ A simplified model looks like this:
 
 The actual JSON includes per-file references, partial regions, source kind, Shopify output type, and summary counts.
 
+Root `AGENTS.md` and `DESIGN.md` are represented as `theme-context` in feature selection. These are shipped agent instructions/design context, not Shopify-rendered templates. The model does not interpret their contents.
+
 ## Feature inference
 
 For organized Liquid Loom source, the authored taxonomy is authoritative. For example:

@@ -16,6 +16,8 @@ export const SHOPIFY_THEME_DIRECTORIES = [
 const FLAT_THEME_DIRECTORIES = new Set(["blocks", "config", "layout", "locales", "sections", "snippets"]);
 const FLAT_SHOPIFY_DIRECTORIES = new Set(["assets", ...FLAT_THEME_DIRECTORIES]);
 const SUPPORTED_TEMPLATE_SUBDIRECTORIES = new Set(["customers", "metaobject"]);
+const THEME_CONTEXT_FILES = new Set(["AGENTS.md", "DESIGN.md"]);
+const MAX_THEME_CONTEXT_FILE_BYTES = 50_000;
 export const DEFAULT_RESERVED_OUTPUTS = ["assets/style.css", "assets/theme.js"];
 
 export class BuildCollisionError extends Error {
@@ -58,6 +60,9 @@ export function mapThemePath(sourcePath) {
 	const normalized = normalizeRelativePath(sourcePath);
 	const parts = normalized.split("/");
 
+	if (parts.length === 2 && parts[0] === "theme" && THEME_CONTEXT_FILES.has(parts[1])) {
+		return parts[1];
+	}
 	if (parts[0] === "public" && parts.length > 1) {
 		return `assets/${path.posix.basename(normalized)}`;
 	}
@@ -77,6 +82,7 @@ export function mapShopifyPath(sourcePath) {
 	const normalized = normalizeRelativePath(sourcePath, "Shopify source path");
 	const parts = normalized.split("/");
 	const directory = parts[0];
+	if (parts.length === 1 && THEME_CONTEXT_FILES.has(normalized)) return normalized;
 	if (!SHOPIFY_THEME_DIRECTORIES.includes(directory) || parts.length < 2) {
 		throw new Error(`Unsupported Shopify source path: ${sourcePath}`);
 	}
@@ -223,6 +229,23 @@ export async function discoverSourceEntries({ projectRoot, sourceRoot, shopifySo
 		}
 	}
 	if (shopifySourceRoot) {
+		if (await fileExists(shopifySourceRoot)) {
+			for (const item of await readdir(shopifySourceRoot, { withFileTypes: true })) {
+				if (!item.isFile() || !/^(agents|design)\.md$/i.test(item.name)) continue;
+				if (!THEME_CONTEXT_FILES.has(item.name)) {
+					throw new Error(
+						`Theme agent context file must use exact Shopify casing: ${item.name}. Use AGENTS.md or DESIGN.md.`
+					);
+				}
+				entries.push({
+					layerId: "shopify",
+					kind: "shopify",
+					root: shopifySourceRoot,
+					relativePath: item.name,
+					displayPath: path.relative(projectRoot, path.join(shopifySourceRoot, item.name)).split(path.sep).join("/")
+				});
+			}
+		}
 		for (const directoryName of SHOPIFY_THEME_DIRECTORIES) {
 			const directory = path.join(shopifySourceRoot, directoryName);
 			if (!(await fileExists(directory))) continue;
@@ -343,6 +366,9 @@ export async function buildTheme({
 		const sourcePath = path.join(file.root, ...file.relativePath.split("/"));
 		const outputPath = path.join(outputRoot, ...file.output.split("/"));
 		const contents = await readFile(sourcePath);
+		if (THEME_CONTEXT_FILES.has(file.output) && contents.byteLength > MAX_THEME_CONTEXT_FILE_BYTES) {
+			throw new Error(`Shopify theme context file ${file.displayPath} exceeds the 50 KB limit.`);
+		}
 		const fingerprint = hash(contents);
 		const manifestKey = shopifySourceRoot ? file.sourceKey : file.relativePath;
 		const previous = previousManifest.files[manifestKey] ?? previousManifest.files[file.relativePath];

@@ -71,6 +71,7 @@ function inferNativeFeature(output) {
 }
 
 function inferFeature(file) {
+	if (file.output === "AGENTS.md" || file.output === "DESIGN.md") return "theme-context";
 	const parts = file.relativePath.split("/");
 	if (file.kind === "organized" && parts[0] === "theme") {
 		const directory = parts[1];
