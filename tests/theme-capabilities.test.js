@@ -87,6 +87,34 @@ describe("reference theme capabilities", () => {
 		assert.ok(multi.includes("block.settings.link != blank"));
 	});
 
+	it("includes merchant-editable editorial sections with valid native Shopify semantics", async () => {
+		for (const name of ["rich-text", "multicolumn"]) {
+			const source = await read(`src/theme/sections/pages/${name}.liquid`);
+			const starter = await read(`packages/create-liquid-loom/template/src/theme/sections/pages/${name}.liquid`);
+			assert.equal(source, starter, `${name} source and packaged starter must match`);
+			const schemaMatch = source.match(/{% schema %}([\s\S]*?){% endschema %}/);
+			assert.ok(schemaMatch, `${name} must include an editable section schema`);
+			const schema = JSON.parse(schemaMatch[1]);
+			assert.ok(schema.presets?.length > 0, `${name} must be addable through Theme Editor`);
+			assert.ok(schema.name.length <= 25, `${name} must meet Shopify's section name limit`);
+			assert.match(source, /{% stylesheet %}/);
+			assert.doesNotMatch(source, /{% javascript %}/);
+			assert.match(source, /section\.settings/);
+		}
+		const rich = await read("src/theme/sections/pages/rich-text.liquid");
+		assert.match(rich, /section\.settings\.button_link != blank/);
+		assert.match(rich, /section\.settings\.alignment/);
+		const columns = await read("src/theme/sections/pages/multicolumn.liquid");
+		const multicolumnSchema = JSON.parse(columns.match(/{% schema %}([\s\S]*?){% endschema %}/)[1]);
+		assert.ok(multicolumnSchema.blocks.some((item) => item.type === "column"));
+		assert.equal(multicolumnSchema.max_blocks, 12);
+		assert.match(columns, /block\.shopify_attributes/);
+		assert.match(columns, /<ul class="feature-columns__grid"/);
+		assert.match(columns, /<li class="feature-columns__item"/);
+		assert.match(columns, /image_tag: loading: 'lazy'/);
+		assert.match(columns, /@media \(max-width: 600px\)/);
+	});
+
 	it("localizes cart controls and displays subscription allocations for purchased variants", async () => {
 		const cart = await read("src/theme/sections/cart/main-cart.liquid");
 		assert.match(cart, /item\.selling_plan_allocation\.selling_plan\.name/);
