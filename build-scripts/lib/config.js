@@ -1,7 +1,7 @@
 import { access } from "node:fs/promises";
 import path from "node:path";
 
-import { loadConfigFromFile } from "vite";
+import { createJiti } from "jiti";
 
 import { DEFAULT_RESERVED_OUTPUTS } from "./theme-builder.js";
 
@@ -62,16 +62,12 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 	const configFile = await findConfigFile(resolvedRoot);
 	let userConfig = {};
 	if (configFile) {
-		const loaded = await loadConfigFromFile(
-			{ command: "build", isPreview: false, isSsrBuild: false, mode: "production" },
-			configFile,
-			resolvedRoot,
-			"silent"
-		);
-		if (!loaded || !loaded.config || typeof loaded.config !== "object") {
+		const jiti = createJiti(import.meta.url);
+		const loaded = await jiti.import(configFile, { default: true });
+		if (!loaded || typeof loaded !== "object" || Array.isArray(loaded)) {
 			throw new Error(`Configuration must export an object: ${path.basename(configFile)}`);
 		}
-		userConfig = loaded.config;
+		userConfig = loaded;
 	}
 
 	const sourceDir = userConfig.sourceDir ?? "src";
