@@ -36,6 +36,30 @@ describe("reference theme capabilities", () => {
 		assert.match(await read("src/theme/sections/collections/main-collection.liquid"), /view-event-trigger="intersect"/);
 	});
 
+	it("provides responsive, merchant-editable content sections without a JavaScript runtime", async () => {
+		const sectionPaths = ["faq", "image-with-text"];
+		for (const name of sectionPaths) {
+			const source = await read(`src/theme/sections/pages/${name}.liquid`);
+			const starter = await read(`packages/create-liquid-loom/template/src/theme/sections/pages/${name}.liquid`);
+			assert.equal(starter, source, `${name} must match the packed scaffold`);
+			const match = source.match(/{% schema %}([\\s\\S]*?){% endschema %}/);
+			assert.ok(match, `${name} must have a Shopify section schema`);
+			const schema = JSON.parse(match[1]);
+			assert.ok(schema.presets?.length > 0, `${name} must be addable in Theme Editor`);
+			assert.match(source, /{% stylesheet %}/);
+			assert.match(source, /@media \\(max-width: 750px\\)/);
+			assert.doesNotMatch(source, /{% javascript %}/);
+		}
+		const faq = await read("src/theme/sections/pages/faq.liquid");
+		const faqSchema = JSON.parse(faq.match(/{% schema %}([\\s\\S]*?){% endschema %}/)[1]);
+		assert.ok(faqSchema.blocks.some((block) => block.type === "question"));
+		assert.match(faq, /<details[^>]+block\\.shopify_attributes/);
+		assert.match(faq, /<summary>/);
+		const imageText = await read("src/theme/sections/pages/image-with-text.liquid");
+		assert.match(imageText, /image_tag: loading: 'lazy'/);
+		assert.match(imageText, /section\\.settings\\.button_link != blank/);
+	});
+
 	it("includes modern discovery, merchandising, and design-token primitives", async () => {
 		assert.match(await read("src/theme/config/settings_schema.json"), /color_palette/);
 		assert.match(await read("src/theme/sections/collections/main-collection.liquid"), /collection\.filters/);
