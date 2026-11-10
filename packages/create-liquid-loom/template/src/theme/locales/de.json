@@ -1,0 +1,46 @@
+{
+	"accessibility": {
+		"skip_to_content": "Zum Inhalt springen"
+	},
+	"actions": {
+		"add_to_cart": "In den Warenkorb",
+		"checkout": "Zur Kasse",
+		"continue_shopping": "Weiter einkaufen",
+		"search": "Suchen",
+		"view_all": "Alle ansehen"
+	},
+	"cart": {
+		"empty": "Dein Warenkorb ist leer",
+		"subtotal": "Zwischensumme",
+		"title": "Warenkorb",
+		"added": "Zum Warenkorb hinzugefügt.",
+		"add_error": "Der Warenkorb konnte nicht aktualisiert werden. Bitte versuche es erneut."
+	},
+	"products": {
+		"quantity": "Menge",
+		"sold_out": "Ausverkauft",
+		"purchase_option": "Kaufoption",
+		"one_time_purchase": "Einmaliger Kauf",
+		"decrease_quantity": "Menge verringern",
+		"increase_quantity": "Menge erhöhen",
+		"options_require_javascript": "Aktiviere JavaScript, um Produktoptionen zu ändern.",
+		"variant_error": "Die Produktoption konnte nicht aktualisiert werden. Bitte versuche es erneut.",
+		"unavailable": "Nicht verfügbar"
+	},
+	"search": {
+		"heading": "Finde, was du suchst",
+		"label": "Shop durchsuchen",
+		"products": "Produkte",
+		"suggestions": "Produktvorschläge",
+		"no_results_for": "Keine Ergebnisse für",
+		"no_matching_products": "Keine passenden Produkte."
+	},
+	"collections": {
+		"label": "Kollektion",
+		"minimum": "Minimum",
+		"maximum": "Maximum",
+		"apply_filters": "Filter anwenden",
+		"clear": "Zurücksetzen",
+		"no_products": "Keine Produkte gefunden."
+	}
+}
