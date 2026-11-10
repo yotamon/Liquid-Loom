@@ -4,7 +4,7 @@ Liquid Loom includes a deliberately small set of Shopify-native, merchant-editab
 
 ## Frequently asked questions (`faq.liquid`)
 
-In **Customize > Add section**, choose **Frequently asked questions**. Add, remove and reorder Question blocks. Each question uses native HTML `details` and `summary`, so keyboard interaction and disclosure work without JavaScript.
+In **Customize > Add section**, choose **FAQ**. Add, remove and reorder Question blocks. Each question uses native HTML `details` and `summary`, so keyboard interaction and disclosure work without JavaScript.
 
 - Edit the eyebrow, section heading and optional introduction in Theme Editor.
 - Add up to 12 question blocks. Merchants should replace the sample question and answer before publishing.
