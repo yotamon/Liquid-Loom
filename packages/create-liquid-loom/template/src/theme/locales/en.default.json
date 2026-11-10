@@ -24,6 +24,7 @@
 		"decrease_quantity": "Decrease quantity",
 		"increase_quantity": "Increase quantity",
 		"options_require_javascript": "Enable JavaScript to change product options.",
+		"selected_variant": "Selected variant",
 		"variant_error": "Unable to update this product option. Please try again.",
 		"unavailable": "Unavailable"
 	},
