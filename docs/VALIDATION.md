@@ -140,6 +140,22 @@ For an existing theme, record:
 
 State who should use Liquid Loom and who should stay with a conventional Shopify theme structure.
 
+## Storefront regression acceptance
+
+The reference theme's source-level behavioral tests cover deferred option-value requests, section refresh state preservation, keyboard navigation for predictive search, and locale-key parity. These tests do not replace a real Shopify store.
+
+Before declaring the storefront production-validated, use a development store with:
+
+- a product with more than 250 variants and a selection beyond the first 250;
+- unavailable combinations, sold-out combinations, selling plans, and variant-specific imagery/pricing;
+- product blocks reordered in Theme Editor and a third-party app block installed;
+- German and English storefront languages, including the localized predictive-search endpoint;
+- keyboard-only search interaction (Arrow Up/Down, Enter, Escape), and screen reader output;
+- cart mutations with and without Shopify standard actions, including no-JavaScript form submission;
+- a combined listing if the store supports one.
+
+Verify option changes update the URL, product form variant ID, price, availability, and selected media together. Intentionally simulate a failed Section Rendering request and confirm the UI does not silently purchase an older variant. Verify cart and search behavior in the actual browser before marking these items complete.
+
 ## Browser smoke
 
 A development-store browser smoke suite should be added once a stable test store and authentication strategy exist. The initial suite only needs to prove critical storefront behavior:
