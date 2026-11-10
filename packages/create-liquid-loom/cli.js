@@ -51,7 +51,9 @@ scaffoldProject({
 })
 	.then(({ targetDirectory: target }) => {
 		console.log(`\n✓ Created ${projectName} at ${target}`);
-		console.log(`\nNext:\n  cd ${JSON.stringify(path.relative(process.cwd(), target) || ".")}\n  pnpm dev`);
+		const manager = values["package-manager"];
+		const devCommand = manager === "npm" ? "npm run dev" : `${manager} dev`;
+		console.log(`\nNext:\n  cd ${JSON.stringify(path.relative(process.cwd(), target) || ".")}\n  ${devCommand}`);
 	})
 	.catch((error) => {
 		console.error(`× ${error.message}`);
