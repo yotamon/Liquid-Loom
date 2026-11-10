@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { afterEach, describe, it } from "node:test";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -45,6 +46,33 @@ describe("project doctor", () => {
 		assert.equal(await findShopifyCli(projectRoot, ""), path.join(projectRoot, "node_modules", ".bin", binary));
 	});
 
+	it("emits machine-readable diagnostics without headers and uses nonzero status on failure", async () => {
+		const projectRoot = await project();
+		await writeHealthyProject(projectRoot);
+		const cli = path.resolve(import.meta.dirname, "../build-scripts/cli.js");
+		const healthy = spawnSync(process.execPath, [cli, "doctor", "--json"], {
+			cwd: projectRoot,
+			encoding: "utf8"
+		});
+		assert.equal(healthy.status, 0, healthy.stderr);
+		const parsed = JSON.parse(healthy.stdout);
+		assert.equal(parsed.healthy, true);
+		assert.equal(parsed.checks.find((item) => item.name === "node-runtime").code, "LL_OK");
+
+		await write(projectRoot, ".gitignore", "node_modules/\\n");
+		const broken = spawnSync(process.execPath, [cli, "doctor", "--json"], {
+			cwd: projectRoot,
+			encoding: "utf8"
+		});
+		assert.equal(broken.status, 1);
+		assert.equal(broken.stderr, "");
+		const report = JSON.parse(broken.stdout);
+		assert.equal(report.healthy, false);
+		const finding = report.checks.find((item) => item.name === "generated-files");
+		assert.equal(finding.code, "LL_GITIGNORE_INCOMPLETE");
+		assert.match(finding.fix, /\\.gitignore/);
+	});
+
 	it("recognizes a healthy, portable project contract", async () => {
 		const projectRoot = await project();
 		await writeHealthyProject(projectRoot);
@@ -73,6 +101,8 @@ describe("project doctor", () => {
 
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, false);
+		assert.equal(result.checks.find((item) => item.name === "generated-files").code, "LL_GITIGNORE_MISSING");
+		assert.match(result.checks.find((item) => item.name === "generated-files").fix, /\.gitignore/);
 		assert.equal(
 			result.checks.some((check) => check.name === "private-content" && check.status === "fail"),
 			true
@@ -181,7 +211,7 @@ describe("project doctor", () => {
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, false);
 		assert.equal(
-			result.checks.some((check) => check.name === "theme-source" && /Multiple source files map/.test(check.message)),
+			result.checks.some((check) => check.code === "LL_SOURCE_COLLISION" && /Multiple source files map/.test(check.message)),
 			true
 		);
 	});
