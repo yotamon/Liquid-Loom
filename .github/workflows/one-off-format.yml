@@ -1,0 +1,32 @@
+name: One-off format storefront PR
+on:
+  push:
+    branches: [feat/shopify-storefront-hardening]
+    paths: [.github/workflows/one-off-format.yml]
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: feat/shopify-storefront-hardening
+          persist-credentials: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format
+      - name: Commit formatted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- src/theme/sections/collections/main-collection.liquid packages/create-liquid-loom/template/src/theme/sections/collections/main-collection.liquid
+          if git diff --cached --quiet; then
+            echo "Nothing needs formatting"
+          else
+            git commit -m "style: format localized collection controls"
+            git push origin HEAD:feat/shopify-storefront-hardening
+          fi
