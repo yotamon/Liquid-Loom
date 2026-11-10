@@ -159,7 +159,13 @@ Before declaring the storefront production-validated, use a development store wi
 - English/German cart column headings and quantity labels, update and checkout controls, and the subscription plan name on recurring-purchase line items;
 - a combined listing if the store supports one.
 
-Verify option changes update the URL, product form variant ID, price, availability, and selected media together. Intentionally simulate a failed Section Rendering request and confirm the UI does not silently purchase an older variant. Verify cart and search behavior in the actual browser before marking these items complete.
+Verify option changes update the URL, product form variant ID, price, availability, and selected media together. Intentionally simulate a failed Section Rendering request and confirm the UI does not silently purchase an older variant.
+
+For browsers without JavaScript or when the product custom element does not initialize, the reference product form hides inert option dropdowns, identifies the exact server-selected variant, and allows native submission **only for that variant**. Option changes require JavaScript; this is a deliberately limited safe fallback, not a complete no-JavaScript high-variant picker. Verify invalid `option_values` combinations do not enable an old variant purchase and form submission remains blocked during a pending Section Rendering request.
+
+Test subscription-only variants: if `variant.requires_selling_plan` is true, one-time purchase must not appear; only the variant's eligible selling plan allocations may be offered. On variant change, restore the previous selling plan only when available in the new form, otherwise retain Shopify's newly rendered default. Verify the exact `selling_plan` ID and allocated price in the cart and checkout.
+
+Verify cart and search behavior in the actual browser before marking these items complete.
 
 ## Browser smoke
 
