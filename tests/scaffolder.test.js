@@ -33,7 +33,7 @@ describe("create-liquid-loom", () => {
 			const manifest = JSON.parse(await readFile(path.join(targetDirectory, "package.json"), "utf8"));
 			const readme = await readFile(path.join(targetDirectory, "README.md"), "utf8");
 			assert.equal(manifest.packageManager, manager === "pnpm" ? "pnpm@11.11.0" : undefined);
-			const run = manager === "npm" ? "npm run" : manager;
+			const run = manager === "npm" || manager === "bun" ? `${manager} run` : manager;
 			assert.ok(readme.includes(manager + " install"));
 			assert.ok(readme.includes(run + " dev"));
 			assert.ok(readme.includes(run + " build"));
