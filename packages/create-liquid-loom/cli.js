@@ -18,6 +18,7 @@ const { positionals, values } = parseArgs({
 		install: { default: true, type: "boolean" },
 		"no-install": { type: "boolean" },
 		"package-manager": { default: "pnpm", type: "string" },
+		preset: { default: "native", type: "string" },
 		version: { short: "v", type: "boolean" }
 	}
 });
@@ -33,6 +34,7 @@ if (values.help || positionals.length === 0) {
 Options:
   --no-install                 Skip dependency installation
   --package-manager <manager>  pnpm, npm, yarn, or bun (default: pnpm)
+  --preset <preset>           native, vite, or vite-tailwind (default: native)
   -h, --help                   Show help
   -v, --version                Show version`);
 	process.exit(values.help ? 0 : 1);
@@ -48,7 +50,8 @@ scaffoldProject({
 	targetDirectory,
 	projectName,
 	install: values["no-install"] ? false : values.install,
-	packageManager: values["package-manager"]
+	packageManager: values["package-manager"],
+	preset: values.preset
 })
 	.then(({ targetDirectory: target }) => {
 		console.log(`\n✓ Created ${projectName} at ${target}`);

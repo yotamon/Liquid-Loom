@@ -275,6 +275,16 @@ An adopted theme can keep Sass, PostCSS, Webpack, Vite, Tailwind, or another exi
 
 ### Optional Vite and Tailwind
 
+Fresh scaffolds support three explicit asset presets. **Native remains the default** and does not install a bundler:
+
+```bash
+pnpm create liquid-loom@latest my-theme --preset native
+pnpm create liquid-loom@latest my-vite-theme --preset vite
+pnpm create liquid-loom@latest my-tailwind-theme --preset vite-tailwind
+```
+
+The opt-in presets add the required dependencies, a complete Vite config, source entrypoints, and stable `dist/theme/assets/theme.js` and `style.css` referenced by the generated layout. Tailwind includes utilities without importing its global Preflight reset. No preset changes an adopted theme or introduces a new storefront runtime.
+
 Projects that need bundling can explicitly enable Vite and reserve stable generated Shopify asset names. Tailwind remains available through the native Tailwind Vite plugin.
 
 Native-only projects no longer install Vite or Tailwind as framework dependencies. Liquid Loom uses the lightweight Jiti loader for `.ts` and `.mjs` configuration files instead. For a bundled project, install `vite` explicitly and point `viteConfig` to its configuration file. Add `tailwindcss` and `@tailwindcss/vite` only when needed. Existing projects with Vite installed continue to work without migration.

@@ -80,6 +80,36 @@ try {
 	await run("npm", ["exec", "--", "liquid-loom", "explain", "product", "--json"], target);
 	await run("npm", ["run", "build"], target);
 
+	// Exercise each optional asset preset through the packed creator binary, not source files.
+	for (const preset of ["vite", "vite-tailwind"]) {
+		const presetTarget = path.join(workspace, `packed-${preset}`);
+		await run(
+			"npm",
+			[
+				"exec",
+				"--",
+				"create-liquid-loom",
+				presetTarget,
+				"--no-install",
+				"--package-manager",
+				"npm",
+				"--preset",
+				preset
+			],
+			target
+		);
+		const manifestPath = path.join(presetTarget, "package.json");
+		const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+		manifest.devDependencies["liquid-loom"] = packageSpec;
+		await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+		await run("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund"], presetTarget);
+		await run("npm", ["run", "build"], presetTarget);
+		for (const asset of ["theme.js", "style.css"]) {
+			await access(path.join(presetTarget, "dist", "theme", "assets", asset));
+		}
+		console.log(`✓ Packed ${preset} starter builds both stable Shopify asset outputs`);
+	}
+
 	await mkdir(existingTarget, { recursive: true });
 	await write(
 		existingTarget,

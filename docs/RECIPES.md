@@ -41,7 +41,17 @@ Run `pnpm build` immediately after adding the file. Portable collisions fail bef
 
 ## Opt into Vite or Tailwind
 
-The fresh starter uses Shopify-native assets by default, but the framework still supports Vite and Tailwind. Add a Vite config and enable it explicitly:
+The fresh starter uses Shopify-native assets by default. For **new projects**, choose a working preset instead of hand-writing a Vite config:
+
+```bash
+pnpm create liquid-loom@latest merchant-theme --preset native
+pnpm create liquid-loom@latest merchant-vite --preset vite
+pnpm create liquid-loom@latest merchant-utilities --preset vite-tailwind
+```
+
+The opt-in presets install only their required bundler dependencies and provide `src/entrypoints/theme.js`, `src/entrypoints/theme.css`, and `vite.config.js`. Vite emits `assets/theme.js` and `assets/style.css`; the generated layout references both. Tailwind uses its theme and utility layers without global Preflight resets. Preserve `{% stylesheet %}` and `{% javascript %}` for portable Shopify-native components.
+
+For **existing themes**, keep the current asset pipeline unless you intentionally want to opt in. You can still add a Vite config and enable it explicitly:
 
 ```ts
 export default defineConfig({

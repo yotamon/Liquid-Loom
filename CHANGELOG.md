@@ -6,6 +6,8 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 
 ### Added
 
+- Explicit `native`, `vite`, and `vite-tailwind` create-project presets, with stable generated Shopify asset names, safe Tailwind utilities without Preflight, and packed-consumer build acceptance.
+
 - Machine-readable `doctor --json` diagnostics with stable `LL_*` codes, optional recovery hints, and predictable failure status. The human-readable doctor now prints concrete fixes for common setup failures.
 
 - Shopify-native theme-root `AGENTS.md` and `DESIGN.md` in scaffold and build output, with portable ownership checks, file-size validation, theme-context project intelligence, and deployment-branch support.

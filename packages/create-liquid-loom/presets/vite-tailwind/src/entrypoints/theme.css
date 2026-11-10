@@ -1,0 +1,8 @@
+/* Utilities only: avoid Tailwind Preflight resetting Shopify-native component styles. */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@source "../theme";
+
+:root {
+	--loom-enhancements-enabled: 1;
+}
