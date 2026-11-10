@@ -18,7 +18,7 @@ Run `pnpm analyze`, inspect the largest files, and confirm the change is intenti
 
 ## Shopify CLI does not start
 
-Run `pnpm exec shopify version`, authenticate with `pnpm exec shopify auth login`, and confirm the account can access a development store. `pnpm watch` remains available when only local compilation is needed.
+Run `liquid-loom doctor` to check whether a Shopify CLI executable is available locally or on your PATH. If the CLI is missing, install your project's dependencies, then run the CLI's `shopify version` and `shopify auth login` commands through your package manager. The check does not verify login, permissions, or store access. `liquid-loom watch` and `liquid-loom build` remain available without Shopify authentication.
 
 ## Theme Check reports generated files only
 
