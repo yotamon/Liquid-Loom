@@ -112,7 +112,7 @@ export async function scaffoldProject({
 		const explainArgs = packageManager === "npm" || packageManager === "pnpm" ? "-- --json" : "--json";
 		const instructions = {
 			PROJECT_NAME: projectName,
-			__ASSET_STRATEGY_DESCRIPTION__: PRESET_DESCRIPTIONS[preset],
+			"%%ASSET_STRATEGY_DESCRIPTION%%": PRESET_DESCRIPTIONS[preset],
 			__INSTALL_COMMAND__: `${packageManager} install`,
 			__DEV_COMMAND__: script("dev"),
 			__BUILD_COMMAND__: script("build"),
