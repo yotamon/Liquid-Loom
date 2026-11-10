@@ -8,22 +8,22 @@
 		<input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
 		{%- unless product.has_only_default_variant -%}
 			<div class="product-form__options" data-product-option-controls>
-			{%- for product_option in product.options_with_values -%}
-				<div class="field">
-					<label for="Option-{{ block.id }}-{{ product_option.position }}">{{ product_option.name | escape }}</label>
-					<select id="Option-{{ block.id }}-{{ product_option.position }}" data-product-option>
-						{%- for option_value in product_option.values -%}
-							<option
-								value="{{ option_value.id }}"
-								data-product-url="{{ option_value.product_url | escape }}"
-								{% if option_value.selected %}
-									selected
-								{% endif %}
-							>
-								{{- option_value.name | escape -}}
-								{%- unless option_value.available %} ({{ 'products.sold_out' | t }}){% endunless -%}
-							</option>
-						{%- endfor -%}
+				{%- for product_option in product.options_with_values -%}
+					<div class="field">
+						<label for="Option-{{ block.id }}-{{ product_option.position }}">{{ product_option.name | escape }}</label>
+						<select id="Option-{{ block.id }}-{{ product_option.position }}" data-product-option>
+							{%- for option_value in product_option.values -%}
+								<option
+									value="{{ option_value.id }}"
+									data-product-url="{{ option_value.product_url | escape }}"
+									{% if option_value.selected %}
+										selected
+									{% endif %}
+								>
+									{{- option_value.name | escape -}}
+									{%- unless option_value.available %} ({{ 'products.sold_out' | t }}){% endunless -%}
+								</option>
+							{%- endfor -%}
 					</select>
 				</div>
 			{%- endfor -%}
