@@ -240,7 +240,10 @@ export async function discoverSourceEntries({ projectRoot, sourceRoot, shopifySo
 					kind: "shopify",
 					root: shopifySourceRoot,
 					relativePath: item.name,
-					displayPath: path.relative(projectRoot, path.join(shopifySourceRoot, item.name)).split(path.sep).join("/")
+					displayPath: path
+						.relative(projectRoot, path.join(shopifySourceRoot, item.name))
+						.split(path.sep)
+						.join("/")
 				});
 			}
 		}
