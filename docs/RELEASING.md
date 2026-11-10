@@ -6,7 +6,7 @@ Liquid Loom releases `liquid-loom` and `create-liquid-loom` at the same version.
 
 npm Trusted Publishing can publish an existing package through GitHub Actions OIDC, but the package must already exist in the npm registry before a trusted publisher can be configured.
 
-The repository includes a guarded setup tool so the real `0.1.0` package metadata is never edited in place during bootstrap.
+The repository includes a guarded setup tool so the current source package metadata is never edited in place during bootstrap.
 
 ### Requirements
 
@@ -39,7 +39,7 @@ If `liquid-loom` or `create-liquid-loom` does not exist, it needs one bootstrap 
 pnpm npm:prepare
 ```
 
-This creates isolated packages under `.artifacts/npm-bootstrap/`. Each copy is forced to version `0.0.0`, keeps the package publish allowlist, and disables provenance only for this bootstrap copy. The source `package.json` files stay at `0.1.0` with provenance enabled.
+This creates isolated packages under `.artifacts/npm-bootstrap/`. Each copy is forced to version `0.0.0`, keeps the package publish allowlist, and disables provenance only for this bootstrap copy. The source `package.json` files retain their actual release-candidate versions with provenance enabled.
 
 Running `pnpm npm:bootstrap` is also safe by default: it prepares the copies but does not publish them.
 
@@ -61,7 +61,7 @@ The command:
 - runs npm directly in each prepared package directory, avoiding shell argument parsing differences across macOS, Linux, and Windows;
 - inherits your terminal for npm's browser or two-factor authentication prompts.
 
-It never publishes `0.1.0`.
+It never publishes the source project's actual release-candidate version.
 
 On a first-ever registry publication, verify the resulting dist-tags. If npm also created `latest` pointing at the bootstrap version, remove only that tag before the real release:
 
@@ -114,14 +114,17 @@ The tag workflow validates again, packs both exact artifacts, creates GitHub att
 
 ## Verify
 
+Check that **both** registry versions match the tagged commit. Download the release tarball before verifying its attestation; the variable below uses the current repository package version.
+
 ```bash
+VERSION="$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")"
 npm view liquid-loom version
 npm view create-liquid-loom version
-gh attestation verify liquid-loom-0.1.0.tgz --repo yotamon/Liquid-Loom
+gh attestation verify "liquid-loom-${VERSION}.tgz" --repo yotamon/Liquid-Loom
 pnpm create liquid-loom@latest release-smoke
 ```
 
-For the first release, also confirm that `latest` points to `0.1.0` rather than the bootstrap version:
+After publishing, confirm that `latest` points to the intended release rather than the bootstrap version:
 
 ```bash
 npm view liquid-loom dist-tags
