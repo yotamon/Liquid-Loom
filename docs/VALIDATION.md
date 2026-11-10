@@ -20,6 +20,8 @@ Current release engineering evidence:
 - [ ] at least three external Shopify developers completing a real workflow;
 - [ ] optional, consented real-project before/after case study (not a release gate).
 
+For repeatable independent testing, use the [version-aware developer trial protocol](DEVELOPER_TRIAL.md) and record the code version, first-preview timings, hints and subsequent actual adoption. Do not combine pre-release source rehearsals with public-registry first-user trials in adoption metrics.
+
 ## Fresh-project session
 
 Ask a tester to:
