@@ -70,7 +70,7 @@ export async function scaffoldProject({
 		const script = (name) => `${packageManager}${needsRun ? " run" : ""} ${name}`;
 		const explainArgs = packageManager === "npm" || packageManager === "pnpm" ? "-- --json" : "--json";
 		const instructions = {
-			__PROJECT_NAME__: projectName,
+			PROJECT_NAME: projectName,
 			__INSTALL_COMMAND__: `${packageManager} install`,
 			__DEV_COMMAND__: script("dev"),
 			__BUILD_COMMAND__: script("build"),
