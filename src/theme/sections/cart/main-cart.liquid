@@ -12,9 +12,9 @@
 					<table class="cart-table">
 						<thead>
 							<tr>
-								<th>Product</th>
-								<th>Quantity</th>
-								<th>Total</th>
+								<th scope="col">{{ 'cart.product' | t }}</th>
+								<th scope="col">{{ 'cart.quantity' | t }}</th>
+								<th scope="col">{{ 'cart.total' | t }}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -27,7 +27,15 @@
 											{%- endif -%}
 											<div>
 												<a href="{{ item.url }}">{{ item.product.title | escape }}</a><br>
-												<span class="muted">{{ item.variant.title }}</span>
+												{%- unless item.variant.title == 'Default Title' -%}
+													<span class="muted">{{ item.variant.title | escape }}</span>
+												{%- endunless -%}
+												{%- if item.selling_plan_allocation -%}
+													<p class="muted">
+														{{ 'products.purchase_option' | t }}:
+														{{ item.selling_plan_allocation.selling_plan.name | escape }}
+													</p>
+												{%- endif -%}
 											</div>
 										</div>
 									</td>
@@ -37,7 +45,7 @@
 											name="updates[]"
 											value="{{ item.quantity }}"
 											min="0"
-											aria-label="Quantity for {{ item.product.title | escape }}"
+											aria-label="{{ 'cart.quantity_for' | t: product: item.product.title | escape }}"
 										>
 									</td>
 									<td>{{ item.final_line_price | money }}</td>
@@ -47,7 +55,7 @@
 					</table>
 					<div class="cart-footer">
 						<strong>{{ 'cart.subtotal' | t }}: {{ cart.total_price | money }}</strong
-						><button class="button button--secondary" type="submit">Update cart</button
+						><button class="button button--secondary" type="submit" name="update">{{ 'cart.update' | t }}</button
 						><button class="button" type="submit" name="checkout">{{ 'actions.checkout' | t }}</button>
 					</div>
 				</form>
