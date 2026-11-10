@@ -19,7 +19,21 @@ Use it to organize theme code by feature, adopt better tooling inside an existin
 
 Liquid Loom does **not** replace Liquid, Online Store 2.0, Shopify CLI, the Theme Editor, or Shopify's storefront runtime.
 
-## Start with the theme you already have
+## Start a new Shopify theme
+
+```bash
+corepack enable
+pnpm create liquid-loom@latest my-storefront
+cd my-storefront
+pnpm build
+pnpm dev
+```
+
+A fresh project uses Shopify-native component CSS and JavaScript by default. Vite and Tailwind remain optional. Run `pnpm build` and `pnpm doctor` locally without a Shopify store; `pnpm dev` launches a live Shopify CLI preview and requires development-store access.
+
+**First edit:** Change the heading or section schema in `src/theme/sections/home/hero.liquid`. Liquid Loom compiles this feature-organized file into `dist/theme/sections/hero.liquid`. See the [five-step first-project walkthrough](docs/FIRST_PROJECT.md), or use [`explain product --json`](docs/PROJECT_MODEL.md) to inspect the product page before modifying it.
+
+## Already have a Shopify theme?
 
 From an existing Shopify theme containing `layout/theme.liquid`:
 
@@ -62,19 +76,7 @@ npm run loom:build
 
 `init` detects npm, pnpm, Yarn, or Bun and supports `--package-manager`, `--no-install`, `--dry-run`, `--theme-dir`, and `--yes`.
 
-Read [Existing-theme adoption](docs/EXISTING_THEME_ADOPTION.md) for the full zero-migration workflow.
-
-## Or start a new theme
-
-```bash
-corepack enable
-pnpm create liquid-loom@latest my-storefront
-cd my-storefront
-pnpm build
-pnpm dev
-```
-
-A fresh project uses Shopify-native component CSS and JavaScript by default. Vite and Tailwind remain supported integrations when a project actually needs bundling, module graphs, or utility-first CSS.
+Read [Existing-theme adoption](docs/EXISTING_THEME_ADOPTION.md) for the full zero-migration workflow. This path preserves your existing asset pipeline and does not require a wholesale migration.
 
 ## Why Liquid Loom
 
