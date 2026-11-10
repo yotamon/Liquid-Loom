@@ -19,16 +19,16 @@
 
 ## 2. Verified baseline and known gaps
 
-| Area | Current repo state | Necessary proof or change |
-| --- | --- | --- |
-| Source/build core | Dual source, collision detection, transactional staging, migration and project-model APIs implemented | Preserve invariants and backwards-compatible consumer behavior |
-| Reference commerce | Shopify-native blocks and standard actions; #35 merged high-variant option values and search work | No-JS product safety, invalid-option states, failure handling, browser/history and cart/runtime testing |
-| Release pipeline | Packed-package smoke, cross-platform CI and Trusted Publishing documented | Independent unauthenticated npm registry checks, provenance and current public package/version verification (#12) |
-| Real-store evidence | Not recorded as complete | Shopify dev-store fixture, merchant editor, live buyer smoke and recorded evidence (#13) |
-| Starter onboarding | Create and existing-theme init paths exist | Measure/fix friction from installation through first preview on actual consumers |
-| Shopify agent files | `AGENTS.md` / `DESIGN.md` absent from reference source; theme discovery currently constrained to canonical directories | Support exact-case root Markdown files through build and deployments (#44) |
-| Docs/versioning | Manifest versions 0.2.0; roadmap includes internally implemented later work; architecture doc incorrectly calls Vite/Tailwind default | Reconcile code, marketing claims, current release and public registry (#47) |
-| External adoption | Three independent Shopify developer sessions not recorded complete | Pilot and repeat-usage evidence (#14, #48) |
+| Area                | Current repo state                                                                                                                    | Necessary proof or change                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Source/build core   | Dual source, collision detection, transactional staging, migration and project-model APIs implemented                                 | Preserve invariants and backwards-compatible consumer behavior                                                    |
+| Reference commerce  | Shopify-native blocks and standard actions; #35 merged high-variant option values and search work                                     | No-JS product safety, invalid-option states, failure handling, browser/history and cart/runtime testing           |
+| Release pipeline    | Packed-package smoke, cross-platform CI and Trusted Publishing documented                                                             | Independent unauthenticated npm registry checks, provenance and current public package/version verification (#12) |
+| Real-store evidence | Not recorded as complete                                                                                                              | Shopify dev-store fixture, merchant editor, live buyer smoke and recorded evidence (#13)                          |
+| Starter onboarding  | Create and existing-theme init paths exist                                                                                            | Measure/fix friction from installation through first preview on actual consumers                                  |
+| Shopify agent files | `AGENTS.md` / `DESIGN.md` absent from reference source; theme discovery currently constrained to canonical directories                | Support exact-case root Markdown files through build and deployments (#44)                                        |
+| Docs/versioning     | Manifest versions 0.2.0; roadmap includes internally implemented later work; architecture doc incorrectly calls Vite/Tailwind default | Reconcile code, marketing claims, current release and public registry (#47)                                       |
+| External adoption   | Three independent Shopify developer sessions not recorded complete                                                                    | Pilot and repeat-usage evidence (#14, #48)                                                                        |
 
 Baseline is code/documentation inspection, not a claim about live npm registry versions or completed merchant-store acceptance.
 
@@ -52,12 +52,12 @@ Releases are **outcome-based**. The A/B/C/D labels are roadmap gates, **not semv
 
 **Outcome:** Safe real-store purchase and navigation flows, with measured accessibility/performance and documented limitations.
 
-| Order | Ticket | Deliverable |
-| --- | --- | --- |
-| A0 | [#13](https://github.com/yotamon/Liquid-Loom/issues/13) | Dev store + seeded fixture, reproducible manual acceptance, then opt-in browser smoke |
-| A1 | [#37](https://github.com/yotamon/Liquid-Loom/issues/37) | No-JS/invalid-option safe purchase; option-value selection, cart failure and browser navigation coverage |
-| A2 | [#38](https://github.com/yotamon/Liquid-Loom/issues/38) | End-to-end buyer flows: product, collection/search, cart, responsive controls and editor states |
-| A3 | [#39](https://github.com/yotamon/Liquid-Loom/issues/39) | Repeatable mobile/desktop performance + accessibility evidence |
+| Order | Ticket                                                  | Deliverable                                                                                              |
+| ----- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| A0    | [#13](https://github.com/yotamon/Liquid-Loom/issues/13) | Dev store + seeded fixture, reproducible manual acceptance, then opt-in browser smoke                    |
+| A1    | [#37](https://github.com/yotamon/Liquid-Loom/issues/37) | No-JS/invalid-option safe purchase; option-value selection, cart failure and browser navigation coverage |
+| A2    | [#38](https://github.com/yotamon/Liquid-Loom/issues/38) | End-to-end buyer flows: product, collection/search, cart, responsive controls and editor states          |
+| A3    | [#39](https://github.com/yotamon/Liquid-Loom/issues/39) | Repeatable mobile/desktop performance + accessibility evidence                                           |
 
 **A exit:** Real Shopify dev store proves there is no wrong-variant purchase, missing critical cart path, or critical navigation/accessibility blocker. Theme Editor product block reordering, app blocks, English/German search and account settings are validated. Core smoke is reproducible. Scores and any remaining limitations are linked.
 
@@ -69,12 +69,12 @@ Releases are **outcome-based**. The A/B/C/D labels are roadmap gates, **not semv
 
 **Outcome:** A developer can create or adopt a theme, make a real change, preview and deploy with less friction than a hand-assembled stack.
 
-| Order | Ticket | Deliverable |
-| --- | --- | --- |
-| B1 | [#40](https://github.com/yotamon/Liquid-Loom/issues/40) | Measured installation, first-run preflight, store auth and existing-theme onboarding |
-| B2 | [#41](https://github.com/yotamon/Liquid-Loom/issues/41) | Small polished starter pattern set and merchant-editable tokens |
-| B3 | [#42](https://github.com/yotamon/Liquid-Loom/issues/42) | Actionable, deterministic troubleshooting from real failure transcripts |
-| B4 | [#43](https://github.com/yotamon/Liquid-Loom/issues/43) | Optional native/Vite/Tailwind presets and lighter default install |
+| Order | Ticket                                                  | Deliverable                                                                          |
+| ----- | ------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| B1    | [#40](https://github.com/yotamon/Liquid-Loom/issues/40) | Measured installation, first-run preflight, store auth and existing-theme onboarding |
+| B2    | [#41](https://github.com/yotamon/Liquid-Loom/issues/41) | Small polished starter pattern set and merchant-editable tokens                      |
+| B3    | [#42](https://github.com/yotamon/Liquid-Loom/issues/42) | Actionable, deterministic troubleshooting from real failure transcripts              |
+| B4    | [#43](https://github.com/yotamon/Liquid-Loom/issues/43) | Optional native/Vite/Tailwind presets and lighter default install                    |
 
 **B exit:** Fresh and existing-theme quickstart commands work from packed consumers. Developer can edit a block/section, see Shopify preview, and understand mapped output. Existing theme is not rewritten or forced to change asset pipeline. The pattern showcase looks coherent on small screens, is keyboard accessible and merchant editable. B4 may ship in a following compatible release if its dependency refactor is risky.
 
@@ -84,10 +84,10 @@ Releases are **outcome-based**. The A/B/C/D labels are roadmap gates, **not semv
 
 **Outcome:** A developer or compatible coding agent can understand the project and carry design conventions into the real Shopify theme.
 
-| Order | Ticket | Deliverable |
-| --- | --- | --- |
-| C1 | [#44](https://github.com/yotamon/Liquid-Loom/issues/44) | Exact-case theme-root `AGENTS.md` and `DESIGN.md` through mapping, ownership, scaffold, build, package and CLI flow |
-| C2 | [#45](https://github.com/yotamon/Liquid-Loom/issues/45) | Tested opt-in compiled branch deployment and merchant-editor drift policy |
+| Order | Ticket                                                  | Deliverable                                                                                                         |
+| ----- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| C1    | [#44](https://github.com/yotamon/Liquid-Loom/issues/44) | Exact-case theme-root `AGENTS.md` and `DESIGN.md` through mapping, ownership, scaffold, build, package and CLI flow |
+| C2    | [#45](https://github.com/yotamon/Liquid-Loom/issues/45) | Tested opt-in compiled branch deployment and merchant-editor drift policy                                           |
 
 **C exit:** `dist/theme/AGENTS.md` and `dist/theme/DESIGN.md` are preserved, with case/size protections and no leaked secrets. Test Shopify CLI >=4.8.4 and Shopify GitHub sync against a real store. Confirm these are optional root-level developer context files (<=50 KB each), distinct from `templates/agents.md.liquid` used for customer-facing shopping agents. Safe deployments do not force-push or pretend generated source can reverse-sync Theme Editor writes.
 
@@ -97,11 +97,11 @@ Releases are **outcome-based**. The A/B/C/D labels are roadmap gates, **not semv
 
 **Outcome:** Honest docs/showcase, reliable registry releases, independent Shopify developers choosing Liquid Loom again.
 
-| Order | Ticket | Deliverable |
-| --- | --- | --- |
-| D1 | [#47](https://github.com/yotamon/Liquid-Loom/issues/47) + [#12](https://github.com/yotamon/Liquid-Loom/issues/12) | Version/changelog/documentation reconciliation and independent public npm/provenance validation |
-| D2 | [#46](https://github.com/yotamon/Liquid-Loom/issues/46) | New-project-first README, usable docs and verified demo storefront/screenshots/tutorial |
-| D3 | [#14](https://github.com/yotamon/Liquid-Loom/issues/14) + [#48](https://github.com/yotamon/Liquid-Loom/issues/48) | Independent pilot, funnel feedback and repeat adoption evidence |
+| Order | Ticket                                                                                                            | Deliverable                                                                                     |
+| ----- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| D1    | [#47](https://github.com/yotamon/Liquid-Loom/issues/47) + [#12](https://github.com/yotamon/Liquid-Loom/issues/12) | Version/changelog/documentation reconciliation and independent public npm/provenance validation |
+| D2    | [#46](https://github.com/yotamon/Liquid-Loom/issues/46)                                                           | New-project-first README, usable docs and verified demo storefront/screenshots/tutorial         |
+| D3    | [#14](https://github.com/yotamon/Liquid-Loom/issues/14) + [#48](https://github.com/yotamon/Liquid-Loom/issues/48) | Independent pilot, funnel feedback and repeat adoption evidence                                 |
 
 **D exit:** Both public packages can be installed from the registry by an unauthenticated consumer; provenance, version and release notes agree; a real demo is viewable; three independent devs complete a full real workflow; recurring blockers are addressed. Expand to ten participants and repeat-use evidence after initial acceptance. A client case study is a nice-to-have, not a launch gate.
 
@@ -150,15 +150,15 @@ Work in parallel where independent: A runtime fixes + B onboarding + C context m
 
 ## 7. Scorecard and measurement method
 
-| Metric | Calculation/source | Target / interpretation |
-| --- | --- | --- |
-| First-preview time | First correct command to successful Shopify dev preview, with preconfigured store auth; report median and distribution | <=10 minutes; do not mix auth-setup time without labeling |
-| Clean first build | Successful build / attempted first builds, per OS/Node/package manager | >=90% among evaluated supported environments; disclose sample size |
-| Buyer-flow pass rate | Verified critical scenarios / applicable critical scenarios on seeded dev store | 100% critical scenarios before public production-ready wording |
-| Accessibility | Lighthouse/axe + manual keyboard/reader sampling, mobile and desktop, representative real content | Aspirational controlled >=90 accessibility per core page; fix critical violations |
-| Performance | Repeated Lighthouse runs and Core Web Vitals, record network/content/device settings | Controlled mobile target >=75 per core page, no regressions; never claim this is field data |
-| Independent adoption | Completed first edit+preview, second project/session, and specific qualitative blockers | 3 independent full pilots as minimum, 10 next, aim for >=5 voluntary repeat uses (nonblocking goal) |
-| Packaging/release integrity | Public npm versions + provenance + clean consumer install/build, both packages | 100% required release checks |
+| Metric                      | Calculation/source                                                                                                     | Target / interpretation                                                                             |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| First-preview time          | First correct command to successful Shopify dev preview, with preconfigured store auth; report median and distribution | <=10 minutes; do not mix auth-setup time without labeling                                           |
+| Clean first build           | Successful build / attempted first builds, per OS/Node/package manager                                                 | >=90% among evaluated supported environments; disclose sample size                                  |
+| Buyer-flow pass rate        | Verified critical scenarios / applicable critical scenarios on seeded dev store                                        | 100% critical scenarios before public production-ready wording                                      |
+| Accessibility               | Lighthouse/axe + manual keyboard/reader sampling, mobile and desktop, representative real content                      | Aspirational controlled >=90 accessibility per core page; fix critical violations                   |
+| Performance                 | Repeated Lighthouse runs and Core Web Vitals, record network/content/device settings                                   | Controlled mobile target >=75 per core page, no regressions; never claim this is field data         |
+| Independent adoption        | Completed first edit+preview, second project/session, and specific qualitative blockers                                | 3 independent full pilots as minimum, 10 next, aim for >=5 voluntary repeat uses (nonblocking goal) |
+| Packaging/release integrity | Public npm versions + provenance + clean consumer install/build, both packages                                         | 100% required release checks                                                                        |
 
 No hidden analytics. Start with voluntary structured notes and issue feedback; aggregate and anonymize. If future opt-in telemetry is proposed, review privacy and data collection explicitly first.
 
