@@ -1,0 +1,46 @@
+name: Protected Shopify development-store browser smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_development_store:
+        description: Confirm that the configured preview URL points to a non-production Shopify development store
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    if: inputs.confirm_development_store == true
+    runs-on: ubuntu-latest
+    environment: shopify-dev
+    timeout-minutes: 20
+    env:
+      LIQUID_LOOM_DEV_STORE_CONFIRMED: "true"
+      LIQUID_LOOM_STORE_URL: ${{ secrets.LIQUID_LOOM_DEV_STORE_URL }}
+      LIQUID_LOOM_STOREFRONT_PASSWORD: ${{ secrets.LIQUID_LOOM_DEV_STOREFRONT_PASSWORD }}
+      LIQUID_LOOM_PRODUCT_PATH: ${{ vars.LIQUID_LOOM_DEV_PRODUCT_PATH }}
+      LIQUID_LOOM_SEARCH_TERM: ${{ vars.LIQUID_LOOM_DEV_SEARCH_TERM }}
+      LIQUID_LOOM_OPTION_VALUE_ID: ${{ vars.LIQUID_LOOM_DEV_OPTION_VALUE_ID }}
+      LIQUID_LOOM_EXPECTED_VARIANT_ID: ${{ vars.LIQUID_LOOM_DEV_EXPECTED_VARIANT_ID }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Install browser runner in an isolated temporary directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/shopify-browser"
+          cp tests/shopify-browser-smoke.mjs "$RUNNER_TEMP/shopify-browser/smoke.mjs"
+          cd "$RUNNER_TEMP/shopify-browser"
+          npm init -y >/dev/null
+          npm install playwright --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Exercise non-production storefront buyer flows
+        shell: bash
+        run: node "$RUNNER_TEMP/shopify-browser/smoke.mjs"
