@@ -48,13 +48,17 @@ async function assertNoViteInstallation(projectRoot) {
 try {
 	const native = path.join(workspace, "native-without-vite");
 	await mkdir(native);
-	await write(native, "package.json", JSON.stringify({
-		name: "native-without-vite",
-		version: "1.0.0",
-		private: true,
-		type: "module",
-		dependencies: { "liquid-loom": packageSpec }
-	}));
+	await write(
+		native,
+		"package.json",
+		JSON.stringify({
+			name: "native-without-vite",
+			version: "1.0.0",
+			private: true,
+			type: "module",
+			dependencies: { "liquid-loom": packageSpec }
+		})
+	);
 	await write(native, "liquid-loom.config.mjs", "export default { viteConfig: false, performance: false };\n");
 	await write(native, "src/theme/layout/theme.liquid", "<main>{{ content_for_layout }}</main>");
 	await run("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund"], native);
