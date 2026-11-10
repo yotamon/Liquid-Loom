@@ -38,9 +38,10 @@ describe("project config", () => {
 		const projectRoot = await createProject();
 		await writeFile(
 			path.join(projectRoot, "liquid-loom.config.ts"),
-			`export default {
+			`const outputDir: string = "build/shopify";
+			export default {
 				sourceDir: "storefront",
-				outputDir: "build/shopify",
+				outputDir,
 				forbiddenTerms: ["private-client"],
 				shopifyLiquidMode: "july-2026-preview",
 				performance: { maxBuildMs: 2500, maxThemeBytes: 2000000 }
@@ -55,6 +56,12 @@ describe("project config", () => {
 		assert.equal(config.shopifyLiquidMode, "july-2026-preview");
 		assert.equal(config.performance.maxBuildMs, 2500);
 		assert.equal(config.performance.maxAssetBytes, 500_000);
+	});
+
+	it("rejects invalid config exports without importing Vite", async () => {
+		const projectRoot = await createProject();
+		await writeFile(path.join(projectRoot, "liquid-loom.config.ts"), "export default [1, 2];\n");
+		await assert.rejects(loadProjectConfig(projectRoot), /Configuration must export an object/);
 	});
 
 	it("resolves existing-theme source layers without reserving Vite outputs", async () => {
