@@ -8,36 +8,40 @@ const optionValueId = process.env.LIQUID_LOOM_OPTION_VALUE_ID;
 const expectedVariantId = process.env.LIQUID_LOOM_EXPECTED_VARIANT_ID;
 
 if (process.env.LIQUID_LOOM_DEV_STORE_CONFIRMED !== "true") {
-	throw new Error("Set LIQUID_LOOM_DEV_STORE_CONFIRMED=true only after confirming the target is a non-production Shopify development store.");
+	throw new Error("Confirm a non-production Shopify development store before setting LIQUID_LOOM_DEV_STORE_CONFIRMED=true.");
 }
 
 if (Boolean(optionValueId) !== Boolean(expectedVariantId)) {
-	throw new Error("Both LIQUID_LOOM_OPTION_VALUE_ID and LIQUID_LOOM_EXPECTED_VARIANT_ID are required for option-value verification.");
+	throw new Error("Provide both LIQUID_LOOM_OPTION_VALUE_ID and LIQUID_LOOM_EXPECTED_VARIANT_ID.");
 }
 
 if (!storeUrl || !productPath || !searchTerm || searchTerm.trim().length < 2) {
 	throw new Error(
-		"Shopify browser acceptance requires LIQUID_LOOM_STORE_URL, LIQUID_LOOM_PRODUCT_PATH, and a LIQUID_LOOM_SEARCH_TERM of at least two characters."
+		"Shopify browser acceptance requires LIQUID_LOOM_STORE_URL, LIQUID_LOOM_PRODUCT_PATH and LIQUID_LOOM_SEARCH_TERM (2+ chars)."
 	);
 }
 
 const { chromium } = await import("playwright").catch(() => {
-	throw new Error("Install Playwright in the test environment before running the optional Shopify browser smoke.");
+	throw new Error("Install Playwright in the isolated runner before running browser acceptance.");
 });
 
 const base = new URL(storeUrl);
 if (!["http:", "https:"].includes(base.protocol)) throw new Error("Store preview must use HTTP or HTTPS.");
 const productUrl = new URL(productPath, base);
-if (productUrl.origin !== base.origin) throw new Error("The product fixture must belong to the provided storefront origin.");
+if (productUrl.origin !== base.origin) throw new Error("Product fixture must use the same storefront origin.");
 
 async function navigate(page, url) {
 	const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
-	if (!response || !response.ok()) throw new Error("Shopify storefront navigation did not return a successful response.");
+	if (!response || !response.ok()) throw new Error("Storefront navigation failed; check preview and authentication.");
 	const passwordInput = page.locator('form[action*="/password"] input[type="password"]');
 	if (await passwordInput.count()) {
-		if (!password) throw new Error("The storefront is password-protected. Provide the password through LIQUID_LOOM_STOREFRONT_PASSWORD.");
+		if (!password) throw new Error("Password-protected storefront: provide LIQUID_LOOM_STOREFRONT_PASSWORD.");
 		await passwordInput.fill(password);
-		await passwordInput.locator("xpath=ancestor::form").locator('button[type="submit"], input[type="submit"]').first().click();
+		await passwordInput
+			.locator("xpath=ancestor::form")
+			.locator('button[type="submit"], input[type="submit"]')
+			.first()
+			.click();
 		await page.waitForLoadState("domcontentloaded");
 		await page.goto(url, { waitUntil: "domcontentloaded" });
 	}
@@ -76,7 +80,9 @@ try {
 			(expectedId) => {
 				const form = document.querySelector("[data-product-section] product-form form");
 				const id = form?.querySelector('input[name="id"]')?.value;
-				return Boolean(id === expectedId && document.querySelector("[data-product-section] product-form:not([aria-busy])"));
+				return Boolean(
+					id === expectedId && document.querySelector("[data-product-section] product-form:not([aria-busy])")
+				);
 			},
 			expectedVariantId,
 			{ timeout: 12_000 }
@@ -108,7 +114,9 @@ try {
 	await navigate(page, new URL("cart", base).href);
 	const cartLines = page.locator(".cart-table tbody tr");
 	assert.ok((await cartLines.count()) > 0, "Cart must contain the product after purchase-form submission.");
-	assert.ok((await page.locator(".cart-product a").allTextContents()).some((title) => title.includes(productTitle)));
+	assert.ok(
+		(await page.locator(".cart-product a").allTextContents()).some((title) => title.includes(productTitle))
+	);
 	pass("Add-to-cart persists a line item through the native cart page");
 
 	const withoutJavaScript = await browser.newContext({ javaScriptEnabled: false });
@@ -116,9 +124,17 @@ try {
 	await navigate(noJsPage, productUrl.href);
 	const inactiveOptions = noJsPage.locator("product-form [data-product-option]");
 	if ((await inactiveOptions.count()) > 0) {
-		assert.equal(await inactiveOptions.first().isVisible(), false, "No-JavaScript variant choices must not imply working selection.");
+		assert.equal(
+			await inactiveOptions.first().isVisible(),
+			false,
+			"No-JavaScript variant choices must not imply working selection."
+		);
 		const variantDescription = noJsPage.locator("product-form .product-form__option-fallback");
-		assert.equal(await variantDescription.isVisible(), true, "No-JavaScript mode must identify the actual selected variant.");
+		assert.equal(
+			await variantDescription.isVisible(),
+			true,
+			"No-JavaScript mode must identify the actual selected variant."
+		);
 		assert.ok((await variantDescription.innerText()).trim().length > 0);
 	}
 	assert.ok(await noJsPage.locator("product-form input[name=id]").inputValue());
