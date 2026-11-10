@@ -1,7 +1,9 @@
+import { randomUUID } from "node:crypto";
 import { access } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
-import { loadConfigFromFile } from "vite";
+import { createJiti } from "jiti";
 
 import { DEFAULT_RESERVED_OUTPUTS } from "./theme-builder.js";
 
@@ -62,16 +64,14 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 	const configFile = await findConfigFile(resolvedRoot);
 	let userConfig = {};
 	if (configFile) {
-		const loaded = await loadConfigFromFile(
-			{ command: "build", isPreview: false, isSsrBuild: false, mode: "production" },
-			configFile,
-			resolvedRoot,
-			"silent"
-		);
-		if (!loaded || !loaded.config || typeof loaded.config !== "object") {
+		const loaded =
+			configFile.endsWith(".ts") || configFile.endsWith(".mts")
+				? await createJiti(import.meta.url).import(configFile, { default: true })
+				: (await import(`${pathToFileURL(configFile).href}?reload=${randomUUID()}`)).default;
+		if (!loaded || typeof loaded !== "object" || Array.isArray(loaded)) {
 			throw new Error(`Configuration must export an object: ${path.basename(configFile)}`);
 		}
-		userConfig = loaded.config;
+		userConfig = loaded;
 	}
 
 	const sourceDir = userConfig.sourceDir ?? "src";

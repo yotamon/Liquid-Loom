@@ -177,7 +177,7 @@ Incremental builds seed staging from the prior successful output. Clean builds b
 
 ## Optional bundling
 
-Fresh Liquid Loom projects use Shopify-native component CSS and JavaScript by default. Vite and Tailwind are opt-in asset strategies, not a requirement for the default scaffold.
+Fresh Liquid Loom projects use Shopify-native component CSS and JavaScript by default. Vite and Tailwind are opt-in asset strategies, not a requirement for the default scaffold. The configuration loader uses Jiti to support TypeScript and ESM configuration without pulling Vite into native-only consumers. The Vite package is an optional peer and should be installed by consumers that explicitly enable bundling.
 
 Existing-theme initialization writes:
 

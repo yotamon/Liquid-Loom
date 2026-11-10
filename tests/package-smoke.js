@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -36,7 +36,36 @@ const workspace = await mkdtemp(path.join(os.tmpdir(), "liquid-loom-package-smok
 const target = path.join(workspace, "storefront");
 const existingTarget = path.join(workspace, "existing-theme");
 
+async function assertNoViteInstallation(projectRoot) {
+	try {
+		await access(path.join(projectRoot, "node_modules", "vite"));
+		throw new Error("Vite was installed for a native-only Liquid Loom consumer");
+	} catch (error) {
+		if (error.code !== "ENOENT") throw error;
+	}
+}
+
 try {
+	const native = path.join(workspace, "native-without-vite");
+	await mkdir(native);
+	await write(
+		native,
+		"package.json",
+		JSON.stringify({
+			name: "native-without-vite",
+			version: "1.0.0",
+			private: true,
+			type: "module",
+			dependencies: { "liquid-loom": packageSpec }
+		})
+	);
+	await write(native, "liquid-loom.config.mjs", "export default { viteConfig: false, performance: false };\n");
+	await write(native, "src/theme/layout/theme.liquid", "<main>{{ content_for_layout }}</main>");
+	await run("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund"], native);
+	await assertNoViteInstallation(native);
+	await run("npm", ["exec", "--", "liquid-loom", "build"], native);
+	console.log("✓ Native-only packed framework installs and builds without Vite");
+
 	await scaffoldProject({ targetDirectory: target, projectName: "package-smoke", install: false });
 	const packageFile = path.join(target, "package.json");
 	const packageJson = JSON.parse(await readFile(packageFile, "utf8"));

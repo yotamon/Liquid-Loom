@@ -25,6 +25,8 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 
 ### Changed
 
+- The framework loads TypeScript and ESM project configuration through Jiti instead of importing Vite at startup. Vite and Tailwind are optional peer dependencies; native-only consumers can build without downloading the bundler. Explicit Vite projects keep their existing opt-in configuration.
+
 - Fresh scaffolds now honor the selected npm, pnpm, Yarn, or Bun workflow in their generated commands and metadata, and correctly support `--no-install`.
 - The public quickstart and starter README prioritize building a new theme and making the first real feature edit; legacy adoption remains a fully supported path.
 
