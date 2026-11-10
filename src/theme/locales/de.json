@@ -14,7 +14,12 @@
 		"subtotal": "Zwischensumme",
 		"title": "Warenkorb",
 		"added": "Zum Warenkorb hinzugefügt.",
-		"add_error": "Der Warenkorb konnte nicht aktualisiert werden. Bitte versuche es erneut."
+		"add_error": "Der Warenkorb konnte nicht aktualisiert werden. Bitte versuche es erneut.",
+		"product": "Produkt",
+		"quantity": "Menge",
+		"total": "Gesamt",
+		"update": "Warenkorb aktualisieren",
+		"quantity_for": "Menge für {{ product }}"
 	},
 	"products": {
 		"quantity": "Menge",

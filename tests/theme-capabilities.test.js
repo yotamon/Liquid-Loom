@@ -60,6 +60,29 @@ describe("reference theme capabilities", () => {
 		assert.match(imageText, /section\.settings\.button_link != blank/);
 	});
 
+	it("localizes cart controls and displays subscription allocations for purchased variants", async () => {
+		const cart = await read("src/theme/sections/cart/main-cart.liquid");
+		assert.match(cart, /item\.selling_plan_allocation\.selling_plan\.name/);
+		assert.match(cart, /name="update"/);
+		assert.match(cart, /cart\.quantity_for/);
+		assert.match(cart, /cart\.total/);
+		assert.match(cart, /scope="col"/);
+		assert.doesNotMatch(cart, /<th>Product<\/th>/);
+		const [english, german] = await Promise.all([
+			read("src/theme/locales/en.default.json"),
+			read("src/theme/locales/de.json")
+		]);
+		const en = JSON.parse(english);
+		const de = JSON.parse(german);
+		for (const key of ["product", "quantity", "total", "update", "quantity_for"]) {
+			assert.ok(en.cart[key]);
+			assert.ok(de.cart[key]);
+		}
+		assert.ok(en.cart.quantity_for.includes("{{ product }}"));
+		assert.ok(de.cart.quantity_for.includes("{{ product }}"));
+		assert.equal(cart, await read("packages/create-liquid-loom/template/src/theme/sections/cart/main-cart.liquid"));
+	});
+
 	it("includes modern discovery, merchandising, and design-token primitives", async () => {
 		assert.match(await read("src/theme/config/settings_schema.json"), /color_palette/);
 		assert.match(await read("src/theme/sections/collections/main-collection.liquid"), /collection\.filters/);

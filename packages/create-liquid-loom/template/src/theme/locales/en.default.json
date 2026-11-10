@@ -14,7 +14,12 @@
 		"subtotal": "Subtotal",
 		"title": "Cart",
 		"added": "Added to cart.",
-		"add_error": "Unable to update the cart. Try again."
+		"add_error": "Unable to update the cart. Try again.",
+		"product": "Product",
+		"quantity": "Quantity",
+		"total": "Total",
+		"update": "Update cart",
+		"quantity_for": "Quantity for {{ product }}"
 	},
 	"products": {
 		"quantity": "Quantity",
