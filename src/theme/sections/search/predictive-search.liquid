@@ -1,11 +1,11 @@
 {%- if predictive_search.performed -%}
 	<div class="predictive-search__results">
 		{%- if predictive_search.resources.products.size > 0 -%}
-			<p class="eyebrow">Products</p>
-			<ul role="listbox">
+			<p class="eyebrow">{{ 'search.products' | t }}</p>
+			<ul id="PredictiveSearchListbox" role="listbox" aria-label="{{ 'search.suggestions' | t | escape }}">
 				{%- for product in predictive_search.resources.products limit: 5 -%}
-					<li role="option">
-						<a href="{{ product.url }}">
+					<li id="PredictiveSearchOption-{{ forloop.index0 }}" role="option" aria-selected="false">
+						<a href="{{ product.url }}" tabindex="-1">
 							{{ product.title | escape }}
 							<span class="muted">{{ product.price | money }}</span>
 						</a>
@@ -13,7 +13,7 @@
 				{%- endfor -%}
 			</ul>
 		{%- else -%}
-			<p>No matching products.</p>
+			<p>{{ 'search.no_matching_products' | t }}</p>
 		{%- endif -%}
 	</div>
 {%- endif -%}
