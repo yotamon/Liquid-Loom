@@ -38,6 +38,7 @@ describe("create-liquid-loom", () => {
 			assert.ok(readme.includes(run + " dev"));
 			assert.ok(readme.includes(run + " build"));
 			assert.ok(readme.includes(run + " doctor"));
+			assert.match(readme, new RegExp(`^# store-${manager}\\n`));
 			assert.doesNotMatch(readme, /__[A-Z_]+__/);
 		}
 	});
