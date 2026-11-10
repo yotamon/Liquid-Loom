@@ -1,6 +1,6 @@
 # Liquid Loom: go-to Shopify-native theme starter implementation plan
 
-> **Status:** Proposed implementation roadmap, 2026-11-10. **Tracking:** [Epic #36](https://github.com/yotamon/Liquid-Loom/issues/36). Engineering implementation in the tickets below has **not** been completed by this planning PR.
+> **Status:** Active implementation roadmap, created 2026-11-10. **Tracking:** [Epic #36](https://github.com/yotamon/Liquid-Loom/issues/36). The baseline table below reflects the repository **when planning began**. For current implementation PRs and evidence, follow the linked issues. Real Shopify acceptance and a verified new npm release remain open. Public npm `@latest` was **0.1.1** on November 10, 2026 despite source manifests at `0.2.0` ([registry evidence](https://github.com/yotamon/Liquid-Loom/actions/runs/42880676580)).
 
 ## 1. Product decision
 
