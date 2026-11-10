@@ -70,7 +70,7 @@ describe("project doctor", () => {
 		assert.equal(report.healthy, false);
 		const finding = report.checks.find((item) => item.name === "generated-files");
 		assert.equal(finding.code, "LL_GITIGNORE_INCOMPLETE");
-		assert.match(finding.fix, /\\.gitignore/);
+		assert.ok(finding.fix.includes(".gitignore"));
 	});
 
 	it("recognizes a healthy, portable project contract", async () => {
@@ -102,7 +102,7 @@ describe("project doctor", () => {
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, false);
 		assert.equal(result.checks.find((item) => item.name === "generated-files").code, "LL_GITIGNORE_MISSING");
-		assert.match(result.checks.find((item) => item.name === "generated-files").fix, /\.gitignore/);
+		assert.ok(finding.fix.includes(".gitignore"));
 		assert.equal(
 			result.checks.some((check) => check.name === "private-content" && check.status === "fail"),
 			true
