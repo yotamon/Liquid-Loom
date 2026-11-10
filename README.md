@@ -384,6 +384,10 @@ Protected CI validates:
 
 Real-store validation remains separate from public CI so contributors do not need Shopify credentials.
 
+## Product development plan
+
+The current [go-to Shopify theme starter implementation plan](docs/GO_TO_STARTER_PLAN.md) explains the prioritized release gates, real-store acceptance, starter UX, AI-native theme files, and public adoption targets. Follow [Epic #36](https://github.com/yotamon/Liquid-Loom/issues/36) for implementation work. This plan does not imply unfinished features have shipped.
+
 ## Documentation
 
 - [Shopify 2026 platform modernization](docs/SHOPIFY_2026_MODERNIZATION.md) - architecture decisions and acceptance criteria
