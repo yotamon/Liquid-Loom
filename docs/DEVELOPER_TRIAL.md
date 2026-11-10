@@ -44,14 +44,14 @@ Use the [first-project walkthrough](FIRST_PROJECT.md) as reference only **after*
 
 ## What to measure
 
-| Signal | Definition | Do not count |
-| --- | --- | --- |
-| Time to first local build | Scaffold command started to first successful `dist/theme` build | Cached or undocumented prebuilt workspace |
-| Time to first live preview | Installation/scaffold started to a rendered Shopify CLI development preview | Local build alone or a previously open preview |
-| Unassisted completion | Participant completes the step without facilitator advice | A facilitator fixing commands for them |
-| Recovery success | Participant explains and fixes the intentional filename collision | Re-running commands without understanding the collision |
-| Adopt-again intent | Explicit Yes/Maybe/No and the reason | GitHub stars or general compliments |
-| Repeat-use evidence | A participant independently starts a **second** theme with Liquid Loom | Saying they might use it someday |
+| Signal                     | Definition                                                                  | Do not count                                            |
+| -------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Time to first local build  | Scaffold command started to first successful `dist/theme` build             | Cached or undocumented prebuilt workspace               |
+| Time to first live preview | Installation/scaffold started to a rendered Shopify CLI development preview | Local build alone or a previously open preview          |
+| Unassisted completion      | Participant completes the step without facilitator advice                   | A facilitator fixing commands for them                  |
+| Recovery success           | Participant explains and fixes the intentional filename collision           | Re-running commands without understanding the collision |
+| Adopt-again intent         | Explicit Yes/Maybe/No and the reason                                        | GitHub stars or general compliments                     |
+| Repeat-use evidence        | A participant independently starts a **second** theme with Liquid Loom      | Saying they might use it someday                        |
 
 Record wall-clock elapsed time and any Shopify login or network interruption separately; avoid fake precision and do not report a median until there are enough comparable observations. The working target is first live preview within ten minutes **when prerequisites are already configured**, not a promised benchmark.
 
