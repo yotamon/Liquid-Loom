@@ -1,0 +1,4 @@
+/* Optional global enhancements live here; keep section-local styles Shopify-native. */
+:root {
+	--loom-enhancements-enabled: 1;
+}
