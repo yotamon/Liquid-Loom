@@ -8,7 +8,7 @@
 		<input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
 		{%- unless product.has_only_default_variant -%}
 			{%- for product_option in product.options_with_values -%}
-				<div class="field">
+				<div class="field product-form__option-field">
 					<label for="Option-{{ block.id }}-{{ product_option.position }}">{{ product_option.name | escape }}</label>
 					<select id="Option-{{ block.id }}-{{ product_option.position }}" data-product-option>
 						{%- for option_value in product_option.values -%}
@@ -26,19 +26,36 @@
 					</select>
 				</div>
 			{%- endfor -%}
-			<noscript>
+			{%- assign selected_variant_title = product.selected_or_first_available_variant.title -%}
+			{%- if selected_variant_title == blank -%}
+				{%- assign selected_variant_title = 'products.unavailable' | t -%}
+			{%- endif -%}
+			<div class="product-form__option-fallback">
 				<p class="muted">{{ 'products.options_require_javascript' | t }}</p>
-			</noscript>
+				<p>
+					{{ 'products.selected_variant' | t }}: <strong>{{ selected_variant_title | escape }}</strong>
+				</p>
+			</div>
 		{%- endunless -%}
+		{%- assign selected_variant = product.selected_or_first_available_variant -%}
+		{%- assign available_plan_ids = selected_variant.selling_plan_allocations | map: 'selling_plan' | map: 'id' -%}
+		{%- assign purchase_available = selected_variant.available -%}
+		{%- if selected_variant.requires_selling_plan and available_plan_ids.size == 0 -%}
+			{%- assign purchase_available = false -%}
+		{%- endif -%}
 		{%- if product.selling_plan_groups.size > 0 -%}
 			<div class="field">
 				<label for="SellingPlan-{{ block.id }}">{{ 'products.purchase_option' | t }}</label>
 				<select id="SellingPlan-{{ block.id }}" name="selling_plan">
-					<option value="">{{ 'products.one_time_purchase' | t }}</option>
+					{%- unless product.selected_or_first_available_variant.requires_selling_plan -%}
+						<option value="">{{ 'products.one_time_purchase' | t }}</option>
+					{%- endunless -%}
 					{%- for group in product.selling_plan_groups -%}
 						<optgroup label="{{ group.name | escape }}">
 							{%- for plan in group.selling_plans -%}
-								<option value="{{ plan.id }}">{{ plan.name | escape }}</option>
+								{%- if available_plan_ids contains plan.id -%}
+									<option value="{{ plan.id }}">{{ plan.name | escape }}</option>
+								{%- endif -%}
 							{%- endfor -%}
 						</optgroup>
 					{%- endfor -%}
@@ -68,12 +85,14 @@
 		<button
 			class="button button--full"
 			type="submit"
-			{% unless product.selected_or_first_available_variant.available %}
+			{% unless purchase_available %}
 				disabled
 			{% endunless %}
 		>
-			{%- if product.selected_or_first_available_variant.available -%}
+			{%- if purchase_available -%}
 				{{ 'actions.add_to_cart' | t }}
+			{%- elsif selected_variant.available -%}
+				{{ 'products.unavailable' | t }}
 			{%- else -%}
 				{{ 'products.sold_out' | t }}
 			{%- endif -%}
@@ -121,6 +140,15 @@
 		width: 100%;
 		appearance: textfield;
 	}
+	.product-form__option-field {
+		display: none;
+	}
+	product-form[data-product-ready] .product-form__option-field {
+		display: grid;
+	}
+	product-form[data-product-ready] .product-form__option-fallback {
+		display: none;
+	}
 	.product-form__status {
 		min-height: 1.5em;
 		margin-block: 0.75rem 0;
@@ -153,6 +181,7 @@
 			this.submit = this.querySelector("button[type='submit']");
 			this.status = this.querySelector('[data-product-form-status]');
 			this.canSubmit = Boolean(this.form?.elements.namedItem('id')?.value && !this.submit?.disabled);
+			this.setAttribute('data-product-ready', '');
 			this.options.forEach((select, index) => select.addEventListener('change', () => this.refreshProduct(index)));
 			this.form?.addEventListener('submit', (event) => this.submitWithStandardAction(event));
 		}
@@ -161,7 +190,11 @@
 		}
 		async refreshProduct(focusIndex) {
 			const section = this.closest('[data-product-section]');
-			if (!section?.dataset.sectionId) return;
+			if (!section?.dataset.sectionId) {
+				this.options.forEach((select, index) => (select.value = this.appliedValues[index]));
+				if (this.status) this.status.textContent = this.dataset.variantError;
+				return;
+			}
 			const selected = this.options[focusIndex].selectedOptions[0];
 			const currentUrl = new URL(section.dataset.productUrl, window.location.origin);
 			const nextProduct = selected?.dataset.productUrl
@@ -179,6 +212,7 @@
 			this.controller?.abort();
 			const controller = new AbortController();
 			this.controller = controller;
+			this.refreshing = true;
 			this.submit.disabled = true;
 			this.setAttribute('aria-busy', 'true');
 			const quantity = this.form.elements.namedItem('quantity')?.value;
@@ -194,9 +228,11 @@
 				if (quantity && newForm?.elements.namedItem('quantity')) {
 					newForm.elements.namedItem('quantity').value = quantity;
 				}
-				if (sellingPlan && newForm?.elements.namedItem('selling_plan')) {
-					newForm.elements.namedItem('selling_plan').value = sellingPlan;
-				}
+				const renderedPlan = newForm?.elements.namedItem('selling_plan');
+				const planStillAvailable = Array.from(renderedPlan?.options ?? []).some(
+					(option) => option.value === sellingPlan
+				);
+				if (sellingPlan && planStillAvailable) renderedPlan.value = sellingPlan;
 				section.replaceWith(replacement);
 				window.history.replaceState(window.history.state, '', nextUrl);
 				replacement.querySelectorAll('[data-product-option]')[focusIndex]?.focus();
@@ -209,12 +245,17 @@
 				if (this.status) this.status.textContent = this.dataset.variantError;
 			} finally {
 				if (this.isConnected && this.controller === controller) {
+					this.refreshing = false;
 					this.removeAttribute('aria-busy');
 					this.submit.disabled = !this.canSubmit;
 				}
 			}
 		}
 		async submitWithStandardAction(event) {
+			if (this.refreshing) {
+				event.preventDefault();
+				return;
+			}
 			const formData = new FormData(this.form);
 			const merchandiseId = formData.get('id');
 			if (!merchandiseId) {
