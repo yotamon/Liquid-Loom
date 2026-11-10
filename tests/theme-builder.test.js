@@ -13,6 +13,7 @@ import {
 	discoverSourceEntries,
 	mapShopifyPath,
 	mapThemePath,
+	nativeWatchTargets,
 	validateThemeSource
 } from "../build-scripts/lib/theme-builder.js";
 
@@ -48,6 +49,25 @@ async function createReferenceTheme(sourceRoot) {
 
 afterEach(async () => {
 	await Promise.all(temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
+});
+
+describe("nativeShopifyWatchTargets", () => {
+	it("watches only existing canonical theme directories and root agent context files", async () => {
+		const { projectRoot } = await createTemporaryProject();
+		await mkdir(path.join(projectRoot, "sections"));
+		await mkdir(path.join(projectRoot, "node_modules"));
+		await writeSource(projectRoot, "AGENTS.md", "# Agent instructions");
+		await writeSource(projectRoot, "DESIGN.md", "# Design");
+		await writeSource(projectRoot, "README.md", "# Repo instructions");
+
+		const targets = await nativeWatchTargets(projectRoot);
+		assert.deepEqual(targets, [
+			path.join(projectRoot, "sections"),
+			path.join(projectRoot, "AGENTS.md"),
+			path.join(projectRoot, "DESIGN.md")
+		]);
+		assert.deepEqual(await nativeWatchTargets(undefined), []);
+	});
 });
 
 describe("mapThemePath", () => {

@@ -18,11 +18,11 @@ import { validatePerformanceBudgets } from "./lib/performance.js";
 import { createProjectModel, formatProjectModel, selectProjectModel } from "./lib/project-model.js";
 import { scanForbiddenContent } from "./lib/public-readiness.js";
 import {
-	SHOPIFY_THEME_DIRECTORIES,
 	assertSafeOutput,
 	buildProject,
 	createBuildPlan,
 	discoverSourceEntries,
+	nativeWatchTargets,
 	validateThemePlan
 } from "./lib/theme-builder.js";
 
@@ -232,16 +232,6 @@ async function doctorProject() {
 	console.log(`${chalk.green("✓")} Project is ready for Liquid Loom development`);
 }
 
-async function nativeWatchTargets(config) {
-	if (!config.shopifySourceRoot) return [];
-	const targets = [];
-	for (const directory of SHOPIFY_THEME_DIRECTORIES) {
-		const candidate = path.join(config.shopifySourceRoot, directory);
-		if (await fileExists(candidate)) targets.push(candidate);
-	}
-	return targets;
-}
-
 async function watchProject({ shopify = false } = {}) {
 	const config = await getProjectConfig();
 	await runBuild({ clean: true, mode: "development" });
@@ -258,7 +248,7 @@ async function watchProject({ shopify = false } = {}) {
 
 	const watchTargets = [
 		config.sourceRoot,
-		...(await nativeWatchTargets(config)),
+		...(await nativeWatchTargets(config.shopifySourceRoot)),
 		config.viteEnabled ? config.viteConfig : undefined,
 		config.configFile
 	].filter(Boolean);
