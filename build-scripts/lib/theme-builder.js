@@ -233,7 +233,9 @@ export async function discoverSourceEntries({ projectRoot, sourceRoot, shopifySo
 			for (const item of await readdir(shopifySourceRoot, { withFileTypes: true })) {
 				if (!item.isFile() || !/^(agents|design)\.md$/i.test(item.name)) continue;
 				if (!THEME_CONTEXT_FILES.has(item.name)) {
-					throw new Error(`Theme agent context file must use exact Shopify casing: ${item.name}. Use AGENTS.md or DESIGN.md.`);
+					throw new Error(
+						`Theme agent context file must use exact Shopify casing: ${item.name}. Use AGENTS.md or DESIGN.md.`
+					);
 				}
 				entries.push({
 					layerId: "shopify",
