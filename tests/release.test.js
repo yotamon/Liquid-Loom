@@ -26,6 +26,20 @@ describe("release versions", () => {
 		);
 	});
 
+	it("tests packed release consumers before attesting or publishing", async () => {
+		const root = path.resolve(import.meta.dirname, "..");
+		const workflow = await readFile(path.join(root, ".github", "workflows", "release.yml"), "utf8");
+		const packStep = workflow.indexOf("name: Pack release artifacts");
+		const smokeStep = workflow.indexOf("name: Verify packed release consumers before publishing");
+		const attestStep = workflow.indexOf("name: Attest packages");
+		const publishStep = workflow.indexOf("name: Publish packages through npm trusted publishing");
+		assert.ok(packStep >= 0);
+		assert.ok(smokeStep > packStep);
+		assert.ok(attestStep > smokeStep);
+		assert.ok(publishStep > attestStep);
+		assert.match(workflow, /run: node tests\/package-smoke\.js/);
+	});
+
 	it("requires the tag, packages, and embedded starter to agree", () => {
 		assert.doesNotThrow(() =>
 			validateReleaseVersions({
