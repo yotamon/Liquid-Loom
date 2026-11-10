@@ -1,0 +1,32 @@
+name: One-off editorial Liquid formatting
+on:
+  push:
+    branches: [feat/editorial-starter-patterns]
+    paths: [.github/workflows/one-off-editorial-format.yml]
+permissions:
+  contents: write
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: feat/editorial-starter-patterns
+          persist-credentials: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --write src/theme/sections/pages/multicolumn.liquid packages/create-liquid-loom/template/src/theme/sections/pages/multicolumn.liquid
+      - name: Commit formatted files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/theme/sections/pages/multicolumn.liquid packages/create-liquid-loom/template/src/theme/sections/pages/multicolumn.liquid
+          git commit -m "style: format Shopify-native multicolumn section"
+          git push origin HEAD:feat/editorial-starter-patterns
