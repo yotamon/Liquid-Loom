@@ -13,7 +13,7 @@ Current release engineering evidence:
 - [x] a packed fresh scaffold completes a production build in CI;
 - [x] a packed existing-theme fixture completes `init -> hybrid build -> migrate -> build` in CI;
 - [x] package smoke runs on the protected release path;
-- [ ] clean install of the current public version from the npm registry into a new project;
+- [ ] clean install of the current public version from the npm registry into a new project (opt-in public registry smoke workflow);
 - [ ] clean install of the current public version into an existing Shopify theme;
 - [ ] real Shopify development-store preview from a fresh scaffold;
 - [ ] real Shopify development-store preview from an adopted existing theme;
