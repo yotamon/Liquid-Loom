@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { afterEach, describe, it } from "node:test";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -55,6 +56,20 @@ describe("create-liquid-loom", () => {
 			/content_for_layout/
 		);
 		assert.match(await readFile(path.join(targetDirectory, "liquid-loom.config.ts"), "utf8"), /defineConfig/);
+	});
+
+	it("prints the correct next command when invoked with npm", async () => {
+		const workspace = await createWorkspace();
+		const targetDirectory = path.join(workspace, "new-store");
+		const cli = path.resolve(import.meta.dirname, "../packages/create-liquid-loom/cli.js");
+		const result = spawnSync(
+			process.execPath,
+			[cli, targetDirectory, "--no-install", "--package-manager", "npm"],
+			{ cwd: workspace, encoding: "utf8" }
+		);
+		assert.equal(result.status, 0, result.stderr);
+		assert.match(result.stdout, /npm run dev/);
+		assert.doesNotMatch(result.stdout, /pnpm dev/);
 	});
 
 	it("refuses to overwrite a non-empty directory", async () => {
