@@ -2,10 +2,6 @@ name: Public npm registry smoke
 
 on:
   workflow_dispatch:
-  push:
-    branches: [feat/public-registry-smoke]
-    paths:
-      - .github/workflows/public-registry-smoke.yml
 
 permissions:
   contents: read
