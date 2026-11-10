@@ -1,5 +1,7 @@
+import { randomUUID } from "node:crypto";
 import { access } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { createJiti } from "jiti";
 
@@ -62,8 +64,10 @@ export async function loadProjectConfig(projectRoot = process.cwd()) {
 	const configFile = await findConfigFile(resolvedRoot);
 	let userConfig = {};
 	if (configFile) {
-		const jiti = createJiti(import.meta.url);
-		const loaded = await jiti.import(configFile, { default: true });
+		const loaded =
+			configFile.endsWith(".ts") || configFile.endsWith(".mts")
+				? await createJiti(import.meta.url).import(configFile, { default: true })
+				: (await import(`${pathToFileURL(configFile).href}?reload=${randomUUID()}`)).default;
 		if (!loaded || typeof loaded !== "object" || Array.isArray(loaded)) {
 			throw new Error(`Configuration must export an object: ${path.basename(configFile)}`);
 		}
