@@ -71,7 +71,7 @@ describe("nativeShopifyWatchTargets", () => {
 		assert.equal(classifyNativeRootWatchEvent("change", "src/theme/AGENTS.md"), null);
 		assert.equal(classifyNativeRootWatchEvent("add", "AGENTS.md.bak"), null);
 	});
-	it("watches only existing canonical theme directories and root agent context files", async () => {
+	it("watches only existing canonical theme directories; root context is handled separately", async () => {
 		const { projectRoot } = await createTemporaryProject();
 		await mkdir(path.join(projectRoot, "sections"));
 		await mkdir(path.join(projectRoot, "node_modules"));
@@ -80,11 +80,7 @@ describe("nativeShopifyWatchTargets", () => {
 		await writeSource(projectRoot, "README.md", "# Repo instructions");
 
 		const targets = await nativeWatchTargets(projectRoot);
-		assert.deepEqual(targets, [
-			path.join(projectRoot, "sections"),
-			path.join(projectRoot, "AGENTS.md"),
-			path.join(projectRoot, "DESIGN.md")
-		]);
+		assert.deepEqual(targets, [path.join(projectRoot, "sections")]);
 		assert.deepEqual(await nativeWatchTargets(undefined), []);
 	});
 });

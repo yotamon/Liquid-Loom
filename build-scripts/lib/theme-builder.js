@@ -214,7 +214,7 @@ export function classifyNativeRootWatchEvent(event, name) {
 export async function nativeWatchTargets(shopifySourceRoot) {
 	if (!shopifySourceRoot) return [];
 	const targets = [];
-	for (const name of [...SHOPIFY_THEME_DIRECTORIES, "AGENTS.md", "DESIGN.md"]) {
+	for (const name of SHOPIFY_THEME_DIRECTORIES) {
 		const candidate = path.join(shopifySourceRoot, name);
 		if (await fileExists(candidate)) targets.push(candidate);
 	}

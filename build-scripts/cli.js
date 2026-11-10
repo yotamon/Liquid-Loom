@@ -265,9 +265,7 @@ async function watchProject({ shopify = false } = {}) {
 
 	const watchTargets = [
 		config.sourceRoot,
-		...(await nativeWatchTargets(config.shopifySourceRoot)).filter(
-			(target) => !["AGENTS.md", "DESIGN.md"].includes(path.basename(target))
-		),
+		...(await nativeWatchTargets(config.shopifySourceRoot)),
 		config.viteEnabled ? config.viteConfig : undefined,
 		config.configFile
 	].filter(Boolean);
