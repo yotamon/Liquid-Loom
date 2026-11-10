@@ -140,6 +140,10 @@ For an existing theme, record:
 
 State who should use Liquid Loom and who should stay with a conventional Shopify theme structure.
 
+## Merchant-editable content patterns
+
+The `faq` and `image-with-text` sections must be manually verified in Theme Editor on a non-production development theme before claiming a production-ready pattern library. Confirm question block add/delete/reorder, question focus with keyboard, FAQ disclosure without JavaScript, image left/right and mobile reading order, alt-text behavior, and optional link visibility. Automated tests cover source/scaffold parity and schema structure only.
+
 ## Storefront regression acceptance
 
 The reference theme's source-level behavioral tests cover deferred option-value requests, section refresh state preservation, keyboard navigation for predictive search, and locale-key parity. These tests do not replace a real Shopify store.
