@@ -6,6 +6,8 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 
 ### Added
 
+- Machine-readable `doctor --json` diagnostics with stable `LL_*` codes, optional recovery hints, and predictable failure status. The human-readable doctor now prints concrete fixes for common setup failures.
+
 - Shopify-native theme-root `AGENTS.md` and `DESIGN.md` in scaffold and build output, with portable ownership checks, file-size validation, theme-context project intelligence, and deployment-branch support.
 - Native theme root context watching for hot reload, plus an optional Shopify CLI executable preflight in `doctor`.
 - A product roadmap organized around real-store acceptance, starter UX, AI-native workflows, and developer adoption.
