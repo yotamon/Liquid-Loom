@@ -177,7 +177,7 @@ Incremental builds seed staging from the prior successful output. Clean builds b
 
 ## Optional bundling
 
-Fresh Liquid Loom projects use the bundled Vite/Tailwind workflow by default.
+Fresh Liquid Loom projects use Shopify-native component CSS and JavaScript by default. Vite and Tailwind are opt-in asset strategies, not a requirement for the default scaffold.
 
 Existing-theme initialization writes:
 

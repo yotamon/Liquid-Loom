@@ -1,5 +1,7 @@
 # Roadmap
 
+> **Active product implementation plan:** [Become the go-to Shopify-native theme starter](docs/GO_TO_STARTER_PLAN.md), tracked by [Epic #36](https://github.com/yotamon/Liquid-Loom/issues/36) and issue-level release gates. This roadmap retains implementation history; the active plan governs new prioritization. A client case study is optional, not a release gate.
+
 Liquid Loom favors a small, dependable engineering layer over a broad storefront abstraction. Shopify owns the runtime, Liquid contract, CLI, and platform. Liquid Loom focuses on source architecture, deterministic ownership, safe adoption, diagnostics, and project understanding around those primitives.
 
 ## 0.1 - Ship and validate
@@ -15,7 +17,7 @@ Still proving in public use:
 - [ ] Validate a clean install directly from the public npm registry.
 - [ ] Run the reference storefront against a real Shopify development store.
 - [ ] Put at least three external Shopify developers through a real edit/build/preview workflow.
-- [ ] Publish one concise before/after case study.
+- [ ] (Optional, non-gating) Publish a real, consented before/after case study when an appropriate project exists.
 - [ ] Fix onboarding and diagnostics issues discovered by those sessions.
 
 ## 0.2 - Existing-theme adoption
