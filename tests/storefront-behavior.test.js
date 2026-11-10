@@ -29,9 +29,9 @@ async function registerComponents(file, environment = {}) {
 describe("Shopify reference storefront behavior", () => {
 	it("never exposes inert variant selectors as purchasable choices without JavaScript", async () => {
 		const purchase = await readFile(path.join(root, "src/theme/blocks/product-purchase.liquid"), "utf8");
-		assert.match(purchase, /\.product-form__options \{\s*display: none;/);
-		assert.match(purchase, /product-form\[data-product-ready\] \.product-form__options/);
-		assert.match(purchase, /data-product-option-controls/);
+		assert.match(purchase, /\.product-form__option-field \{\s*display: none;/);
+		assert.match(purchase, /product-form\[data-product-ready\] \.product-form__option-field/);
+		assert.match(purchase, /class="field product-form__option-field"/);
 		assert.match(purchase, /product-form__option-fallback/);
 		assert.match(purchase, /selected_or_first_available_variant\.title/);
 		assert.match(purchase, /this\.setAttribute\('data-product-ready', ''\)/);
