@@ -23,9 +23,6 @@
 								{%- unless option_value.available %} ({{ 'products.sold_out' | t }}){% endunless -%}
 							</option>
 						{%- endfor -%}
-				</select>
-			</div>
-		{%- endfor -%}
 			<div class="product-form__option-fallback">
 				<p class="muted">{{ 'products.options_require_javascript' | t }}</p>
 				<p>
