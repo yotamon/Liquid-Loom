@@ -70,17 +70,19 @@ export async function scaffoldProject({
 		const script = (name) => `${packageManager}${needsRun ? " run" : ""} ${name}`;
 		const explainArgs = packageManager === "npm" || packageManager === "pnpm" ? "-- --json" : "--json";
 		const instructions = {
-			"__PROJECT_NAME__": projectName,
-			"__INSTALL_COMMAND__": `${packageManager} install`,
-			"__DEV_COMMAND__": script("dev"),
-			"__BUILD_COMMAND__": script("build"),
-			"__EXPLAIN_COMMAND__": `${script("explain")} ${explainArgs}`,
-			"__DOCTOR_COMMAND__": script("doctor"),
-			"__VALIDATE_COMMAND__": script("validate")
+			__PROJECT_NAME__: projectName,
+			__INSTALL_COMMAND__: `${packageManager} install`,
+			__DEV_COMMAND__: script("dev"),
+			__BUILD_COMMAND__: script("build"),
+			__EXPLAIN_COMMAND__: `${script("explain")} ${explainArgs}`,
+			__DOCTOR_COMMAND__: script("doctor"),
+			__VALIDATE_COMMAND__: script("validate")
 		};
 		const readmeFile = path.join(staging, "README.md");
 		let readme = await readFile(readmeFile, "utf8");
-		for (const [placeholder, value] of Object.entries(instructions)) readme = readme.replaceAll(placeholder, value);
+		for (const [placeholder, value] of Object.entries(instructions)) {
+			readme = readme.replaceAll(placeholder, value);
+		}
 		await writeFile(readmeFile, readme);
 
 		if (entries) {
