@@ -41,7 +41,9 @@
 			<div class="field">
 				<label for="SellingPlan-{{ block.id }}">{{ 'products.purchase_option' | t }}</label>
 				<select id="SellingPlan-{{ block.id }}" name="selling_plan">
-					<option value="">{{ 'products.one_time_purchase' | t }}</option>
+					{%- unless product.selected_or_first_available_variant.requires_selling_plan -%}
+						<option value="">{{ 'products.one_time_purchase' | t }}</option>
+					{%- endunless -%}
 					{%- for group in product.selling_plan_groups -%}
 						<optgroup label="{{ group.name | escape }}">
 							{%- for plan in group.selling_plans -%}
@@ -216,9 +218,11 @@
 				if (quantity && newForm?.elements.namedItem('quantity')) {
 					newForm.elements.namedItem('quantity').value = quantity;
 				}
-				if (sellingPlan && newForm?.elements.namedItem('selling_plan')) {
-					newForm.elements.namedItem('selling_plan').value = sellingPlan;
-				}
+				const renderedPlan = newForm?.elements.namedItem('selling_plan');
+				const planStillAvailable = Array.from(renderedPlan?.options ?? []).some(
+					(option) => option.value === sellingPlan
+				);
+				if (sellingPlan && planStillAvailable) renderedPlan.value = sellingPlan;
 				section.replaceWith(replacement);
 				window.history.replaceState(window.history.state, '', nextUrl);
 				replacement.querySelectorAll('[data-product-option]')[focusIndex]?.focus();
