@@ -43,7 +43,15 @@ When publishing:
 4. commit only when the compiled output changed;
 5. push without `--force`.
 
-A concurrent Shopify write will make the push fail rather than silently overwrite history. Re-run only after reviewing the branch state.
+A concurrent Shopify write will make the push fail rather than silently overwrite history. **This alone does not protect merchant edits already present when the build starts.** The example workflow therefore refuses to regenerate the branch when the latest commit does not have the expected Liquid Loom deployment commit subject and GitHub Actions bot author. Treat this as an accidental-overwrite guard, not an authentication boundary.
+
+When the guard stops a deployment:
+
+1. Compare the latest `shopify-production` commits with the last generated deployment and identify settings/theme changes made by Shopify or a developer.
+2. Copy any wanted edits back into the authoritative source, and review the resulting normal build.
+3. Trigger the deployment workflow manually and set `reconciled_deployment_changes: true` **only after** those edits have been reconciled and you accept replacement of the generated branch's canonical Shopify theme files.
+
+Do not enable a blanket force-push override. The guard still relies on Git to reject concurrent non-fast-forward updates.
 
 See [`docs/examples/shopify-deploy.yml`](examples/shopify-deploy.yml) for an opt-in workflow recipe.
 
