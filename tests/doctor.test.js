@@ -183,7 +183,9 @@ describe("project doctor", () => {
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, false);
 		assert.equal(
-			result.checks.some((check) => check.code === "LL_SOURCE_COLLISION" && /Multiple source files map/.test(check.message)),
+			result.checks.some(
+				(check) => check.code === "LL_SOURCE_COLLISION" && /Multiple source files map/.test(check.message)
+			),
 			true
 		);
 	});
