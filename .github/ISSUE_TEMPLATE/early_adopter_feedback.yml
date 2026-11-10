@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for trying Liquid Loom. During the 0.1.x cycle, concrete workflow feedback is more useful than broad feature requests. Partial attempts and failed setups are useful too.
+        Thanks for trying Liquid Loom. Please record the exact published npm versions or checked-out source commit; they can differ. Concrete friction and partial/failed attempts are useful. Do not paste client data, store passwords, access tokens, or private URLs.
 
   - type: dropdown
     id: project
