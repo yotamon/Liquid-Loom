@@ -73,6 +73,8 @@ describe("project doctor", () => {
 
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, false);
+		assert.equal(result.checks.find((item) => item.name === "generated-files").code, "LL_GITIGNORE_MISSING");
+		assert.ok(result.checks.find((item) => item.name === "generated-files").fix.includes(".gitignore"));
 		assert.equal(
 			result.checks.some((check) => check.name === "private-content" && check.status === "fail"),
 			true
@@ -181,7 +183,9 @@ describe("project doctor", () => {
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, false);
 		assert.equal(
-			result.checks.some((check) => check.name === "theme-source" && /Multiple source files map/.test(check.message)),
+			result.checks.some(
+				(check) => check.code === "LL_SOURCE_COLLISION" && /Multiple source files map/.test(check.message)
+			),
 			true
 		);
 	});

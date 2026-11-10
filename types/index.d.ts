@@ -71,6 +71,10 @@ export interface BuildInspection {
 }
 
 export interface DoctorCheck {
+	/** Deterministic code for agents and CI (LL_OK for passing checks). */
+	code: string;
+	/** Optional next action for a failed or warning check. */
+	fix?: string;
 	message: string;
 	name: string;
 	status: "pass" | "warn" | "fail";

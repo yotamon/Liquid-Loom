@@ -29,8 +29,55 @@ export async function findShopifyCli(projectRoot, searchPath = process.env.PATH 
 	return undefined;
 }
 
-function check(name, status, message) {
-	return { message, name, status };
+const FIXES = {
+	LL_SHOPIFY_CLI_MISSING:
+		"Run your package manager's install command, then authenticate with Shopify CLI before previewing.",
+	LL_NODE_UNSUPPORTED: "Install Node 22.12 or newer and rerun the command.",
+	LL_PACKAGE_METADATA_INCOMPLETE:
+		"Add the missing package.json metadata. For an adopted client theme, review whether the warnings are relevant.",
+	LL_PACKAGE_METADATA_UNREADABLE: "Create or repair package.json so it contains valid JSON.",
+	LL_DOCUMENTATION_MISSING:
+		"Add README.md and LICENSE at the project root, or confirm your adopted theme intentionally omits them.",
+	LL_GITIGNORE_INCOMPLETE: "Add node_modules/, dist/, and .cache/ entries to .gitignore.",
+	LL_GITIGNORE_MISSING: "Create .gitignore containing node_modules/, dist/, and .cache/.",
+	LL_THEME_SOURCE_MISSING:
+		"Add the required Shopify theme files and rebuild. Check that layout/theme.liquid is present.",
+	LL_SOURCE_COLLISION:
+		"Choose one source owner for each Shopify output; rename or remove the conflicting source file, then rerun doctor.",
+	LL_THEME_SOURCE_INVALID:
+		"Check source ownership, theme filename mappings, and the detailed error shown; then rerun doctor.",
+	LL_VITE_CONFIG_MISSING: "Create the configured Vite file or set viteConfig: false to use Shopify-native assets.",
+	LL_ASSET_ENTRYPOINTS_UNUSED: "Enable Vite explicitly, or remove unused src/entrypoints files.",
+	LL_OUTPUT_UNSAFE: "Configure outputDir outside all source roots and confirm the project path before building.",
+	LL_PRIVATE_CONTENT: "Review matched private-content locations and remove confidential material before publishing.",
+	LL_PREVIEW_TAGS_IN_STABLE_MODE:
+		"Enable the declared Shopify developer preview on the development store and set shopifyLiquidMode accordingly, or remove preview tags.",
+	LL_PREVIEW_MODE_DECLARED: "Confirm that the target development store supports the explicitly declared preview mode."
+};
+
+const ISSUE_CODES = {
+	"asset-entrypoints": "LL_ASSET_ENTRYPOINTS_UNUSED",
+	documentation: "LL_DOCUMENTATION_MISSING",
+	"generated-files": "LL_GITIGNORE_INCOMPLETE",
+	"liquid-mode": "LL_PREVIEW_MODE_DECLARED",
+	"node-runtime": "LL_NODE_UNSUPPORTED",
+	"output-safety": "LL_OUTPUT_UNSAFE",
+	"package-metadata": "LL_PACKAGE_METADATA_INCOMPLETE",
+	"private-content": "LL_PRIVATE_CONTENT",
+	"shopify-cli": "LL_SHOPIFY_CLI_MISSING",
+	"theme-source": "LL_THEME_SOURCE_MISSING",
+	"vite-config": "LL_VITE_CONFIG_MISSING"
+};
+
+function check(name, status, message, issueCode) {
+	const code = status === "pass" ? "LL_OK" : (issueCode ?? ISSUE_CODES[name] ?? "LL_DIAGNOSTIC_UNKNOWN");
+	return {
+		code,
+		...(status !== "pass" && FIXES[code] ? { fix: FIXES[code] } : {}),
+		message,
+		name,
+		status
+	};
 }
 
 function previewCheck(model, liquidMode) {
@@ -44,14 +91,16 @@ function previewCheck(model, liquidMode) {
 			"warn",
 			previewFiles
 				? `July '26 developer preview declared; ${previewFiles} file(s) use block/partial preview tags`
-				: "July '26 developer preview declared; preview tags are not currently used"
+				: "July '26 developer preview declared; preview tags are not currently used",
+			"LL_PREVIEW_MODE_DECLARED"
 		);
 	}
 	if (previewFiles) {
 		return check(
 			"liquid-mode",
 			"warn",
-			`${previewFiles} file(s) use July '26 preview tags (${blockFiles} block, ${partialFiles} partial); set shopifyLiquidMode to july-2026-preview when the target dev store has that preview enabled`
+			`${previewFiles} file(s) use July '26 preview tags (${blockFiles} block, ${partialFiles} partial); set shopifyLiquidMode to july-2026-preview when the target dev store has that preview enabled`,
+			"LL_PREVIEW_TAGS_IN_STABLE_MODE"
 		);
 	}
 	return check("liquid-mode", "pass", "Stable Shopify Liquid mode; no developer-preview tags detected");
@@ -91,7 +140,9 @@ export async function diagnoseProject(config) {
 			)
 		);
 	} catch (error) {
-		checks.push(check("package-metadata", "fail", `Unreadable package.json: ${error.message}`));
+		checks.push(
+			check("package-metadata", "fail", `Unreadable package.json: ${error.message}`, "LL_PACKAGE_METADATA_UNREADABLE")
+		);
 	}
 
 	const missingDocs = [];
@@ -117,7 +168,7 @@ export async function diagnoseProject(config) {
 			)
 		);
 	} catch {
-		checks.push(check("generated-files", "fail", "Missing .gitignore"));
+		checks.push(check("generated-files", "fail", "Missing .gitignore", "LL_GITIGNORE_MISSING"));
 	}
 
 	try {
@@ -159,7 +210,14 @@ export async function diagnoseProject(config) {
 		);
 		checks.push(previewCheck(model, config.shopifyLiquidMode));
 	} catch (error) {
-		checks.push(check("theme-source", "fail", error.message));
+		checks.push(
+			check(
+				"theme-source",
+				"fail",
+				error.message,
+				error.name === "BuildCollisionError" ? "LL_SOURCE_COLLISION" : "LL_THEME_SOURCE_INVALID"
+			)
+		);
 	}
 
 	if (config.viteEnabled) {

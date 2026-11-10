@@ -229,14 +229,20 @@ async function checkPublicReadiness() {
 	console.log(`${chalk.green("✓")} No configured private terms found`);
 }
 
-async function doctorProject() {
+async function doctorProject({ json = false } = {}) {
 	const config = await getProjectConfig();
-	printHeader("project doctor");
+	if (!json) printHeader("project doctor");
 	const result = await diagnoseProject(config);
+	if (json) {
+		console.log(JSON.stringify(result, null, 2));
+		if (!result.healthy) process.exitCode = 1;
+		return;
+	}
 	for (const item of result.checks) {
 		const symbol =
 			item.status === "pass" ? chalk.green("✓") : item.status === "warn" ? chalk.yellow("!") : chalk.red("×");
 		console.log(`${symbol} ${item.name.padEnd(20)} ${item.message}`);
+		if (item.fix) console.log(`  ${chalk.dim("Fix:")} ${item.fix}`);
 	}
 	if (!result.healthy) throw new Error("Project doctor found blocking issues.");
 	console.log(`${chalk.green("✓")} Project is ready for Liquid Loom development`);
@@ -426,7 +432,11 @@ program
 	.description("Explain source ownership and static Shopify theme relationships")
 	.option("--json", "print deterministic machine-readable JSON")
 	.action(explainProject);
-program.command("doctor").description("Diagnose setup, safety, metadata, and source readiness").action(doctorProject);
+program
+	.command("doctor")
+	.description("Diagnose setup, safety, metadata, and source readiness")
+	.option("--json", "print deterministic diagnostics with codes and remediation hints")
+	.action(doctorProject);
 program.command("public-ready").description("Scan for excluded legacy content").action(checkPublicReadiness);
 program
 	.command("init")
