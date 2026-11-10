@@ -7,6 +7,7 @@
 	{%- form 'product', product, id: 'ProductForm-' | append: block.id, novalidate: 'novalidate', data-product-form: '' -%}
 		<input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
 		{%- unless product.has_only_default_variant -%}
+			<div class="product-form__options" data-product-option-controls>
 			{%- for product_option in product.options_with_values -%}
 				<div class="field">
 					<label for="Option-{{ block.id }}-{{ product_option.position }}">{{ product_option.name | escape }}</label>
@@ -26,9 +27,20 @@
 					</select>
 				</div>
 			{%- endfor -%}
-			<noscript>
+			</div>
+			<div class="product-form__option-fallback">
 				<p class="muted">{{ 'products.options_require_javascript' | t }}</p>
-			</noscript>
+				<p>
+					{{ 'products.selected_variant' | t }}:
+					<strong>
+						{%- if product.selected_or_first_available_variant -%}
+							{{ product.selected_or_first_available_variant.title | escape }}
+						{%- else -%}
+							{{ 'products.unavailable' | t }}
+						{%- endif -%}
+					</strong>
+				</p>
+			</div>
 		{%- endunless -%}
 		{%- if product.selling_plan_groups.size > 0 -%}
 			<div class="field">
@@ -121,6 +133,15 @@
 		width: 100%;
 		appearance: textfield;
 	}
+	.product-form__options {
+		display: none;
+	}
+	product-form[data-product-ready] .product-form__options {
+		display: contents;
+	}
+	product-form[data-product-ready] .product-form__option-fallback {
+		display: none;
+	}
 	.product-form__status {
 		min-height: 1.5em;
 		margin-block: 0.75rem 0;
@@ -153,6 +174,7 @@
 			this.submit = this.querySelector("button[type='submit']");
 			this.status = this.querySelector('[data-product-form-status]');
 			this.canSubmit = Boolean(this.form?.elements.namedItem('id')?.value && !this.submit?.disabled);
+			this.setAttribute('data-product-ready', '');
 			this.options.forEach((select, index) => select.addEventListener('change', () => this.refreshProduct(index)));
 			this.form?.addEventListener('submit', (event) => this.submitWithStandardAction(event));
 		}
@@ -161,7 +183,11 @@
 		}
 		async refreshProduct(focusIndex) {
 			const section = this.closest('[data-product-section]');
-			if (!section?.dataset.sectionId) return;
+			if (!section?.dataset.sectionId) {
+				this.options.forEach((select, index) => (select.value = this.appliedValues[index]));
+				if (this.status) this.status.textContent = this.dataset.variantError;
+				return;
+			}
 			const selected = this.options[focusIndex].selectedOptions[0];
 			const currentUrl = new URL(section.dataset.productUrl, window.location.origin);
 			const nextProduct = selected?.dataset.productUrl
@@ -179,6 +205,7 @@
 			this.controller?.abort();
 			const controller = new AbortController();
 			this.controller = controller;
+			this.refreshing = true;
 			this.submit.disabled = true;
 			this.setAttribute('aria-busy', 'true');
 			const quantity = this.form.elements.namedItem('quantity')?.value;
@@ -209,12 +236,17 @@
 				if (this.status) this.status.textContent = this.dataset.variantError;
 			} finally {
 				if (this.isConnected && this.controller === controller) {
+					this.refreshing = false;
 					this.removeAttribute('aria-busy');
 					this.submit.disabled = !this.canSubmit;
 				}
 			}
 		}
 		async submitWithStandardAction(event) {
+			if (this.refreshing) {
+				event.preventDefault();
+				return;
+			}
 			const formData = new FormData(this.form);
 			const merchandiseId = formData.get('id');
 			if (!merchandiseId) {
