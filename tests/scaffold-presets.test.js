@@ -44,7 +44,7 @@ describe("Shopify starter asset presets", () => {
 		assert.equal(await exists(project, "src/entrypoints/theme.js"), false);
 		assert.match(await file(project, "liquid-loom.config.ts"), /viteConfig: false/);
 		assert.equal((await file(project, "src/theme/layout/theme.liquid")).includes("'style.css' | asset_url"), false);
-		assert.doesNotMatch(await file(project, "README.md"), /__ASSET_STRATEGY_DESCRIPTION__/);
+		assert.equal((await file(project, "README.md")).includes("%%ASSET_STRATEGY_DESCRIPTION%%"), false);
 	});
 
 	for (const preset of ["vite", "vite-tailwind"]) {
