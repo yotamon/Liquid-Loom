@@ -154,7 +154,9 @@ Before declaring the storefront production-validated, use a development store wi
 - cart mutations with and without Shopify standard actions, including no-JavaScript form submission;
 - a combined listing if the store supports one.
 
-Verify option changes update the URL, product form variant ID, price, availability, and selected media together. Intentionally simulate a failed Section Rendering request and confirm the UI does not silently purchase an older variant. Verify cart and search behavior in the actual browser before marking these items complete.
+Verify option changes update the URL, product form variant ID, price, availability, and selected media together. Intentionally simulate a failed Section Rendering request and confirm the UI does not silently purchase an older variant.
+
+In browsers without JavaScript (or when the custom element cannot initialize), the reference product form intentionally hides inert option dropdowns, displays the exact server-selected variant title, and allows native purchase **only** for that variant. Option changes require JavaScript. This is a safe, limited fallback rather than a promise of a fully functional no-JavaScript high-variant picker. Verify a product with an invalid `option_values` combination has no purchasable variant ID and does not enable Add to cart. When JavaScript is running, prevent submission while a section refresh is pending. Verify cart and search behavior in the actual browser before marking these items complete.
 
 ## Browser smoke
 
