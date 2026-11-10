@@ -21,4 +21,4 @@ Use `--no-install` to generate files without installing dependencies, `--package
 
 The target is created through an isolated staging directory and is never merged into a non-empty folder.
 
-Liquid Loom is currently in its early `0.1.x` validation cycle. If you try it on a real theme, [share first-project feedback](https://github.com/yotamon/Liquid-Loom/issues/new?template=early_adopter_feedback.yml), especially anything that feels harder than your existing Shopify workflow.
+Liquid Loom is in pre-1.0 validation; the published npm version can lag behind the repository source. If you try it on a real theme, [share first-project feedback](https://github.com/yotamon/Liquid-Loom/issues/new?template=early_adopter_feedback.yml), especially anything that feels harder than your existing Shopify workflow.
