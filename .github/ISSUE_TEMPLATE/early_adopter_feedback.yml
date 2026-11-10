@@ -58,6 +58,22 @@ body:
       required: true
 
   - type: textarea
+    id: evaluated_version
+    attributes:
+      label: What version did you evaluate?
+      description: Both published npm package versions or the exact Git commit SHA. Never paste credentials.
+      placeholder: liquid-loom X.Y.Z / create-liquid-loom X.Y.Z, or commit SHA
+    validations:
+      required: true
+
+  - type: textarea
+    id: timings
+    attributes:
+      label: Unassisted steps and approximate time
+      description: Optional. Record time to first local build and time to first development-store preview separately, or say offline-only.
+      placeholder: Local build 4m, development preview 9m, two hints needed, or no store access
+
+  - type: textarea
     id: environment
     attributes:
       label: Environment
