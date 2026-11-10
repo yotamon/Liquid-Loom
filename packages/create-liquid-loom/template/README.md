@@ -1,4 +1,4 @@
-# **PROJECT_NAME**
+# __PROJECT_NAME__
 
 A Shopify storefront built with [Liquid Loom](https://github.com/yotamon/Liquid-Loom).
 
