@@ -38,12 +38,12 @@ describe("reference theme capabilities", () => {
 
 	it("localizes cart controls and displays subscription allocations for purchased variants", async () => {
 		const cart = await read("src/theme/sections/cart/main-cart.liquid");
-		assert.match(cart, /item\\.selling_plan_allocation\\.selling_plan\\.name/);
+		assert.match(cart, /item\.selling_plan_allocation\.selling_plan\.name/);
 		assert.match(cart, /name="update"/);
-		assert.match(cart, /cart\\.quantity_for/);
-		assert.match(cart, /cart\\.total/);
+		assert.match(cart, /cart\.quantity_for/);
+		assert.match(cart, /cart\.total/);
 		assert.match(cart, /scope="col"/);
-		assert.doesNotMatch(cart, /<th>Product<\\/th>/);
+		assert.doesNotMatch(cart, /<th>Product<\/th>/);
 		const [english, german] = await Promise.all([
 			read("src/theme/locales/en.default.json"),
 			read("src/theme/locales/de.json")
