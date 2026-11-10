@@ -2,7 +2,7 @@
 	<div class="page-width">
 		<s-view-event view-event-payload="{{ collection | standard_event_data: "view" | escape }}">
 			<header class="collection-header">
-				<p class="eyebrow">Collection</p>
+				<p class="eyebrow">{{ 'collections.label' | t }}</p>
 				<h1 class="heading heading--medium">{{ collection.title | escape }}</h1>
 				{%- if collection.description != blank -%}
 					<div class="rte muted">{{ collection.description }}</div>
@@ -38,13 +38,13 @@
 									{%- endfor -%}
 								{%- when 'price_range' -%}
 									<label
-										>Minimum<input
+										>{{ 'collections.minimum' | t }}<input
 											type="number"
 											name="{{ filter.min_value.param_name }}"
 											value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
 											min="0"></label
 									><label
-										>Maximum<input
+										>{{ 'collections.maximum' | t }}<input
 											type="number"
 											name="{{ filter.max_value.param_name }}"
 											value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
@@ -54,8 +54,8 @@
 						</div>
 					</details>
 				{%- endfor -%}
-				<button class="button button--secondary" type="submit">Apply filters</button
-				><a href="{{ collection.url }}">Clear</a>
+				<button class="button button--secondary" type="submit">{{ 'collections.apply_filters' | t }}</button
+				><a href="{{ collection.url }}">{{ 'collections.clear' | t }}</a
 			</form>
 		{%- endif -%}
 		{%- paginate collection.products by section.settings.products_per_page -%}
@@ -86,7 +86,7 @@
 						</article>
 					</s-view-event>
 				{%- else -%}
-					<p>No products found.</p>
+					<p>{{ 'collections.no_products' | t }}</p>
 				{%- endfor -%}
 			</div>
 			{%- if paginate.pages > 1 -%}
