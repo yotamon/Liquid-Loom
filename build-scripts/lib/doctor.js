@@ -48,8 +48,22 @@ const FIXES = {
 	"LL_PREVIEW_MODE_DECLARED": "Confirm that the target development store supports the explicitly declared preview mode."
 };
 
+const ISSUE_CODES = {
+	"asset-entrypoints": "LL_ASSET_ENTRYPOINTS_UNUSED",
+	"documentation": "LL_DOCUMENTATION_MISSING",
+	"generated-files": "LL_GITIGNORE_INCOMPLETE",
+	"liquid-mode": "LL_PREVIEW_MODE_DECLARED",
+	"node-runtime": "LL_NODE_UNSUPPORTED",
+	"output-safety": "LL_OUTPUT_UNSAFE",
+	"package-metadata": "LL_PACKAGE_METADATA_INCOMPLETE",
+	"private-content": "LL_PRIVATE_CONTENT",
+	"shopify-cli": "LL_SHOPIFY_CLI_MISSING",
+	"theme-source": "LL_THEME_SOURCE_MISSING",
+	"vite-config": "LL_VITE_CONFIG_MISSING"
+};
+
 function check(name, status, message, issueCode) {
-	const code = status === "pass" ? "LL_OK" : (issueCode ?? `LL_${name.replaceAll("-", "_").toUpperCase()}_${status.toUpperCase()}`);
+	const code = status === "pass" ? "LL_OK" : (issueCode ?? ISSUE_CODES[name] ?? "LL_DIAGNOSTIC_UNKNOWN");
 	return {
 		code,
 		...(status !== "pass" && FIXES[code] ? { fix: FIXES[code] } : {}),
@@ -70,14 +84,16 @@ function previewCheck(model, liquidMode) {
 			"warn",
 			previewFiles
 				? `July '26 developer preview declared; ${previewFiles} file(s) use block/partial preview tags`
-				: "July '26 developer preview declared; preview tags are not currently used"
+				: "July '26 developer preview declared; preview tags are not currently used",
+			"LL_PREVIEW_MODE_DECLARED"
 		);
 	}
 	if (previewFiles) {
 		return check(
 			"liquid-mode",
 			"warn",
-			`${previewFiles} file(s) use July '26 preview tags (${blockFiles} block, ${partialFiles} partial); set shopifyLiquidMode to july-2026-preview when the target dev store has that preview enabled`
+			`${previewFiles} file(s) use July '26 preview tags (${blockFiles} block, ${partialFiles} partial); set shopifyLiquidMode to july-2026-preview when the target dev store has that preview enabled`,
+			"LL_PREVIEW_TAGS_IN_STABLE_MODE"
 		);
 	}
 	return check("liquid-mode", "pass", "Stable Shopify Liquid mode; no developer-preview tags detected");
@@ -117,7 +133,7 @@ export async function diagnoseProject(config) {
 			)
 		);
 	} catch (error) {
-		checks.push(check("package-metadata", "fail", `Unreadable package.json: ${error.message}`));
+		checks.push(check("package-metadata", "fail", `Unreadable package.json: ${error.message}`, "LL_PACKAGE_METADATA_UNREADABLE"));
 	}
 
 	const missingDocs = [];
@@ -143,7 +159,7 @@ export async function diagnoseProject(config) {
 			)
 		);
 	} catch {
-		checks.push(check("generated-files", "fail", "Missing .gitignore"));
+		checks.push(check("generated-files", "fail", "Missing .gitignore", "LL_GITIGNORE_MISSING"));
 	}
 
 	try {
@@ -185,7 +201,9 @@ export async function diagnoseProject(config) {
 		);
 		checks.push(previewCheck(model, config.shopifyLiquidMode));
 	} catch (error) {
-		checks.push(check("theme-source", "fail", error.message));
+		checks.push(
+			check("theme-source", "fail", error.message, error.name === "BuildCollisionError" ? "LL_SOURCE_COLLISION" : "LL_THEME_SOURCE_INVALID")
+		);
 	}
 
 	if (config.viteEnabled) {
