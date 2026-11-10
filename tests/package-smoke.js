@@ -85,7 +85,17 @@ try {
 		const presetTarget = path.join(workspace, `packed-${preset}`);
 		await run(
 			"npm",
-			["exec", "--", "create-liquid-loom", presetTarget, "--no-install", "--package-manager", "npm", "--preset", preset],
+			[
+				"exec",
+				"--",
+				"create-liquid-loom",
+				presetTarget,
+				"--no-install",
+				"--package-manager",
+				"npm",
+				"--preset",
+				preset
+			],
 			target
 		);
 		const manifestPath = path.join(presetTarget, "package.json");
