@@ -27,39 +27,41 @@ async function registerComponents(file, environment = {}) {
 }
 
 describe("Shopify reference storefront behavior", () => {
-\tit("never exposes inert variant selectors as purchasable choices without JavaScript", async () => {
-\t\tconst purchase = await readFile(path.join(root, "src/theme/blocks/product-purchase.liquid"), "utf8");
-\t\tassert.match(purchase, /\\.product-form__options \\{\\s*display: none;/);
-\t\tassert.match(purchase, /product-form\\[data-product-ready\\] \\.product-form__options/);
-\t\tassert.match(purchase, /data-product-option-controls/);
-\t\tassert.match(purchase, /product-form__option-fallback/);
-\t\tassert.match(purchase, /selected_or_first_available_variant\\.title/);
-\t\tassert.match(purchase, /this\\.setAttribute\\('data-product-ready', ''\\)/);
-\t});
+	it("never exposes inert variant selectors as purchasable choices without JavaScript", async () => {
+		const purchase = await readFile(path.join(root, "src/theme/blocks/product-purchase.liquid"), "utf8");
+		assert.match(purchase, /\.product-form__options \{\s*display: none;/);
+		assert.match(purchase, /product-form\[data-product-ready\] \.product-form__options/);
+		assert.match(purchase, /data-product-option-controls/);
+		assert.match(purchase, /product-form__option-fallback/);
+		assert.match(purchase, /selected_or_first_available_variant\.title/);
+		assert.match(purchase, /this\.setAttribute\('data-product-ready', ''\)/);
+	});
 
-\tit("restores the last applied option when the section cannot be refreshed", async () => {
-\t\tconst components = await registerComponents("src/theme/blocks/product-purchase.liquid");
-\t\tconst productForm = new (components.get("product-form"))();
-\t\tproductForm.options = [{ value: "new-option" }];
-\t\tproductForm.appliedValues = ["previous-option"];
-\t\tproductForm.status = { textContent: "" };
-\t\tproductForm.dataset = { variantError: "Unable to resolve selected option" };
-\t\tproductForm.closest = () => null;
-\t\tawait productForm.refreshProduct(0);
-\t\tassert.equal(productForm.options[0].value, "previous-option");
-\t\tassert.equal(productForm.status.textContent, "Unable to resolve selected option");
-\t});
+	it("restores the last applied option when the section cannot be refreshed", async () => {
+		const components = await registerComponents("src/theme/blocks/product-purchase.liquid");
+		const productForm = new (components.get("product-form"))();
+		productForm.options = [{ value: "new-option" }];
+		productForm.appliedValues = ["previous-option"];
+		productForm.status = { textContent: "" };
+		productForm.dataset = { variantError: "Unable to resolve selected option" };
+		productForm.closest = () => null;
+		await productForm.refreshProduct(0);
+		assert.equal(productForm.options[0].value, "previous-option");
+		assert.equal(productForm.status.textContent, "Unable to resolve selected option");
+	});
 
-\tit("prevents purchase submission while the variant request is unresolved", async () => {
-\t\tconst components = await registerComponents("src/theme/blocks/product-purchase.liquid");
-\t\tconst productForm = new (components.get("product-form"))();
-\t\tproductForm.refreshing = true;
-\t\tlet prevented = 0;
-\t\tawait productForm.submitWithStandardAction({
-\t\t\tpreventDefault: () => { prevented += 1; }
-\t\t});
-\t\tassert.equal(prevented, 1);
-\t});
+	it("prevents purchase submission while the variant request is unresolved", async () => {
+		const components = await registerComponents("src/theme/blocks/product-purchase.liquid");
+		const productForm = new (components.get("product-form"))();
+		productForm.refreshing = true;
+		let prevented = 0;
+		await productForm.submitWithStandardAction({
+			preventDefault: () => {
+				prevented += 1;
+			}
+		});
+		assert.equal(prevented, 1);
+	});
 
 	it("renders a selected product option via Section Rendering API and preserves quantity", async () => {
 		let requestedUrl;
