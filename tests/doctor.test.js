@@ -50,9 +50,12 @@ describe("project doctor", () => {
 		const projectRoot = await project();
 		await writeHealthyProject(projectRoot);
 		const cli = path.resolve(import.meta.dirname, "../build-scripts/cli.js");
+		const env = { ...process.env };
+		delete env.NODE_V8_COVERAGE;
 		const healthy = spawnSync(process.execPath, [cli, "doctor", "--json"], {
 			cwd: projectRoot,
-			encoding: "utf8"
+			encoding: "utf8",
+			env
 		});
 		assert.equal(healthy.status, 0, healthy.stderr);
 		const parsed = JSON.parse(healthy.stdout);
@@ -62,7 +65,8 @@ describe("project doctor", () => {
 		await write(projectRoot, ".gitignore", "node_modules/\\n");
 		const broken = spawnSync(process.execPath, [cli, "doctor", "--json"], {
 			cwd: projectRoot,
-			encoding: "utf8"
+			encoding: "utf8",
+			env
 		});
 		assert.equal(broken.status, 1);
 		assert.equal(broken.stderr, "");
