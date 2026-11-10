@@ -29,8 +29,34 @@ export async function findShopifyCli(projectRoot, searchPath = process.env.PATH 
 	return undefined;
 }
 
-function check(name, status, message) {
-	return { message, name, status };
+const FIXES = {
+	"LL_SHOPIFY_CLI_MISSING": "Run your package manager's install command, then authenticate with Shopify CLI before previewing.",
+	"LL_NODE_UNSUPPORTED": "Install Node 22.12 or newer and rerun the command.",
+	"LL_PACKAGE_METADATA_INCOMPLETE": "Add the missing package.json metadata. For an adopted client theme, review whether the warnings are relevant.",
+	"LL_PACKAGE_METADATA_UNREADABLE": "Create or repair package.json so it contains valid JSON.",
+	"LL_DOCUMENTATION_MISSING": "Add README.md and LICENSE at the project root, or confirm your adopted theme intentionally omits them.",
+	"LL_GITIGNORE_INCOMPLETE": "Add node_modules/, dist/, and .cache/ entries to .gitignore.",
+	"LL_GITIGNORE_MISSING": "Create .gitignore containing node_modules/, dist/, and .cache/.",
+	"LL_THEME_SOURCE_MISSING": "Add the required Shopify theme files and rebuild. Check that layout/theme.liquid is present.",
+	"LL_SOURCE_COLLISION": "Choose one source owner for each Shopify output; rename or remove the conflicting source file, then rerun doctor.",
+	"LL_THEME_SOURCE_INVALID": "Check source ownership, theme filename mappings, and the detailed error shown; then rerun doctor.",
+	"LL_VITE_CONFIG_MISSING": "Create the configured Vite file or set viteConfig: false to use Shopify-native assets.",
+	"LL_ASSET_ENTRYPOINTS_UNUSED": "Enable Vite explicitly, or remove unused src/entrypoints files.",
+	"LL_OUTPUT_UNSAFE": "Configure outputDir outside all source roots and confirm the project path before building.",
+	"LL_PRIVATE_CONTENT": "Review matched private-content locations and remove confidential material before publishing.",
+	"LL_PREVIEW_TAGS_IN_STABLE_MODE": "Enable the declared Shopify developer preview on the development store and set shopifyLiquidMode accordingly, or remove preview tags.",
+	"LL_PREVIEW_MODE_DECLARED": "Confirm that the target development store supports the explicitly declared preview mode."
+};
+
+function check(name, status, message, issueCode) {
+	const code = status === "pass" ? "LL_OK" : (issueCode ?? `LL_${name.replaceAll("-", "_").toUpperCase()}_${status.toUpperCase()}`);
+	return {
+		code,
+		...(status !== "pass" && FIXES[code] ? { fix: FIXES[code] } : {}),
+		message,
+		name,
+		status
+	};
 }
 
 function previewCheck(model, liquidMode) {
