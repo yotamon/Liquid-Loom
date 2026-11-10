@@ -91,9 +91,15 @@
 		"vite": "^8.2.4"
 	},
 	"peerDependenciesMeta": {
-		"@tailwindcss/vite": { "optional": true },
-		"tailwindcss": { "optional": true },
-		"vite": { "optional": true }
+		"@tailwindcss/vite": {
+			"optional": true
+		},
+		"tailwindcss": {
+			"optional": true
+		},
+		"vite": {
+			"optional": true
+		}
 	},
 	"devDependencies": {
 		"@shopify/cli": "^4.6.0",
