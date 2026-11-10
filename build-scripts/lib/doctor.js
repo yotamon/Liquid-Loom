@@ -14,6 +14,18 @@ async function fileExists(filePath) {
 	}
 }
 
+export async function findShopifyCli(projectRoot, searchPath = process.env.PATH ?? "") {
+	const binaries = process.platform === "win32" ? ["shopify.cmd", "shopify.exe", "shopify.bat"] : ["shopify"];
+	const directories = [path.join(projectRoot, "node_modules", ".bin"), ...searchPath.split(path.delimiter).filter(Boolean)];
+	for (const directory of directories) {
+		for (const binary of binaries) {
+			const executable = path.join(directory, binary);
+			if (await fileExists(executable)) return executable;
+		}
+	}
+	return undefined;
+}
+
 function check(name, status, message) {
 	return { message, name, status };
 }
@@ -45,6 +57,16 @@ function previewCheck(model, liquidMode) {
 export async function diagnoseProject(config) {
 	const checks = [];
 	const hybrid = Boolean(config.shopifySourceRoot);
+	const shopifyCliPath = await findShopifyCli(config.projectRoot);
+	checks.push(
+		check(
+			"shopify-cli",
+			shopifyCliPath ? "pass" : "warn",
+			shopifyCliPath
+				? "Shopify CLI detected; authentication and store access are not checked"
+				: "Shopify CLI not found. Install project dependencies before running dev; local build and watch still work"
+		)
+	);
 	const nodeVersion = process.versions.node.split(".").map(Number);
 	const supportedRuntime = nodeVersion[0] > 22 || (nodeVersion[0] === 22 && nodeVersion[1] >= 12);
 	checks.push(
