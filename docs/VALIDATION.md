@@ -163,7 +163,7 @@ Verify option changes update the URL, product form variant ID, price, availabili
 
 ## Browser smoke
 
-A development-store browser smoke suite should be added once a stable test store and authentication strategy exist. The initial suite only needs to prove critical storefront behavior:
+A **protected, opt-in** Playwright smoke is now available in [Shopify browser acceptance](SHOPIFY_BROWSER_ACCEPTANCE.md), with a manually triggered GitHub Actions workflow. It is **not yet runtime-verified** because a dedicated development store and protected environment fixtures have not been supplied. The initial suite checks:
 
 - home page renders;
 - product page renders and variant selection works;
