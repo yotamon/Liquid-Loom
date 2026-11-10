@@ -53,6 +53,15 @@ async function createFixture() {
 }
 
 describe("project model", () => {
+	it("groups Shopify root context files as agent-readable theme context", async () => {
+		const config = await createFixture();
+		await write(config.sourceRoot, "theme/AGENTS.md", "# Architecture");
+		await write(config.sourceRoot, "theme/DESIGN.md", "# Design");
+		const model = await createProjectModel(config);
+		const context = model.features.find((feature) => feature.name === "theme-context");
+		assert.deepEqual(context.outputs, ["AGENTS.md", "DESIGN.md"]);
+	});
+
 	it("builds a deterministic semantic model from organized Shopify source", async () => {
 		const model = await createProjectModel(await createFixture());
 
