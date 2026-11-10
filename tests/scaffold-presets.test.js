@@ -43,7 +43,7 @@ describe("Shopify starter asset presets", () => {
 		assert.equal(await exists(project, "vite.config.js"), false);
 		assert.equal(await exists(project, "src/entrypoints/theme.js"), false);
 		assert.match(await file(project, "liquid-loom.config.ts"), /viteConfig: false/);
-		assert.doesNotMatch(await file(project, "src/theme/layout/theme.liquid"), /style\\.css' \\| asset_url/);
+		assert.equal((await file(project, "src/theme/layout/theme.liquid")).includes("'style.css' | asset_url"), false);
 		assert.doesNotMatch(await file(project, "README.md"), /__ASSET_STRATEGY_DESCRIPTION__/);
 	});
 
@@ -54,18 +54,18 @@ describe("Shopify starter asset presets", () => {
 			assert.equal(manifest.devDependencies.vite, "^8.2.4");
 			assert.match(await file(project, "liquid-loom.config.ts"), /viteConfig: "vite.config.js"/);
 			const layout = await file(project, "src/theme/layout/theme.liquid");
-			assert.match(layout, /style\\.css' \\| asset_url/);
-			assert.match(layout, /theme\\.js' \\| asset_url/);
+			assert.ok(layout.includes("'style.css' | asset_url"));
+			assert.ok(layout.includes("'theme.js' | asset_url"));
 			assert.match(layout, /type="module"/);
-			assert.match(await file(project, "src/entrypoints/theme.js"), /theme\\.css/);
+			assert.ok((await file(project, "src/entrypoints/theme.js")).includes("theme.css"));
 			const viteConfig = await file(project, "vite.config.js");
 			assert.match(viteConfig, /cssFileName: "style"/);
 			assert.match(viteConfig, /fileName: "theme"/);
 			if (preset === "vite-tailwind") {
 				assert.equal(manifest.devDependencies["@tailwindcss/vite"], "^4.3.3");
 				assert.equal(manifest.devDependencies.tailwindcss, "^4.3.3");
-				assert.match(viteConfig, /tailwindcss\\(\\)/);
-				assert.match(await file(project, "src/entrypoints/theme.css"), /tailwindcss\\/utilities/);
+				assert.ok(viteConfig.includes("tailwindcss()"));
+				assert.ok((await file(project, "src/entrypoints/theme.css")).includes("tailwindcss/utilities"));
 			} else {
 				assert.equal(manifest.devDependencies["@tailwindcss/vite"], undefined);
 				assert.doesNotMatch(viteConfig, /tailwindcss/);
