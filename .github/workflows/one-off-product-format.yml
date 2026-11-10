@@ -1,0 +1,35 @@
+name: Temporary storefront Liquid format
+on:
+  push:
+    branches: [fix/product-form-progressive-enhancement]
+    paths: [.github/workflows/one-off-product-format.yml]
+permissions:
+  contents: write
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: fix/product-form-progressive-enhancement
+          persist-credentials: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --write src/theme/blocks/product-purchase.liquid packages/create-liquid-loom/template/src/theme/blocks/product-purchase.liquid
+      - name: Commit formatting
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "Already formatted"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/theme/blocks/product-purchase.liquid packages/create-liquid-loom/template/src/theme/blocks/product-purchase.liquid
+          git commit -m "style: format Shopify purchase options"
+          git push origin HEAD:fix/product-form-progressive-enhancement
