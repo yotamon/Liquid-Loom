@@ -91,7 +91,9 @@ async function runBuild({ clean = false, mode = "production", quiet = false } = 
 					({ build: viteBuild } = await import("vite"));
 				} catch (error) {
 					if (error.code === "ERR_MODULE_NOT_FOUND" && /vite/i.test(error.message)) {
-						throw new Error("Vite bundling is enabled but Vite is not installed. Install vite or set viteConfig: false.");
+						throw new Error(
+							"Vite bundling is enabled but Vite is not installed. Install vite or set viteConfig: false."
+						);
 					}
 					throw error;
 				}
