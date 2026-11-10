@@ -12,7 +12,7 @@ body:
     attributes:
       label: What were you building?
       options:
-        - A client or production custom theme
+        - A copy of a client theme tested safely outside production
         - A Shopify development-store theme
         - A personal or experimental theme
         - Evaluating Liquid Loom without a store
