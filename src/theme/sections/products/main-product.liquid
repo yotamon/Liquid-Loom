@@ -1,13 +1,17 @@
 <s-view-event view-event-payload="{{ product | standard_event_data: "view", context: "page" | escape }}">
-	<section class="section">
+	<section class="section" data-product-section data-section-id="{{ section.id }}" data-product-url="{{ product.url | escape }}">
 		<div class="page-width product">
 			<div class="product__gallery">
+				{%- assign featured_media = product.selected_or_first_available_variant.featured_media -%}
+				{%- if featured_media != blank and featured_media.media_type == 'image' -%}
+					{{ featured_media | image_url: width: 1400 | image_tag: loading: 'eager', widths: '480, 720, 960, 1400', sizes: '(min-width: 900px) 55vw, 100vw' }}
+				{%- endif -%}
 				{%- for media in product.media -%}
-					{%- if media.media_type == 'image' -%}
-						{{ media | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '480, 720, 960, 1400' }}
+					{%- if media.media_type == 'image' and media.id != featured_media.id -%}
+						{{ media | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '480, 720, 960, 1400', sizes: '(min-width: 900px) 55vw, 100vw' }}
 					{%- endif -%}
 				{%- else -%}
-					{{ 'product-1' | placeholder_svg_tag }}
+					{%- if featured_media == blank -%}{{ 'product-1' | placeholder_svg_tag }}{%- endif -%}
 				{%- endfor -%}
 			</div>
 			<div class="product__details">{% content_for 'blocks' %}</div>
