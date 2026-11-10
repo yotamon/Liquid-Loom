@@ -4,6 +4,8 @@ This is the shortest useful Liquid Loom test. It is designed for Shopify develop
 
 You can complete the local part without a Shopify store. A development store is only needed for the final live-preview step.
 
+**Published-version caveat (November 10, 2026):** `pnpm create liquid-loom@latest` currently installs public version `0.1.1`, whereas this repository's `main` is at source version `0.2.0`. Follow this walkthrough to evaluate the published package but do not assume all newer `main` features are already on npm. See [issue #12](https://github.com/yotamon/Liquid-Loom/issues/12).
+
 ## 1. Scaffold
 
 ```bash

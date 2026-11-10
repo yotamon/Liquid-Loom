@@ -2,6 +2,8 @@
 
 Liquid Loom releases `liquid-loom` and `create-liquid-loom` at the same version.
 
+**Verified public release gap (November 10, 2026):** Both npm `@latest` packages are `0.1.1`, while source manifests are `0.2.0`. The [independent public registry run](https://github.com/yotamon/Liquid-Loom/actions/runs/42880676580) failed on the older scaffolder's unsupported `--no-install` flag; the fix exists in merged source PR #52 only. Do not treat a repository packed-package pass as a public npm release. Review and explicitly approve the next version/tag, publish both packages, and rerun the permanent registry smoke before claiming current features shipped.
+
 ## One-time npm setup
 
 npm Trusted Publishing can publish an existing package through GitHub Actions OIDC, but the package must already exist in the npm registry before a trusted publisher can be configured.
