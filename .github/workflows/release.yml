@@ -36,6 +36,8 @@ jobs:
           mkdir -p .artifacts
           pnpm pack --pack-destination .artifacts
           pnpm --filter create-liquid-loom pack --pack-destination .artifacts
+      - name: Verify packed release consumers before publishing
+        run: node tests/package-smoke.js
       - name: Attest packages
         uses: actions/attest@v4
         with:

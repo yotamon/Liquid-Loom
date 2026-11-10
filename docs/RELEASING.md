@@ -112,7 +112,7 @@ npm requires a public repository and matching repository metadata for automatic 
 4. Merge the release change into `main`.
 5. Create and push a signed or annotated `vX.Y.Z` tag.
 
-The tag workflow validates again, packs both exact artifacts, creates GitHub attestations, publishes through npm OIDC, and creates a GitHub release with generated notes and attached tarballs.
+The tag workflow validates again, packs both exact artifacts, **runs the packed-consumer smoke test against those same tarballs before any attestation or publication**, creates GitHub attestations, publishes through npm OIDC, and creates a GitHub release with generated notes and attached tarballs. It fails closed when independent fresh/adopted consumer installs fail. This is a pre-publication package safety gate, **not** a substitute for post-publish public registry or live Shopify development-store acceptance.
 
 ## Verify
 
