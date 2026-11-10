@@ -12,6 +12,7 @@
 		"cli.js",
 		"index.js",
 		"template",
+		"presets",
 		"LICENSE",
 		"README.md"
 	],
