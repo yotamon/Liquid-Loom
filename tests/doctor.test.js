@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { loadProjectConfig } from "../build-scripts/lib/config.js";
-import { diagnoseProject } from "../build-scripts/lib/doctor.js";
+import { diagnoseProject, findShopifyCli } from "../build-scripts/lib/doctor.js";
 
 const temporaryDirectories = [];
 
@@ -37,16 +37,25 @@ async function writeHealthyProject(projectRoot) {
 }
 
 describe("project doctor", () => {
+	it("detects local Shopify CLI without requiring store authentication", async () => {
+		const projectRoot = await project();
+		assert.equal(await findShopifyCli(projectRoot, ""), undefined);
+		const binary = process.platform === "win32" ? "shopify.cmd" : "shopify";
+		await write(projectRoot, "node_modules/.bin/" + binary, "placeholder");
+		assert.equal(await findShopifyCli(projectRoot, ""), path.join(projectRoot, "node_modules", ".bin", binary));
+	});
+
 	it("recognizes a healthy, portable project contract", async () => {
 		const projectRoot = await project();
 		await writeHealthyProject(projectRoot);
 
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, true);
-		assert.equal(
-			result.checks.every((check) => check.status === "pass"),
-			true
+		const unexpectedStatuses = result.checks.filter(
+			(check) => check.status !== "pass" && !(check.name === "shopify-cli" && check.status === "warn")
 		);
+		assert.deepEqual(unexpectedStatuses, []);
+		assert.ok(result.checks.some((check) => check.name === "shopify-cli"));
 		assert.equal(
 			result.checks.some((check) => check.name === "project-model" && check.status === "pass"),
 			true

@@ -19,7 +19,7 @@ pnpm build
 pnpm doctor
 ```
 
-You should get a successful production build under `dist/theme` and a healthy project report.
+You should get a successful production build under `dist/theme` and a healthy project report. `doctor` also checks whether the Shopify CLI executable is installed for preview. If it is missing, the result is a **warning**, not a failure, because build and watch work offline.
 
 ## 3. Make one feature-organized edit
 
