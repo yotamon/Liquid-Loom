@@ -43,6 +43,9 @@ describe("reference theme capabilities", () => {
 		assert.match(await read("src/theme/sections/search/main-search.liquid"), /class PredictiveSearch/);
 		const purchase = await read("src/theme/blocks/product-purchase.liquid");
 		assert.match(purchase, /selling_plan_groups/);
-		assert.match(purchase, /data-product-variants/);
+		assert.match(purchase, /product\.options_with_values/);
+		assert.match(purchase, /data-product-option/);
+		assert.match(purchase, /option_values/);
+		assert.doesNotMatch(purchase, /product\.variants/);
 	});
 });
