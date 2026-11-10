@@ -86,7 +86,15 @@ async function runBuild({ clean = false, mode = "production", quiet = false } = 
 		clean,
 		bundle: async ({ outputRoot }) => {
 			if (config.viteEnabled) {
-				const { build: viteBuild } = await import("vite");
+				let viteBuild;
+				try {
+					({ build: viteBuild } = await import("vite"));
+				} catch (error) {
+					if (error.code === "ERR_MODULE_NOT_FOUND" && /vite/i.test(error.message)) {
+						throw new Error("Vite bundling is enabled but Vite is not installed. Install vite or set viteConfig: false.");
+					}
+					throw error;
+				}
 				await viteBuild({
 					configFile: config.viteConfig,
 					logLevel: quiet ? "silent" : "warn",
