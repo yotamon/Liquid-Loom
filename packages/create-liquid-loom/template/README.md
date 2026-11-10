@@ -2,7 +2,7 @@
 
 A Shopify-native custom storefront built with [Liquid Loom](https://github.com/yotamon/Liquid-Loom).
 
-The starter uses __ASSET_STRATEGY_DESCRIPTION__.
+The starter uses %%ASSET_STRATEGY_DESCRIPTION%%.
 
 ## Build locally
 
