@@ -37,14 +37,16 @@
 										>
 									{%- endfor -%}
 								{%- when 'price_range' -%}
-									<label
-										>{{ 'collections.minimum' | t }}<input
+									<label>
+										{{- 'collections.minimum' | t -}}
+										<input
 											type="number"
 											name="{{ filter.min_value.param_name }}"
 											value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
 											min="0"></label
-									><label
-										>{{ 'collections.maximum' | t }}<input
+									><label>
+										{{- 'collections.maximum' | t -}}
+										<input
 											type="number"
 											name="{{ filter.max_value.param_name }}"
 											value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
@@ -54,9 +56,10 @@
 						</div>
 					</details>
 				{%- endfor -%}
-				<button class="button button--secondary" type="submit">{{ 'collections.apply_filters' | t }}</button
-				><a href="{{ collection.url }}">{{ 'collections.clear' | t }}</a
+				<button class="button button--secondary" type="submit">{{ 'collections.apply_filters' | t }}</button>
+				<a href="{{ collection.url }}">{{ 'collections.clear' | t }}</a
 			</form>
+
 		{%- endif -%}
 		{%- paginate collection.products by section.settings.products_per_page -%}
 			<div class="product-grid">

@@ -15,7 +15,9 @@
 							<option
 								value="{{ option_value.id }}"
 								data-product-url="{{ option_value.product_url | escape }}"
-								{% if option_value.selected %}selected{% endif %}
+								{% if option_value.selected %}
+									selected
+								{% endif %}
 							>
 								{{- option_value.name | escape -}}
 								{%- unless option_value.available %} ({{ 'products.sold_out' | t }}){% endunless -%}
@@ -24,7 +26,9 @@
 					</select>
 				</div>
 			{%- endfor -%}
-			<noscript><p class="muted">{{ 'products.options_require_javascript' | t }}</p></noscript>
+			<noscript>
+				<p class="muted">{{ 'products.options_require_javascript' | t }}</p>
+			</noscript>
 		{%- endunless -%}
 		{%- if product.selling_plan_groups.size > 0 -%}
 			<div class="field">
@@ -44,15 +48,29 @@
 		<div class="field">
 			<label for="Quantity-{{ block.id }}">{{ 'products.quantity' | t }}</label>
 			<quantity-input class="quantity">
-				<button type="button" data-quantity-action="decrease" aria-label="{{ 'products.decrease_quantity' | t | escape }}">−</button>
+				<button
+					type="button"
+					data-quantity-action="decrease"
+					aria-label="{{ 'products.decrease_quantity' | t | escape }}"
+				>
+					−
+				</button>
 				<input id="Quantity-{{ block.id }}" type="number" name="quantity" value="1" min="1">
-				<button type="button" data-quantity-action="increase" aria-label="{{ 'products.increase_quantity' | t | escape }}">+</button>
+				<button
+					type="button"
+					data-quantity-action="increase"
+					aria-label="{{ 'products.increase_quantity' | t | escape }}"
+				>
+					+
+				</button>
 			</quantity-input>
 		</div>
 		<button
 			class="button button--full"
 			type="submit"
-			{% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}
+			{% unless product.selected_or_first_available_variant.available %}
+				disabled
+			{% endunless %}
 		>
 			{%- if product.selected_or_first_available_variant.available -%}
 				{{ 'actions.add_to_cart' | t }}
@@ -135,9 +153,7 @@
 			this.submit = this.querySelector("button[type='submit']");
 			this.status = this.querySelector('[data-product-form-status]');
 			this.canSubmit = Boolean(this.form?.elements.namedItem('id')?.value && !this.submit?.disabled);
-			this.options.forEach((select, index) =>
-				select.addEventListener('change', () => this.refreshProduct(index))
-			);
+			this.options.forEach((select, index) => select.addEventListener('change', () => this.refreshProduct(index)));
 			this.form?.addEventListener('submit', (event) => this.submitWithStandardAction(event));
 		}
 		disconnectedCallback() {
@@ -187,7 +203,9 @@
 			} catch (error) {
 				if (error.name === 'AbortError') return;
 				console.error(error);
-				this.options.forEach((select, index) => { select.value = this.appliedValues[index]; });
+				this.options.forEach((select, index) => {
+					select.value = this.appliedValues[index];
+				});
 				if (this.status) this.status.textContent = this.dataset.variantError;
 			} finally {
 				if (this.isConnected && this.controller === controller) {
@@ -226,9 +244,10 @@
 					return;
 				}
 				if (this.status) this.status.textContent = warnings?.[0]?.message || this.dataset.cartAdded;
-				if (cart) document.querySelectorAll('[data-cart-count]').forEach((node) => {
-					node.textContent = String(cart.totalQuantity);
-				});
+				if (cart)
+					document.querySelectorAll('[data-cart-count]').forEach((node) => {
+						node.textContent = String(cart.totalQuantity);
+					});
 			} catch (error) {
 				console.error(error);
 				if (this.status) this.status.textContent = this.dataset.cartError;

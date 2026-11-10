@@ -40,12 +40,23 @@ describe("Shopify reference storefront behavior", () => {
 					namedItem: (name) => (name === "quantity" ? newQuantity : name === "selling_plan" ? newPlan : null)
 				}
 			}),
-			querySelectorAll: () => [{ focus: () => { focused = true; } }]
+			querySelectorAll: () => [
+				{
+					focus: () => {
+						focused = true;
+					}
+				}
+			]
 		};
 		const environment = {
 			window: {
 				location: { href: "https://example.com/products/test", origin: "https://example.com" },
-				history: { state: {}, replaceState: (_state, _title, url) => { browserUrl = url; } }
+				history: {
+					state: {},
+					replaceState: (_state, _title, url) => {
+						browserUrl = url;
+					}
+				}
 			},
 			fetch: async (url) => {
 				requestedUrl = new URL(url);
@@ -61,7 +72,9 @@ describe("Shopify reference storefront behavior", () => {
 		const productForm = new (components.get("product-form"))();
 		const originalSection = {
 			dataset: { sectionId: "template--1__main", productUrl: "/products/test" },
-			replaceWith: (node) => { replaced = node === replacement; }
+			replaceWith: (node) => {
+				replaced = node === replacement;
+			}
 		};
 		productForm.closest = () => originalSection;
 		productForm.options = [{ value: "123", selectedOptions: [{ dataset: { productUrl: "" } }] }];
@@ -96,7 +109,13 @@ describe("Shopify reference storefront behavior", () => {
 			{ id: "PredictiveSearchOption-1", setAttribute: () => {}, querySelector: () => ({ href: "/products/two" }) }
 		];
 		const components = await registerComponents("src/theme/sections/search/main-search.liquid", {
-			window: { location: { assign: (url) => { destination = url; } } }
+			window: {
+				location: {
+					assign: (url) => {
+						destination = url;
+					}
+				}
+			}
 		});
 		const search = new (components.get("predictive-search"))();
 		search.input = {
@@ -107,7 +126,12 @@ describe("Shopify reference storefront behavior", () => {
 		search.results = { querySelectorAll: () => options };
 		search.activeIndex = -1;
 		let prevented = 0;
-		const event = (key) => ({ key, preventDefault: () => { prevented += 1; } });
+		const event = (key) => ({
+			key,
+			preventDefault: () => {
+				prevented += 1;
+			}
+		});
 
 		search.onKeyDown(event("ArrowDown"));
 		assert.equal(search.activeIndex, 0);
