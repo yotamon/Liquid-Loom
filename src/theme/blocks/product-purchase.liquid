@@ -23,18 +23,16 @@
 								{%- unless option_value.available %} ({{ 'products.sold_out' | t }}){% endunless -%}
 							</option>
 						{%- endfor -%}
+					</select>
+				</div>
+			{%- endfor -%}
+			{%- assign selected_variant_title = product.selected_or_first_available_variant.title -%}
+			{%- if selected_variant_title == blank -%}
+				{%- assign selected_variant_title = 'products.unavailable' | t -%}
+			{%- endif -%}
 			<div class="product-form__option-fallback">
 				<p class="muted">{{ 'products.options_require_javascript' | t }}</p>
-				<p>
-					{{ 'products.selected_variant' | t }}:
-					<strong>
-						{%- if product.selected_or_first_available_variant -%}
-							{{ product.selected_or_first_available_variant.title | escape }}
-						{%- else -%}
-							{{ 'products.unavailable' | t }}
-						{%- endif -%}
-					</strong>
-				</p>
+				<p>{{ 'products.selected_variant' | t }}: <strong>{{ selected_variant_title | escape }}</strong></p>
 			</div>
 		{%- endunless -%}
 		{%- if product.selling_plan_groups.size > 0 -%}
