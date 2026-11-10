@@ -1,0 +1,66 @@
+<section class="section editorial-richtext">
+	<div class="page-width">
+		<div class="editorial-richtext__content{% if section.settings.alignment == 'center' %} editorial-richtext__content--center{% endif %}">
+			{%- if section.settings.eyebrow != blank -%}
+				<p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>
+			{%- endif -%}
+			{%- if section.settings.heading != blank -%}
+				<h2 class="heading heading--medium">{{ section.settings.heading | escape }}</h2>
+			{%- endif -%}
+			{%- if section.settings.body != blank -%}
+				<div class="editorial-richtext__body rte">{{ section.settings.body }}</div>
+			{%- endif -%}
+			{%- if section.settings.button_label != blank and section.settings.button_link != blank -%}
+				<a class="button editorial-richtext__button" href="{{ section.settings.button_link }}">
+					{{- section.settings.button_label | escape -}}
+				</a>
+			{%- endif -%}
+		</div>
+	</div>
+</section>
+
+{% stylesheet %}
+	.editorial-richtext__content {
+		max-width: 50rem;
+	}
+	.editorial-richtext__content--center {
+		margin-inline: auto;
+		text-align: center;
+	}
+	.editorial-richtext__body {
+		color: var(--color-muted);
+		margin-block: 1.5rem 0;
+	}
+	.editorial-richtext__button {
+		margin-block-start: 2rem;
+	}
+{% endstylesheet %}
+
+{% schema %}
+{
+	"name": "Rich text",
+	"settings": [
+		{ "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our story" },
+		{ "type": "text", "id": "heading", "label": "Heading", "default": "A little about us" },
+		{
+			"type": "richtext",
+			"id": "body",
+			"label": "Text",
+			"default": "<p>Share the story behind your brand and what makes your products special.</p>"
+		},
+		{
+			"type": "select",
+			"id": "alignment",
+			"label": "Text alignment",
+			"options": [
+				{ "value": "left", "label": "Left" },
+				{ "value": "center", "label": "Center" }
+			],
+			"default": "center"
+		},
+		{ "type": "text", "id": "button_label", "label": "Button label", "default": "Learn more" },
+		{ "type": "url", "id": "button_link", "label": "Button link" }
+	],
+	"presets": [{ "name": "Rich text" }]
+}
+{% endschema %}
