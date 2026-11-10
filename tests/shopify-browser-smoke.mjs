@@ -7,6 +7,14 @@ const password = process.env.LIQUID_LOOM_STOREFRONT_PASSWORD;
 const optionValueId = process.env.LIQUID_LOOM_OPTION_VALUE_ID;
 const expectedVariantId = process.env.LIQUID_LOOM_EXPECTED_VARIANT_ID;
 
+if (process.env.LIQUID_LOOM_DEV_STORE_CONFIRMED !== "true") {
+	throw new Error("Set LIQUID_LOOM_DEV_STORE_CONFIRMED=true only after confirming the target is a non-production Shopify development store.");
+}
+
+if (Boolean(optionValueId) !== Boolean(expectedVariantId)) {
+	throw new Error("Both LIQUID_LOOM_OPTION_VALUE_ID and LIQUID_LOOM_EXPECTED_VARIANT_ID are required for option-value verification.");
+}
+
 if (!storeUrl || !productPath || !searchTerm || searchTerm.trim().length < 2) {
 	throw new Error(
 		"Shopify browser acceptance requires LIQUID_LOOM_STORE_URL, LIQUID_LOOM_PRODUCT_PATH, and a LIQUID_LOOM_SEARCH_TERM of at least two characters."
@@ -68,7 +76,7 @@ try {
 			(expectedId) => {
 				const form = document.querySelector("[data-product-section] product-form form");
 				const id = form?.querySelector('input[name="id"]')?.value;
-				return Boolean(id && (!expectedId || id === expectedId) && document.querySelector("[data-product-section] product-form:not([aria-busy])"));
+				return Boolean(id === expectedId && document.querySelector("[data-product-section] product-form:not([aria-busy])"));
 			},
 			expectedVariantId,
 			{ timeout: 12_000 }
