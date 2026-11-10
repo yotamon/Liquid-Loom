@@ -91,7 +91,7 @@ try {
 		const manifestPath = path.join(presetTarget, "package.json");
 		const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
 		manifest.devDependencies["liquid-loom"] = packageSpec;
-		await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\\n`);
+		await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 		await run("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund"], presetTarget);
 		await run("npm", ["run", "build"], presetTarget);
 		for (const asset of ["theme.js", "style.css"]) {
