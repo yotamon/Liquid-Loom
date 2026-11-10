@@ -16,6 +16,7 @@ const { positionals, values } = parseArgs({
 	options: {
 		help: { short: "h", type: "boolean" },
 		install: { default: true, type: "boolean" },
+		"no-install": { type: "boolean" },
 		"package-manager": { default: "pnpm", type: "string" },
 		version: { short: "v", type: "boolean" }
 	}
@@ -46,12 +47,14 @@ const projectName = path
 scaffoldProject({
 	targetDirectory,
 	projectName,
-	install: values.install,
+	install: values["no-install"] ? false : values.install,
 	packageManager: values["package-manager"]
 })
 	.then(({ targetDirectory: target }) => {
 		console.log(`\n✓ Created ${projectName} at ${target}`);
-		console.log(`\nNext:\n  cd ${JSON.stringify(path.relative(process.cwd(), target) || ".")}\n  pnpm dev`);
+		const manager = values["package-manager"];
+		const devCommand = manager === "npm" || manager === "bun" ? `${manager} run dev` : `${manager} dev`;
+		console.log(`\nNext:\n  cd ${JSON.stringify(path.relative(process.cwd(), target) || ".")}\n  ${devCommand}`);
 	})
 	.catch((error) => {
 		console.error(`× ${error.message}`);

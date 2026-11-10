@@ -63,9 +63,27 @@ export async function scaffoldProject({
 		const packageFile = path.join(staging, "package.json");
 		const packageJson = JSON.parse(await readFile(packageFile, "utf8"));
 		packageJson.name = projectName;
+		if (packageManager !== "pnpm") delete packageJson.packageManager;
 		await writeFile(packageFile, `${JSON.stringify(packageJson, null, 2)}\n`);
+
+		const needsRun = packageManager === "npm" || packageManager === "bun";
+		const script = (name) => `${packageManager}${needsRun ? " run" : ""} ${name}`;
+		const explainArgs = packageManager === "npm" || packageManager === "pnpm" ? "-- --json" : "--json";
+		const instructions = {
+			PROJECT_NAME: projectName,
+			__INSTALL_COMMAND__: `${packageManager} install`,
+			__DEV_COMMAND__: script("dev"),
+			__BUILD_COMMAND__: script("build"),
+			__EXPLAIN_COMMAND__: `${script("explain")} ${explainArgs}`,
+			__DOCTOR_COMMAND__: script("doctor"),
+			__VALIDATE_COMMAND__: script("validate")
+		};
 		const readmeFile = path.join(staging, "README.md");
-		await writeFile(readmeFile, (await readFile(readmeFile, "utf8")).replaceAll("__PROJECT_NAME__", projectName));
+		let readme = await readFile(readmeFile, "utf8");
+		for (const [placeholder, value] of Object.entries(instructions)) {
+			readme = readme.replaceAll(placeholder, value);
+		}
+		await writeFile(readmeFile, readme);
 
 		if (entries) {
 			const latestEntries = await directoryEntries(target);
