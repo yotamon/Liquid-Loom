@@ -229,7 +229,9 @@
 					newForm.elements.namedItem('quantity').value = quantity;
 				}
 				const renderedPlan = newForm?.elements.namedItem('selling_plan');
-				const planStillAvailable = Array.from(renderedPlan?.options ?? []).some((option) => option.value === sellingPlan);
+				const planStillAvailable = Array.from(renderedPlan?.options ?? []).some(
+					(option) => option.value === sellingPlan
+				);
 				if (sellingPlan && planStillAvailable) renderedPlan.value = sellingPlan;
 				section.replaceWith(replacement);
 				window.history.replaceState(window.history.state, '', nextUrl);
