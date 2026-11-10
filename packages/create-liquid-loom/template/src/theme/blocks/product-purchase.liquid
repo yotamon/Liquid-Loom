@@ -32,7 +32,9 @@
 			{%- endif -%}
 			<div class="product-form__option-fallback">
 				<p class="muted">{{ 'products.options_require_javascript' | t }}</p>
-				<p>{{ 'products.selected_variant' | t }}: <strong>{{ selected_variant_title | escape }}</strong></p>
+				<p>
+					{{ 'products.selected_variant' | t }}: <strong>{{ selected_variant_title | escape }}</strong>
+				</p>
 			</div>
 		{%- endunless -%}
 		{%- if product.selling_plan_groups.size > 0 -%}
@@ -131,7 +133,7 @@
 	}
 	product-form[data-product-ready] .product-form__option-field {
 		display: grid;
-}
+	}
 	product-form[data-product-ready] .product-form__option-fallback {
 		display: none;
 	}
