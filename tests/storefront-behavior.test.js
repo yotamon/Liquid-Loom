@@ -32,6 +32,8 @@ describe("Shopify reference storefront behavior", () => {
 		assert.match(purchase, /\.product-form__option-field \{\s*display: none;/);
 		assert.match(purchase, /product-form\[data-product-ready\] \.product-form__option-field/);
 		assert.match(purchase, /unless product\.selected_or_first_available_variant\.requires_selling_plan/);
+		assert.match(purchase, /available_plan_ids contains plan\.id/);
+		assert.match(purchase, /selected_variant\.requires_selling_plan and available_plan_ids\.size == 0/);
 		assert.match(purchase, /class="field product-form__option-field"/);
 		assert.match(purchase, /product-form__option-fallback/);
 		assert.match(purchase, /selected_or_first_available_variant\.title/);
