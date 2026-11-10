@@ -102,7 +102,7 @@ describe("project doctor", () => {
 		const result = await diagnoseProject(await loadProjectConfig(projectRoot));
 		assert.equal(result.healthy, false);
 		assert.equal(result.checks.find((item) => item.name === "generated-files").code, "LL_GITIGNORE_MISSING");
-		assert.ok(finding.fix.includes(".gitignore"));
+		assert.ok(result.checks.find((item) => item.name === "generated-files").fix.includes(".gitignore"));
 		assert.equal(
 			result.checks.some((check) => check.name === "private-content" && check.status === "fail"),
 			true
