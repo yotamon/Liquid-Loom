@@ -1,0 +1,23 @@
+name: One-time public npm acceptance
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/one-time-public-registry-acceptance.yml
+
+permissions:
+  contents: read
+
+jobs:
+  registry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Independently install and build published npm packages
+        run: node tests/public-registry-smoke.mjs
