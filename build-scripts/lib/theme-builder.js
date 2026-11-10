@@ -197,6 +197,16 @@ async function fileExists(filePath) {
 	}
 }
 
+export async function nativeWatchTargets(shopifySourceRoot) {
+	if (!shopifySourceRoot) return [];
+	const targets = [];
+	for (const name of [...SHOPIFY_THEME_DIRECTORIES, "AGENTS.md", "DESIGN.md"]) {
+		const candidate = path.join(shopifySourceRoot, name);
+		if (await fileExists(candidate)) targets.push(candidate);
+	}
+	return targets;
+}
+
 async function listFiles(directory, baseDirectory = directory) {
 	const entries = await readdir(directory, { withFileTypes: true });
 	const files = [];
