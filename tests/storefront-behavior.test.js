@@ -31,6 +31,7 @@ describe("Shopify reference storefront behavior", () => {
 		const purchase = await readFile(path.join(root, "src/theme/blocks/product-purchase.liquid"), "utf8");
 		assert.match(purchase, /\.product-form__option-field \{\s*display: none;/);
 		assert.match(purchase, /product-form\[data-product-ready\] \.product-form__option-field/);
+		assert.match(purchase, /unless product\.selected_or_first_available_variant\.requires_selling_plan/);
 		assert.match(purchase, /class="field product-form__option-field"/);
 		assert.match(purchase, /product-form__option-fallback/);
 		assert.match(purchase, /selected_or_first_available_variant\.title/);
@@ -69,7 +70,7 @@ describe("Shopify reference storefront behavior", () => {
 		let replaced = false;
 		let focused = false;
 		const newQuantity = { value: "1" };
-		const newPlan = { value: "" };
+		const newPlan = { value: "", options: [{ value: "" }, { value: "plan-1" }] };
 		const replacement = {
 			querySelector: () => ({
 				elements: {
@@ -135,6 +136,46 @@ describe("Shopify reference storefront behavior", () => {
 		assert.ok(focused);
 		assert.equal(browserUrl.searchParams.get("option_values"), "123");
 		assert.equal(browserUrl.searchParams.has("section_id"), false);
+	});
+
+	it("does not reuse a selling plan unavailable for a newly selected variant", async () => {
+		const newPlan = { value: "plan-2", options: [{ value: "plan-2" }] };
+		const replacement = {
+			querySelector: () => ({
+				elements: { namedItem: (name) => (name === "selling_plan" ? newPlan : null) }
+			}),
+			querySelectorAll: () => [{ focus: () => {} }]
+		};
+		const components = await registerComponents("src/theme/blocks/product-purchase.liquid", {
+			window: {
+				location: { href: "https://example.com/products/test", origin: "https://example.com" },
+				history: { state: {}, replaceState: () => {} }
+			},
+			fetch: async () => ({ ok: true, text: async () => "<section data-product-section></section>" }),
+			DOMParser: class {
+				parseFromString() {
+					return { querySelector: () => replacement };
+				}
+			}
+		});
+		const form = new (components.get("product-form"))();
+		form.closest = () => ({
+			dataset: { sectionId: "template--1__main", productUrl: "/products/test" },
+			replaceWith: () => {}
+		});
+		form.options = [{ value: "new", selectedOptions: [{ dataset: { productUrl: "" } }] }];
+		form.appliedValues = ["old"];
+		form.form = {
+			elements: { namedItem: (name) => (name === "selling_plan" ? { value: "plan-1" } : null) }
+		};
+		form.submit = { disabled: false };
+		form.canSubmit = true;
+		form.isConnected = true;
+		form.setAttribute = () => {};
+		form.removeAttribute = () => {};
+
+		await form.refreshProduct(0);
+		assert.equal(newPlan.value, "plan-2");
 	});
 
 	it("offers keyboard navigation in predictive search without removing input focus", async () => {
