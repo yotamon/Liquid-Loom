@@ -6,6 +6,10 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 
 ### Added
 
+- Shopify-native theme-root `AGENTS.md` and `DESIGN.md` in scaffold and build output, with portable ownership checks, file-size validation, theme-context project intelligence, and deployment-branch support.
+- Native theme root context watching for hot reload, plus an optional Shopify CLI executable preflight in `doctor`.
+- A product roadmap organized around real-store acceptance, starter UX, AI-native workflows, and developer adoption.
+
 - A high-variant-ready reference product picker based on `product.options_with_values` and Shopify Section Rendering API instead of loading a capped `product.variants` collection.
 - Product section refreshes that synchronize variant-specific pricing, imagery, inventory availability, and shareable option URLs.
 - Keyboard-operable, locale-aware predictive search with Shopify-native listbox semantics.
@@ -20,6 +24,9 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and t
 - A complete Shopify 2026 modernization plan covering architecture, compatibility constraints, implementation order, and real-store acceptance criteria.
 
 ### Changed
+
+- Fresh scaffolds now honor the selected npm, pnpm, Yarn, or Bun workflow in their generated commands and metadata, and correctly support `--no-install`.
+- The public quickstart and starter README prioritize building a new theme and making the first real feature edit; legacy adoption remains a fully supported path.
 
 - Vite is loaded lazily only for projects that enable bundling; the package dependency remains unchanged.
 - The reference storefront preserves quantity and selling-plan selection across product-option refreshes.
