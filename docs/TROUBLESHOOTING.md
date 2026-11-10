@@ -28,6 +28,10 @@ Run `pnpm build:clean` before `pnpm theme-check`. The root `.theme-check.yml` ig
 
 Review the file and configured term before publishing. Findings intentionally print the location without echoing the configured private value into logs.
 
+## Vite bundling is enabled but Vite is not installed
+
+Native-only projects use `viteConfig: false` and do not need Vite. If you intentionally enable bundling, install Vite in the consuming project (`npm install -D vite`, or the equivalent package manager command) and supply a valid Vite config. Tailwind integrations additionally need `tailwindcss` and `@tailwindcss/vite`. The framework loads TypeScript/ESM configuration through Jiti and does not install bundlers automatically.
+
 ## Installation or lockfile mismatch
 
 Use the pnpm version declared in `package.json` through Corepack:
