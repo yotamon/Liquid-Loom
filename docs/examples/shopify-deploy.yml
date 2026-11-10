@@ -49,6 +49,14 @@ jobs:
             fi
           done
 
+          # Shopify CLI 4.8.4+ and GitHub sync preserve optional theme-root agent context.
+          for context_file in AGENTS.md DESIGN.md; do
+            rm -f "$deploy_dir/$context_file"
+            if [ -f "dist/theme/$context_file" ]; then
+              cp "dist/theme/$context_file" "$deploy_dir/$context_file"
+            fi
+          done
+
           git -C "$deploy_dir" checkout -B shopify-production
           git -C "$deploy_dir" config user.name "github-actions[bot]"
           git -C "$deploy_dir" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
