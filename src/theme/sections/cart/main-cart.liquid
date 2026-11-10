@@ -28,11 +28,14 @@
 											<div>
 												<a href="{{ item.url }}">{{ item.product.title | escape }}</a><br>
 												{%- unless item.variant.title == 'Default Title' -%}
-											<span class="muted">{{ item.variant.title | escape }}</span>
-											{%- endunless -%}
-											{%- if item.selling_plan_allocation -%}
-												<p class="muted">{{ 'products.purchase_option' | t }}: {{ item.selling_plan_allocation.selling_plan.name | escape }}</p>
-											{%- endif -%}
+													<span class="muted">{{ item.variant.title | escape }}</span>
+												{%- endunless -%}
+												{%- if item.selling_plan_allocation -%}
+													<p class="muted">
+														{{ 'products.purchase_option' | t }}:
+														{{ item.selling_plan_allocation.selling_plan.name | escape }}
+													</p>
+												{%- endif -%}
 											</div>
 										</div>
 									</td>
