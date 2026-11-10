@@ -142,7 +142,7 @@ State who should use Liquid Loom and who should stay with a conventional Shopify
 
 ## Merchant-editable content patterns
 
-The `faq` and `image-with-text` sections must be manually verified in Theme Editor on a non-production development theme before claiming a production-ready pattern library. Confirm question block add/delete/reorder, question focus with keyboard, FAQ disclosure without JavaScript, image left/right and mobile reading order, alt-text behavior, and optional link visibility. Automated tests cover source/scaffold parity and schema structure only.
+The `faq`, `image-with-text`, `rich-text`, and `multicolumn` sections must be manually verified in Theme Editor on a non-production development theme before claiming a production-ready pattern library. Confirm question block add/delete/reorder, question focus with keyboard, FAQ disclosure without JavaScript, image left/right and mobile reading order, alt-text behavior, and optional link visibility. Automated tests cover source/scaffold parity and schema structure only.
 
 ## Storefront regression acceptance
 
