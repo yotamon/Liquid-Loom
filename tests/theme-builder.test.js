@@ -10,6 +10,7 @@ import {
 	buildProject,
 	buildTheme,
 	createBuildPlan,
+	classifyNativeRootWatchEvent,
 	discoverSourceEntries,
 	mapShopifyPath,
 	mapThemePath,
@@ -52,6 +53,24 @@ afterEach(async () => {
 });
 
 describe("nativeShopifyWatchTargets", () => {
+	it("rebuilds for newly added root context and Shopify directories, not unrelated project files", () => {
+		for (const file of ["AGENTS.md", "DESIGN.md", "agents.md"]) {
+			for (const event of ["add", "change", "unlink"]) {
+				assert.equal(classifyNativeRootWatchEvent(event, file), "context");
+			}
+		}
+		for (const name of ["assets", "sections", "templates"]) {
+			assert.equal(classifyNativeRootWatchEvent("addDir", name), "directory");
+			assert.equal(classifyNativeRootWatchEvent("unlinkDir", name), "directory");
+			assert.equal(classifyNativeRootWatchEvent("change", name), null);
+		}
+		for (const name of ["README.md", "package.json", "node_modules", "dist", "nested/AGENTS.md", ""]) {
+			assert.equal(classifyNativeRootWatchEvent("add", name), null);
+		}
+		assert.equal(classifyNativeRootWatchEvent("addDir", "node_modules"), null);
+		assert.equal(classifyNativeRootWatchEvent("change", "src/theme/AGENTS.md"), null);
+		assert.equal(classifyNativeRootWatchEvent("add", "AGENTS.md.bak"), null);
+	});
 	it("watches only existing canonical theme directories and root agent context files", async () => {
 		const { projectRoot } = await createTemporaryProject();
 		await mkdir(path.join(projectRoot, "sections"));

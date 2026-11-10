@@ -197,6 +197,20 @@ async function fileExists(filePath) {
 	}
 }
 
+// A shallow native-root watcher may observe only file context changes and
+// canonical Shopify theme directory additions/removals. Never rebuild for
+// unrelated files (including package files, node_modules, or generated output).
+export function classifyNativeRootWatchEvent(event, name) {
+	if (!name || name === "." || name === ".." || /[/\\]/.test(name)) return null;
+	if (/^(agents|design)\.md$/i.test(name) && ["add", "change", "unlink"].includes(event)) {
+		return "context";
+	}
+	if (SHOPIFY_THEME_DIRECTORIES.includes(name) && ["addDir", "unlinkDir"].includes(event)) {
+		return "directory";
+	}
+	return null;
+}
+
 export async function nativeWatchTargets(shopifySourceRoot) {
 	if (!shopifySourceRoot) return [];
 	const targets = [];

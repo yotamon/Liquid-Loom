@@ -20,6 +20,7 @@ import { scanForbiddenContent } from "./lib/public-readiness.js";
 import {
 	assertSafeOutput,
 	buildProject,
+	classifyNativeRootWatchEvent,
 	createBuildPlan,
 	discoverSourceEntries,
 	nativeWatchTargets,
@@ -264,11 +265,18 @@ async function watchProject({ shopify = false } = {}) {
 
 	const watchTargets = [
 		config.sourceRoot,
-		...(await nativeWatchTargets(config.shopifySourceRoot)),
+		...(await nativeWatchTargets(config.shopifySourceRoot)).filter(
+			(target) => !["AGENTS.md", "DESIGN.md"].includes(path.basename(target))
+		),
 		config.viteEnabled ? config.viteConfig : undefined,
 		config.configFile
 	].filter(Boolean);
 	const watcher = chokidar.watch(watchTargets, { ignoreInitial: true });
+	// Watching the native root at depth zero catches new context files and theme
+	// directories without recursively watching unrelated project-root files.
+	const nativeRootWatcher = config.shopifySourceRoot
+		? chokidar.watch(config.shopifySourceRoot, { ignoreInitial: true, depth: 0 })
+		: undefined;
 	let timer;
 	let building = false;
 	let queued = false;
@@ -293,13 +301,22 @@ async function watchProject({ shopify = false } = {}) {
 		}
 	};
 
-	watcher.on("all", (event, changedPath) => {
+	const scheduleRebuild = (event, changedPath) => {
 		clearTimeout(timer);
 		console.log(`${chalk.dim(event.padEnd(8))} ${path.relative(config.projectRoot, changedPath)}`);
 		timer = setTimeout(rebuild, 100);
+	};
+	watcher.on("all", scheduleRebuild);
+	nativeRootWatcher?.on("all", (event, changedPath) => {
+		const name = path.relative(config.shopifySourceRoot, changedPath);
+		const kind = classifyNativeRootWatchEvent(event, name);
+		if (!kind) return;
+		if (kind === "directory" && event === "addDir") watcher.add(changedPath);
+		scheduleRebuild(event, changedPath);
 	});
+	const targetCount = watchTargets.length + (nativeRootWatcher ? 1 : 0);
 	console.log(
-		`${chalk.green("●")} watching ${watchTargets.length} Liquid Loom source target${watchTargets.length === 1 ? "" : "s"}`
+		`${chalk.green("●")} watching ${targetCount} Liquid Loom source target${targetCount === 1 ? "" : "s"}`
 	);
 
 	await new Promise((resolve) => {
@@ -309,7 +326,7 @@ async function watchProject({ shopify = false } = {}) {
 			shuttingDown = true;
 			if (typeof exitCode === "number") process.exitCode = exitCode;
 			clearTimeout(timer);
-			await watcher.close();
+			await Promise.all([watcher.close(), nativeRootWatcher?.close()]);
 			shopifyProcess?.kill();
 			resolve();
 		};
@@ -322,10 +339,12 @@ async function watchProject({ shopify = false } = {}) {
 			if (signal) console.error(`${chalk.red("×")} Shopify CLI stopped with ${signal}`);
 			void shutdown(code ?? 1);
 		});
-		watcher.once("error", (error) => {
+		const handleWatchError = (error) => {
 			console.error(`${chalk.red("×")} File watcher failed: ${error.message}`);
 			void shutdown(1);
-		});
+		};
+		watcher.once("error", handleWatchError);
+		nativeRootWatcher?.once("error", handleWatchError);
 		process.once("SIGINT", () => void shutdown());
 		process.once("SIGTERM", () => void shutdown());
 	});
