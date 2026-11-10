@@ -27,6 +27,31 @@ In **Customize > Add section**, choose **Image with text**. Select an image and 
 **Authored:** `src/theme/sections/pages/image-with-text.liquid`  
 **Deployed:** `dist/theme/sections/image-with-text.liquid`
 
+## Rich text (`rich-text.liquid`)
+
+In **Customize > Add section**, choose **Rich text** for a compact about-us introduction, editorial message, or short landing-page feature.
+
+- Edit the optional eyebrow, heading, rich text, and left/center alignment directly in Theme Editor.
+- The button is displayed only when both its text and URL are configured.
+- The reading order is logical for keyboard and screen-reader users and does not require JavaScript.
+- The text width is deliberately limited for readability.
+
+**Authored:** `src/theme/sections/pages/rich-text.liquid`  
+**Deployed:** `dist/theme/sections/rich-text.liquid`
+
+## Multicolumn (`multicolumn.liquid`)
+
+In **Customize > Add section**, choose **Multicolumn** for customer benefits, key product features, or a small editorial gallery.
+
+- Preset supplies three editable Column blocks; merchants can add, delete or reorder up to 12.
+- Each block supports an optional image, heading, rich text and link. Buttons/links appear only with both label and URL.
+- Choose two, three or four columns on desktop; the responsive layout collapses to two and then one column.
+- Uploaded images use responsive Shopify image markup. Provide accurate image alt text in Shopify Files for content-bearing images.
+- Native `<ul>` / `<li>` markup preserves a coherent semantic list without an extra runtime.
+
+**Authored:** `src/theme/sections/pages/multicolumn.liquid`  
+**Deployed:** `dist/theme/sections/multicolumn.liquid`
+
 ## Quality boundary
 
 The repository tests syntax and scaffold parity, while Shopify Theme Check validates generated output. Real Theme Editor testing is still needed to verify block reordering, image choices, mobile appearance, and accessibility with realistic merchant copy. Do not confuse these starter examples with a Theme Store-approved theme or an audited production design system.

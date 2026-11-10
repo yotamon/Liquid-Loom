@@ -60,6 +60,33 @@ describe("reference theme capabilities", () => {
 		assert.match(imageText, /section\.settings\.button_link != blank/);
 	});
 
+	it("keeps native editorial content patterns merchant-editable and mirrored into the starter", async () => {
+		for (const name of ["rich-text", "multicolumn"]) {
+			const source = await read(`src/theme/sections/pages/${name}.liquid`);
+			const starter = await read(`packages/create-liquid-loom/template/src/theme/sections/pages/${name}.liquid`);
+			assert.equal(source, starter, `${name} must match the generated starter`);
+			const schemaBlock = source.split("{% schema %}")[1]?.split("{% endschema %}")[0];
+			assert.ok(schemaBlock, `${name} must have a schema`);
+			const schema = JSON.parse(schemaBlock);
+			assert.ok(schema.name.length <= 25);
+			assert.ok(schema.presets.length > 0);
+			assert.ok(source.includes("{% stylesheet %}"));
+			assert.equal(source.includes("{% javascript %}"), false);
+		}
+		const rich = await read("src/theme/sections/pages/rich-text.liquid");
+		const richSchema = JSON.parse(rich.split("{% schema %}")[1].split("{% endschema %}")[0]);
+		assert.ok(richSchema.settings.some((setting) => setting.id === "alignment"));
+		assert.ok(rich.includes("section.settings.button_link != blank"));
+		const multi = await read("src/theme/sections/pages/multicolumn.liquid");
+		const multiSchema = JSON.parse(multi.split("{% schema %}")[1].split("{% endschema %}")[0]);
+		assert.ok(multiSchema.blocks.some((block) => block.type === "column"));
+		assert.equal(multiSchema.presets[0].blocks.length, 3);
+		assert.ok(multi.includes("block.shopify_attributes"));
+		assert.match(multi, /image_tag:\s*loading: 'lazy'/);
+		assert.ok(multi.includes("@media (max-width: 600px)"));
+		assert.ok(multi.includes("block.settings.link != blank"));
+	});
+
 	it("localizes cart controls and displays subscription allocations for purchased variants", async () => {
 		const cart = await read("src/theme/sections/cart/main-cart.liquid");
 		assert.match(cart, /item\.selling_plan_allocation\.selling_plan\.name/);

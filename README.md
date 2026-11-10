@@ -150,7 +150,7 @@ dist/theme/
 
 ## Merchant-editable content sections
 
-The starter includes an accessible **Frequently asked questions** section and responsive **Image with text** layout. Both use native Shopify section schemas and work without a client-side component runtime. See [Starter patterns](docs/STARTER_PATTERNS.md) for editable settings, authored/deployed paths, and validation limitations.
+The starter includes merchant-editable **FAQ**, **Image with text**, **Rich text**, and **Multicolumn** sections. All use native Shopify section schemas, semantic markup, and no additional client-side component runtime. See [Starter patterns](docs/STARTER_PATTERNS.md) for editable settings, authored/deployed paths, and validation limitations.
 
 ## Theme-block-first composition
 
