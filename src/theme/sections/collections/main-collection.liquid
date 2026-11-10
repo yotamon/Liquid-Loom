@@ -62,7 +62,6 @@
 				<button class="button button--secondary" type="submit">{{ 'collections.apply_filters' | t }}</button>
 				<a href="{{ collection.url }}">{{ 'collections.clear' | t }}</a>
 			</form>
-
 		{%- endif -%}
 		{%- paginate collection.products by section.settings.products_per_page -%}
 			<div class="product-grid">
