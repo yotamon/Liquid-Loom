@@ -170,7 +170,14 @@ describe("buildTheme", () => {
 		await writeSource(projectRoot, "AGENTS.md", "# Merchant context");
 		const entries = await discoverSourceEntries({ projectRoot, sourceRoot, shopifySourceRoot: projectRoot });
 		assert.ok(entries.some((entry) => entry.relativePath === "AGENTS.md"));
-		await buildTheme({ projectRoot, sourceRoot, shopifySourceRoot: projectRoot, outputRoot, cacheFile, reservedOutputs: [] });
+		await buildTheme({
+			projectRoot,
+			sourceRoot,
+			shopifySourceRoot: projectRoot,
+			outputRoot,
+			cacheFile,
+			reservedOutputs: []
+		});
 		assert.equal(await readFile(path.join(outputRoot, "AGENTS.md"), "utf8"), "# Merchant context");
 	});
 
