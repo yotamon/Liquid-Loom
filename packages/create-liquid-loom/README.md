@@ -15,7 +15,7 @@ When you are ready to preview against a Shopify development store:
 pnpm dev
 ```
 
-The generated project includes Liquid Loom's source-first theme structure, Vite, Tailwind CSS, Shopify CLI, Theme Check, typed configuration, diagnostics, and a merchant-neutral Online Store 2.0 starter.
+The generated project includes Liquid Loom's source-first theme structure, Shopify CLI, Theme Check, typed configuration, diagnostics, and a merchant-neutral Online Store 2.0 starter. By default it uses Shopify-native component CSS/JavaScript **without Vite or Tailwind dependencies**. Add optional bundling through `--preset vite` or `--preset vite-tailwind`; both generate ready-to-build entrypoints and a correctly referenced Vite asset bundle.
 
 Use `--no-install` to generate files without installing dependencies, or `--package-manager npm|pnpm|yarn|bun` to choose the installer.
 
