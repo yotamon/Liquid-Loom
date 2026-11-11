@@ -7,7 +7,7 @@
 			</div>
 
 			<div>
-				<h2 class="site-footer__title">{{ section.settings.menu_one.title | default: 'Explore' }}</h2>
+				<h2 class="site-footer__title">{{ section.settings.menu_one.title | default: 'footer.explore' | t | escape }}</h2>
 				<ul>
 					{%- for link in section.settings.menu_one.links -%}
 						<li>
@@ -18,7 +18,7 @@
 			</div>
 
 			<div>
-				<h2 class="site-footer__title">{{ section.settings.menu_two.title | default: 'Information' }}</h2>
+				<h2 class="site-footer__title">{{ section.settings.menu_two.title | default: 'footer.information' | t | escape }}</h2>
 				<ul>
 					{%- for link in section.settings.menu_two.links -%}
 						<li>

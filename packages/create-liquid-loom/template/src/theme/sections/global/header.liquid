@@ -170,6 +170,23 @@
 		}
 	}
 	if (!customElements.get('menu-disclosure')) customElements.define('menu-disclosure', MenuDisclosure);
+
+	// Shopify standard actions emit this event even when an app or agent owns the cart change.
+	// The event arrives before the mutation finishes; never count an optimistic update as success.
+	let latestCartMutation = 0;
+	document.addEventListener('shopify:cart:lines-update', (event) => {
+		const mutation = ++latestCartMutation;
+		if (!event.promise || typeof event.promise.then !== 'function') return;
+		Promise.resolve(event.promise).then(({ cart, userErrors }) => {
+			if (mutation !== latestCartMutation || userErrors?.length || !Number.isSafeInteger(cart?.totalQuantity)) return;
+			if (cart.totalQuantity < 0) return;
+			for (const element of document.querySelectorAll('[data-cart-count]')) {
+				element.textContent = String(cart.totalQuantity);
+			}
+		}).catch(() => {
+			// The action may reject or be aborted; preserve the last confirmed count.
+		});
+	});
 {% endjavascript %}
 
 {% schema %}
