@@ -100,3 +100,9 @@ to allow developers to inspect and compare the old and new composition styles
 without creating an unsupported local runtime or forcing an existing theme to
 migrate. The `native`, `vite`, `vite-tailwind`, and hybrid adoption paths remain
 on stable Liquid by default.
+
+## Named partial placement
+
+Shopify's `partial` reference defines a named refresh region inline in a **Liquid template or layout**, not in a theme block implementation. The optional `liquid-first` example therefore declares `{% partial 'preview-time' %}` in `templates/index.liquid` as body content of its `preview-refresh` block. The block renders that content using `{{ content }}` and owns only the refresh button and status UI. This preserves the preview model's distinction between page structure and reusable block presentation.
+
+Reference: https://shopify.dev/docs/api/liquid/tags/partial

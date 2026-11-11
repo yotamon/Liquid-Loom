@@ -49,7 +49,8 @@ describe("Liquid July 2026 opt-in experimental scaffold", () => {
 			assert.match(homepage, /{% block 'preview-hero'/);
 			assert.match(homepage, /{% block 'preview-refresh'/);
 			const block = await file(project, "src/theme/blocks/preview-refresh.liquid");
-			assert.match(block, /{% partial 'preview-time' %}/);
+			assert.match(homepage, /{% partial 'preview-time' %}/);
+			assert.doesNotMatch(block, /{% partial\s/);
 			assert.match(block, /{% doc %}/);
 			const script = await file(project, "src/public/preview-refresh.js");
 			assert.match(script, /@shopify\/partial-rendering/);
@@ -78,7 +79,8 @@ describe("Liquid July 2026 opt-in experimental scaffold", () => {
 			});
 			assert.equal(await file(project, "dist/theme/templates/index.liquid"), homepage);
 			await assert.rejects(access(path.join(outputRoot, "templates/index.json")));
-			assert.match(await file(project, "dist/theme/blocks/preview-refresh.liquid"), /{% partial 'preview-time' %}/);
+			assert.match(await file(project, "dist/theme/templates/index.liquid"), /{% partial 'preview-time' %}/);
+			assert.doesNotMatch(await file(project, "dist/theme/blocks/preview-refresh.liquid"), /{% partial\s/);
 			const model = await createProjectModel({
 				projectRoot: project,
 				sourceRoot,
@@ -86,7 +88,8 @@ describe("Liquid July 2026 opt-in experimental scaffold", () => {
 				reservedOutputs: []
 			});
 			assert.ok(model.preview.blockTag.includes("src/theme/templates/index.liquid"));
-			assert.ok(model.preview.partialTag.includes("src/theme/blocks/preview-refresh.liquid"));
+			assert.ok(model.preview.partialTag.includes("src/theme/templates/index.liquid"));
+			assert.ok(!model.preview.partialTag.includes("src/theme/blocks/preview-refresh.liquid"));
 			assert.equal(model.liquidMode, "july-2026-preview");
 			assert.ok(await file(project, "src/theme/templates/product.json"));
 		} finally {
