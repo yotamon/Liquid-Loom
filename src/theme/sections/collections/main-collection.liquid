@@ -1,3 +1,4 @@
+{%- assign active_sort_by = collection.sort_by | default: collection.default_sort_by -%}
 <section class="section">
 	<div class="page-width">
 		<s-view-event view-event-payload="{{ collection | standard_event_data: "view" | escape }}">
@@ -9,8 +10,8 @@
 				{%- endif -%}
 			</header>
 		</s-view-event>
-		{%- if collection.filters.size > 0 -%}
-			<form class="facets" id="CollectionFilters" method="get">
+		{%- if collection.filters.size > 0 or collection.sort_options.size > 0 -%}
+			<form class="facets" id="CollectionFilters" action="{{ collection.url }}" method="get">
 				{%- for filter in collection.filters -%}
 					<details class="facet">
 						<summary>
@@ -24,8 +25,8 @@
 										<label
 											><input
 												type="checkbox"
-												name="{{ value.param_name }}"
-												value="{{ value.value }}"
+												name="{{ value.param_name | escape }}"
+												value="{{ value.value | escape }}"
 												{% if value.active %}
 													checked
 												{% endif %}
@@ -59,8 +60,27 @@
 						</div>
 					</details>
 				{%- endfor -%}
-				<button class="button button--secondary" type="submit">{{ 'collections.apply_filters' | t }}</button>
-				<a href="{{ collection.url }}">{{ 'collections.clear' | t }}</a>
+				{%- if collection.sort_options.size > 0 -%}
+					<div class="facet__sort">
+						<label for="CollectionSortBy">{{ 'collections.sort_by' | t }}</label>
+						<select id="CollectionSortBy" name="sort_by">
+							{%- for option in collection.sort_options -%}
+								<option
+									value="{{ option.value | escape }}"
+									{% if option.value == active_sort_by %}
+										selected
+									{% endif %}
+								>
+									{{ option.name | escape }}
+								</option>
+							{%- endfor -%}
+						</select>
+					</div>
+				{%- endif -%}
+				<button class="button button--secondary" type="submit">{{ 'collections.apply' | t }}</button>
+				{%- if collection.filters.size > 0 -%}
+					<a href="{{ collection.url | sort_by: active_sort_by }}">{{ 'collections.clear' | t }}</a>
+				{%- endif -%}
 			</form>
 		{%- endif -%}
 		{%- paginate collection.products by section.settings.products_per_page -%}
@@ -95,7 +115,9 @@
 				{%- endfor -%}
 			</div>
 			{%- if paginate.pages > 1 -%}
-				<div class="section--compact">{{ paginate | default_pagination }}</div>
+				<nav class="section--compact" aria-label="{{ 'collections.pagination' | t | escape }}">
+					{{ paginate | default_pagination }}
+				</nav>
 			{%- endif -%}
 		{%- endpaginate -%}
 	</div>

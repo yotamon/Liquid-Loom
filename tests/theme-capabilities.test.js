@@ -132,6 +132,26 @@ describe("reference theme capabilities", () => {
 		}
 	});
 
+	it("offers native Shopify collection sorting with or without filters", async () => {
+		const source = await read("src/theme/sections/collections/main-collection.liquid");
+		const starter = await read(
+			"packages/create-liquid-loom/template/src/theme/sections/collections/main-collection.liquid"
+		);
+		assert.equal(source, starter, "Collection section must match the packaged starter");
+		assert.match(source, /collection\.filters\.size > 0 or collection\.sort_options\.size > 0/);
+		assert.match(source, /collection\.sort_by \| default: collection\.default_sort_by/);
+		assert.match(source, /for option in collection\.sort_options/);
+		assert.match(source, /name="sort_by"/);
+		assert.match(source, /option\.value == active_sort_by/);
+		assert.match(source, /collection\.url \| sort_by: active_sort_by/);
+		assert.match(source, /paginate \| default_pagination/);
+		assert.match(source, /aria-label="{{ 'collections\.pagination' \| t \| escape }}"/);
+		for (const language of ["en.default", "de"]) {
+			const locale = JSON.parse(await read(`src/theme/locales/${language}.json`));
+			for (const key of ["apply", "sort_by", "pagination"]) assert.ok(locale.collections[key]);
+		}
+	});
+
 	it("includes modern discovery, merchandising, and design-token primitives", async () => {
 		assert.match(await read("src/theme/config/settings_schema.json"), /color_palette/);
 		assert.match(await read("src/theme/sections/collections/main-collection.liquid"), /collection\.filters/);

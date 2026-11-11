@@ -345,6 +345,27 @@ textarea {
 	padding-top: 0.75rem;
 }
 
+.facet__sort {
+	display: grid;
+	gap: 0.45rem;
+	min-width: min(100%, 13rem);
+}
+
+.facet__sort label {
+	font-size: 0.85rem;
+	font-weight: 700;
+}
+
+.facet__sort select {
+	width: 100%;
+	min-height: 2.8rem;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	background: var(--color-surface);
+	color: var(--color-foreground);
+	padding-inline: 0.7rem;
+}
+
 .cart-table {
 	width: 100%;
 	border-collapse: collapse;
