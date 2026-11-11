@@ -34,6 +34,8 @@ The Shopify developer preview still has to be enabled through Shopify's own deve
 
 ## What Liquid Loom does with the declaration
 
+The project doctor also warns when preview-only `{% block %}` or `{% partial %}` tags are placed outside Liquid templates or layouts. This is a placement warning, not a source rewrite or a substitute for Shopify's preview Theme Check.
+
 When the preview mode is declared, Liquid Loom:
 
 - accepts the mode as explicit project metadata;

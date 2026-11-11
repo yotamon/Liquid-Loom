@@ -52,7 +52,9 @@ const FIXES = {
 	LL_PRIVATE_CONTENT: "Review matched private-content locations and remove confidential material before publishing.",
 	LL_PREVIEW_TAGS_IN_STABLE_MODE:
 		"Enable the declared Shopify developer preview on the development store and set shopifyLiquidMode accordingly, or remove preview tags.",
-	LL_PREVIEW_MODE_DECLARED: "Confirm that the target development store supports the explicitly declared preview mode."
+	LL_PREVIEW_MODE_DECLARED: "Confirm that the target development store supports the explicitly declared preview mode.",
+	LL_PREVIEW_TAG_PLACEMENT:
+		"Move preview-only block and partial tags into a Liquid template or layout. Reusable blocks should render caller content through {{ content }}."
 };
 
 const ISSUE_CODES = {
@@ -209,6 +211,21 @@ export async function diagnoseProject(config) {
 			)
 		);
 		checks.push(previewCheck(model, config.shopifyLiquidMode));
+		const misplacedPreviewTags = model.files.filter(
+			(file) =>
+				(file.preview.blockTag || file.preview.partialTag) &&
+				!/^(?:templates|layout)\/.+\.liquid$/.test(file.output)
+		);
+		if (misplacedPreviewTags.length) {
+			checks.push(
+				check(
+					"preview-placement",
+					"warn",
+					`Preview block/partial tags are outside Liquid templates or layouts: ${misplacedPreviewTags.map((file) => file.source).join(", ")}`,
+					"LL_PREVIEW_TAG_PLACEMENT"
+				)
+			);
+		}
 	} catch (error) {
 		checks.push(
 			check(
