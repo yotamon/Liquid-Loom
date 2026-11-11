@@ -6,11 +6,12 @@ import { randomUUID } from "node:crypto";
 
 const TEMPLATE_ROOT = fileURLToPath(new URL("./template", import.meta.url));
 const PRESET_ROOT = fileURLToPath(new URL("./presets", import.meta.url));
-const SUPPORTED_PRESETS = new Set(["native", "vite", "vite-tailwind"]);
+const SUPPORTED_PRESETS = new Set(["native", "vite", "vite-tailwind", "liquid-first"]);
 const PRESET_DESCRIPTIONS = {
 	native: "Shopify-native component CSS/JavaScript by default. Vite and Tailwind are optional",
 	vite: "Shopify-native component assets plus an optional Vite entrypoint for global JavaScript and CSS",
-	"vite-tailwind": "Shopify-native component assets plus Vite and Tailwind utilities (without global Preflight)"
+	"vite-tailwind": "Shopify-native component assets plus Vite and Tailwind utilities (without global Preflight)",
+	"liquid-first": "EXPERIMENTAL direct Liquid block composition and preview-only partial rendering"
 };
 const SUPPORTED_PACKAGE_MANAGERS = new Set(["bun", "npm", "pnpm", "yarn"]);
 const PACKAGE_NAME_PATTERN = /^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/;
@@ -51,13 +52,17 @@ export async function scaffoldProject({
 	projectName = path.basename(path.resolve(targetDirectory)),
 	install = true,
 	packageManager = "pnpm",
-	preset = "native"
+	preset = "native",
+	experimental = false
 }) {
 	if (!SUPPORTED_PACKAGE_MANAGERS.has(packageManager)) {
 		throw new Error(`Unsupported package manager: ${packageManager}`);
 	}
 	if (!SUPPORTED_PRESETS.has(preset)) {
-		throw new Error(`Unsupported asset preset: ${preset}. Choose native, vite, or vite-tailwind.`);
+		throw new Error(`Unsupported asset preset: ${preset}. Choose native, vite, vite-tailwind, or liquid-first.`);
+	}
+	if (preset === "liquid-first" && experimental !== true) {
+		throw new Error("The liquid-first preset requires --experimental and a Shopify preview development store.");
 	}
 	if (projectName.length > 214 || !PACKAGE_NAME_PATTERN.test(projectName)) {
 		throw new Error(`Invalid project name: ${projectName}`);
@@ -70,7 +75,33 @@ export async function scaffoldProject({
 	try {
 		await mkdir(path.dirname(target), { recursive: true });
 		await cp(TEMPLATE_ROOT, staging, { recursive: true });
-		if (preset !== "native") {
+
+		if (preset === "liquid-first") {
+			// Preserve regular storefront locales while overlaying preview-only translations.
+			const localeFiles = ["en.default", "de"];
+			const existingLocales = new Map();
+			for (const locale of localeFiles) {
+				const file = path.join(staging, "src/theme/locales", `${locale}.json`);
+				existingLocales.set(locale, JSON.parse(await readFile(file, "utf8")));
+			}
+			await cp(path.join(PRESET_ROOT, "liquid-first"), staging, { recursive: true, force: true });
+			for (const locale of localeFiles) {
+				const file = path.join(staging, "src/theme/locales", `${locale}.json`);
+				const overlay = JSON.parse(await readFile(file, "utf8"));
+				await writeFile(file, JSON.stringify({ ...existingLocales.get(locale), ...overlay }, null, "\t") + "\n");
+			}
+			// A template type cannot have both JSON and Liquid roots.
+			await rm(path.join(staging, "src/theme/templates/index.json"));
+			const configFile = path.join(staging, "liquid-loom.config.ts");
+			const config = await readFile(configFile, "utf8");
+			if (!config.includes("viteConfig: false,")) throw new Error("Preview scaffold expected the native config.");
+			await writeFile(configFile, config.replace("viteConfig: false,", 'viteConfig: false,\n\tshopifyLiquidMode: "july-2026-preview",'));
+			const layoutFile = path.join(staging, "src/theme/layout/theme.liquid");
+			const layout = await readFile(layoutFile, "utf8");
+			if (!layout.includes("</body>")) throw new Error("Preview scaffold expected the native theme layout.");
+			await writeFile(layoutFile, layout.replace("</body>", `<script type="module" src="{{ 'preview-refresh.js' | asset_url }}"></script>\n\t</body>`));
+		}
+		if (preset === "vite" || preset === "vite-tailwind") {
 			await cp(path.join(PRESET_ROOT, "vite"), staging, { recursive: true });
 			if (preset === "vite-tailwind") {
 				await cp(path.join(PRESET_ROOT, "vite-tailwind"), staging, { recursive: true, force: true });
@@ -124,6 +155,12 @@ export async function scaffoldProject({
 		let readme = await readFile(readmeFile, "utf8");
 		for (const [placeholder, value] of Object.entries(instructions)) {
 			readme = readme.replaceAll(placeholder, value);
+		}
+		if (preset === "liquid-first") {
+			readme = readme
+				.replace("src/theme/sections/home/hero.liquid", "src/theme/templates/index.liquid")
+				.replace("dist/theme/sections/hero.liquid", "dist/theme/templates/index.liquid");
+			readme += `\n## Experimental Liquid-first homepage\n\nThe homepage alone uses Liquid block and partial preview tags; the other JSON templates remain stable. This is NOT a production theme preset. Use a non-production July 2026 Liquid preview development store. The preview supplies @shopify/partial-rendering in its import map: do not install it from npm. Test across browsers, including Firefox, before relying on partial refreshes.\n`;
 		}
 		await writeFile(readmeFile, readme);
 
