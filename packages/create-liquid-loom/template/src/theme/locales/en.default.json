@@ -72,5 +72,9 @@
 			"description": "The page may have moved, or the link may be out of date.",
 			"return_home": "Return home"
 		}
+	},
+	"footer": {
+		"explore": "Explore",
+		"information": "Information"
 	}
 }

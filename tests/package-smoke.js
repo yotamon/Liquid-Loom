@@ -110,6 +110,55 @@ try {
 		console.log(`✓ Packed ${preset} starter builds both stable Shopify asset outputs`);
 	}
 
+	// Verify the experimental files are shipped in the packed creator, not just present in source.
+	const previewTarget = path.join(workspace, "packed-liquid-first");
+	await run(
+		"npm",
+		[
+			"exec",
+			"--",
+			"create-liquid-loom",
+			previewTarget,
+			"--no-install",
+			"--package-manager",
+			"npm",
+			"--preset",
+			"liquid-first",
+			"--experimental"
+		],
+		target
+	);
+	const previewManifestPath = path.join(previewTarget, "package.json");
+	const previewManifest = JSON.parse(await readFile(previewManifestPath, "utf8"));
+	previewManifest.devDependencies["liquid-loom"] = packageSpec;
+	await writeFile(previewManifestPath, `${JSON.stringify(previewManifest, null, 2)}\n`);
+	await run("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund"], previewTarget);
+	await run("npm", ["run", "build"], previewTarget);
+	for (const builtFile of ["templates/index.liquid", "blocks/preview-refresh.liquid", "assets/preview-refresh.js"]) {
+		await access(path.join(previewTarget, "dist/theme", ...builtFile.split("/")));
+	}
+	const builtHomepage = await readFile(path.join(previewTarget, "dist/theme/templates/index.liquid"), "utf8");
+	const builtRefreshBlock = await readFile(
+		path.join(previewTarget, "dist/theme/blocks/preview-refresh.liquid"),
+		"utf8"
+	);
+	if (!builtHomepage.includes("{% partial 'preview-time' %}") || builtRefreshBlock.includes("{% partial")) {
+		throw new Error("Packed preview must declare its named partial in the Liquid template, not in a theme block.");
+	}
+	try {
+		await access(path.join(previewTarget, "dist/theme/templates/index.json"));
+		throw new Error("Packed preview scaffold shipped conflicting JSON and Liquid homepage templates.");
+	} catch (error) {
+		if (error.code !== "ENOENT") throw error;
+	}
+	const previewConfig = await readFile(path.join(previewTarget, "liquid-loom.config.ts"), "utf8");
+	if (!previewConfig.includes('shopifyLiquidMode: "july-2026-preview"')) {
+		throw new Error("Packed preview scaffold did not enable explicit Shopify preview mode.");
+	}
+	console.log(
+		"✓ Packed experimental Liquid-first preset builds its preview blocks, partial script, and Liquid homepage"
+	);
+
 	await mkdir(existingTarget, { recursive: true });
 	await write(
 		existingTarget,

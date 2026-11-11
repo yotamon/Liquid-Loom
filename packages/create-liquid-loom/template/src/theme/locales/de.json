@@ -72,5 +72,9 @@
 			"description": "Die Seite wurde möglicherweise verschoben oder der Link ist nicht mehr aktuell.",
 			"return_home": "Zur Startseite"
 		}
+	},
+	"footer": {
+		"explore": "Entdecken",
+		"information": "Informationen"
 	}
 }

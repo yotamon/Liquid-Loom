@@ -1,0 +1,13 @@
+{% block 'preview-container', tag: 'section' %}
+	{% block 'preview-hero' %}
+		<p>{{ 'preview.description' | t }}</p>
+		{% block 'preview-refresh' %}
+			{% partial 'preview-time' %}
+				<p>
+					{{ 'preview.last_rendered' | t }}:
+					<time datetime="{{ 'now' | date: '%Y-%m-%dT%H:%M:%S%z' }}">{{ 'now' | date: '%H:%M:%S' }}</time>
+				</p>
+			{% endpartial %}
+		{% endblock %}
+	{% endblock %}
+{% endblock %}

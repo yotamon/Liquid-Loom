@@ -3,15 +3,37 @@
 		"main": {
 			"type": "main-product",
 			"blocks": {
-				"vendor": { "type": "product-vendor", "settings": {} },
-				"title": { "type": "product-title", "settings": {} },
-				"price": { "type": "product-price", "settings": {} },
-				"purchase": { "type": "product-purchase", "settings": {} },
-				"description": { "type": "product-description", "settings": {} }
+				"vendor": {
+					"type": "product-vendor",
+					"settings": {}
+				},
+				"title": {
+					"type": "product-title",
+					"settings": {}
+				},
+				"price": {
+					"type": "product-price",
+					"settings": {}
+				},
+				"purchase": {
+					"type": "product-purchase",
+					"settings": {}
+				},
+				"description": {
+					"type": "product-description",
+					"settings": {}
+				}
 			},
 			"block_order": ["vendor", "title", "price", "purchase", "description"],
 			"settings": {}
+		},
+		"disclosures": {
+			"type": "product-disclosures",
+			"settings": {
+				"heading": "",
+				"open_by_default": false
+			}
 		}
 	},
-	"order": ["main"]
+	"order": ["main", "disclosures"]
 }
