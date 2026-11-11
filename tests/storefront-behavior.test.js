@@ -20,6 +20,8 @@ async function registerComponents(file, environment = {}) {
 		console,
 		URL,
 		AbortController,
+		clearTimeout,
+		setTimeout,
 		...environment
 	};
 	new vm.Script(script, { filename: file }).runInNewContext(context);
