@@ -139,14 +139,19 @@
 			if (!this.input || !this.results) return;
 			this.input.addEventListener('input', () => {
 				clearTimeout(this.timer);
+				this.timer = undefined;
 				this.controller?.abort();
 				this.close();
-				this.timer = setTimeout(() => this.search(), 180);
+				this.timer = setTimeout(() => {
+					this.timer = undefined;
+					void this.search();
+				}, 180);
 			});
 			this.input.addEventListener('keydown', (event) => this.onKeyDown(event));
 		}
 		disconnectedCallback() {
 			clearTimeout(this.timer);
+			this.timer = undefined;
 			this.controller?.abort();
 		}
 		get options() {
@@ -160,9 +165,10 @@
 		}
 		onKeyDown(event) {
 			if (event.key === 'Escape') {
-				if (this.input.getAttribute('aria-expanded') === 'true' || this.controller) {
+				if (this.input.getAttribute('aria-expanded') === 'true' || this.controller || this.timer !== undefined) {
 					event.preventDefault();
 					clearTimeout(this.timer);
+					this.timer = undefined;
 					this.controller?.abort();
 					this.close();
 				}
