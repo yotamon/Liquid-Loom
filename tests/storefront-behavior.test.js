@@ -153,6 +153,29 @@ describe("Shopify reference storefront behavior", () => {
 		assert.equal(prevented, 5);
 	});
 
+	it("cancels a pending predictive-search debounce on Escape before a request starts", async () => {
+		const cancelled = [];
+		const attributes = new Map([["aria-expanded", "false"]]);
+		const components = await registerComponents("src/theme/sections/search/main-search.liquid", {
+			clearTimeout: (handle) => cancelled.push(handle)
+		});
+		const search = new (components.get("predictive-search"))();
+		search.input = {
+			getAttribute: (key) => attributes.get(key),
+			setAttribute: (key, value) => attributes.set(key, value),
+			removeAttribute: (key) => attributes.delete(key)
+		};
+		search.results = { querySelectorAll: () => [], replaceChildren: () => {} };
+		search.timer = 42;
+		let prevented = false;
+		search.onKeyDown({ key: "Escape", preventDefault: () => (prevented = true) });
+		assert.equal(prevented, true);
+		assert.deepEqual(cancelled, [42]);
+		assert.equal(search.timer, undefined);
+		assert.equal(search.activeIndex, -1);
+		assert.equal(attributes.get("aria-expanded"), "false");
+	});
+
 	it("ships complete German translations matching the English reference keys", async () => {
 		const localeDir = path.join(root, "src/theme/locales");
 		const english = JSON.parse(await readFile(path.join(localeDir, "en.default.json"), "utf8"));
