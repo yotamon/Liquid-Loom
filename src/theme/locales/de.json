@@ -53,6 +53,9 @@
 		"maximum": "Maximum",
 		"apply_filters": "Filter anwenden",
 		"clear": "Zurücksetzen",
-		"no_products": "Keine Produkte gefunden."
+		"no_products": "Keine Produkte gefunden.",
+		"apply": "Anwenden",
+		"sort_by": "Sortieren nach",
+		"pagination": "Kollektionsseiten"
 	}
 }
