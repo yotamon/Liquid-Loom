@@ -20,6 +20,8 @@ async function registerComponents(file, environment = {}) {
 		console,
 		URL,
 		AbortController,
+		clearTimeout,
+		setTimeout,
 		...environment
 	};
 	new vm.Script(script, { filename: file }).runInNewContext(context);
@@ -123,7 +125,7 @@ describe("Shopify reference storefront behavior", () => {
 			setAttribute: (key, value) => attributes.set(key, value),
 			removeAttribute: (key) => attributes.delete(key)
 		};
-		search.results = { querySelectorAll: () => options };
+		search.results = { querySelectorAll: () => options, replaceChildren: () => {} };
 		search.activeIndex = -1;
 		let prevented = 0;
 		const event = (key) => ({
@@ -133,6 +135,8 @@ describe("Shopify reference storefront behavior", () => {
 			}
 		});
 
+		search.onKeyDown(event("ArrowUp"));
+		assert.equal(search.activeIndex, 1, "ArrowUp from no selection starts at the last suggestion");
 		search.onKeyDown(event("ArrowDown"));
 		assert.equal(search.activeIndex, 0);
 		assert.equal(attributes.get("aria-activedescendant"), options[0].id);
@@ -140,7 +144,13 @@ describe("Shopify reference storefront behavior", () => {
 		assert.equal(search.activeIndex, 1);
 		search.onKeyDown(event("Enter"));
 		assert.equal(destination, "/products/two");
-		assert.equal(prevented, 3);
+		const pending = new AbortController();
+		search.controller = pending;
+		search.onKeyDown(event("Escape"));
+		assert.equal(pending.signal.aborted, true, "Escape must cancel an in-flight search");
+		assert.equal(search.activeIndex, -1);
+		assert.equal(attributes.get("aria-expanded"), "false");
+		assert.equal(prevented, 5);
 	});
 
 	it("ships complete German translations matching the English reference keys", async () => {
