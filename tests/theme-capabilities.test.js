@@ -205,6 +205,9 @@ describe("reference theme capabilities", () => {
 		assert.match(purchase, /product\.options_with_values/);
 		assert.match(purchase, /data-product-option/);
 		assert.match(purchase, /option_values/);
+		assert.match(purchase, /assign product_form_id = 'ProductForm-' \| append: block\.id/);
+		assert.match(purchase, /form 'product', product, id: product_form_id/);
+		assert.doesNotMatch(purchase, /form 'product'[^\n]*\|\s*append/);
 		assert.doesNotMatch(purchase, /product\.variants/);
 	});
 });
