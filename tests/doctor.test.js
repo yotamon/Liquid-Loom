@@ -168,7 +168,7 @@ describe("project doctor", () => {
 				(check) =>
 					check.code === "LL_PREVIEW_TAG_PLACEMENT" &&
 					check.status === "warn" &&
-					check.message.includes("sections/results.liquid") &&
+					check.message.includes("src/theme/sections/search/results.liquid") &&
 					check.fix.includes("Liquid template or layout")
 			)
 		);
