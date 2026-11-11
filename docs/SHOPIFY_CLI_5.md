@@ -37,6 +37,7 @@ This migration does **not** enable the July 2026 Liquid-first preview. That
 remains an explicit opt-in path and requires an eligible preview store.
 
 References:
+
 - https://shopify.dev/docs/api/shopify-cli/migrate/5-0
 - https://github.com/Shopify/cli/releases/tag/5.0.0
 - https://github.com/Shopify/theme-tools/releases
