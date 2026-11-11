@@ -176,6 +176,25 @@ describe("reference theme capabilities", () => {
 		}
 	});
 
+	it("keeps native search filtering and sorting in a query-preserving GET form", async () => {
+		const source = await read("src/theme/sections/search/main-search.liquid");
+		const starter = await read("packages/create-liquid-loom/template/src/theme/sections/search/main-search.liquid");
+		assert.equal(source, starter);
+		assert.match(source, /for filter in search\.filters/);
+		assert.match(source, /for option in search\.sort_options/);
+		assert.match(source, /search\.sort_by \| default: search\.default_sort_by/);
+		assert.match(source, /name="q" value="{{ search\.terms \| escape }}"/);
+		assert.match(source, /name="type" value="{{ search\.types \| join: ',' \| escape }}"/);
+		assert.match(source, /action="{{ routes\.search_url }}" method="get"/);
+		assert.match(source, /filter\.min_value\.param_name/);
+		assert.match(source, /clear_search_url \| strip \| escape/);
+		assert.match(source, /paginate search\.results by section\.settings\.results_per_page/);
+		for (const language of ["en.default", "de"]) {
+			const locale = JSON.parse(await read(`src/theme/locales/${language}.json`));
+			for (const key of ["refine", "sort_by", "apply", "clear_filters"]) assert.ok(locale.search[key]);
+		}
+	});
+
 	it("includes modern discovery, merchandising, and design-token primitives", async () => {
 		assert.match(await read("src/theme/config/settings_schema.json"), /color_palette/);
 		assert.match(await read("src/theme/sections/collections/main-collection.liquid"), /collection\.filters/);

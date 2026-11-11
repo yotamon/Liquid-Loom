@@ -27,6 +27,83 @@
 			</predictive-search>
 		</header>
 		{%- if search.performed -%}
+			{%- assign active_search_sort = search.sort_by | default: search.default_sort_by -%}
+			{%- if search.filters.size > 0 or search.sort_options.size > 0 -%}
+				<form class="facets" action="{{ routes.search_url }}" method="get" aria-label="{{ 'search.refine' | t | escape }}">
+					<input type="hidden" name="q" value="{{ search.terms | escape }}">
+					<input type="hidden" name="options[prefix]" value="last">
+					{%- if search.types.size > 0 -%}
+						<input type="hidden" name="type" value="{{ search.types | join: ',' | escape }}">
+					{%- endif -%}
+					{%- for filter in search.filters -%}
+						<details class="facet">
+							<summary>
+								{{ filter.label | escape }}
+								{%- if filter.active_values.size > 0 %} ({{ filter.active_values.size }}){% endif %}
+							</summary>
+							<div class="facet__options">
+								{%- case filter.type -%}
+									{%- when 'boolean', 'list' -%}
+										{%- for value in filter.values -%}
+											<label>
+												<input
+													type="checkbox"
+													name="{{ value.param_name | escape }}"
+													value="{{ value.value | escape }}"
+													{% if value.active %}checked{% endif %}
+													{% if value.count == 0 and value.active == false %}disabled{% endif %}
+												>
+												{{ value.label | escape }} ({{ value.count }})
+											</label>
+										{%- endfor -%}
+									{%- when 'price_range' -%}
+										<label>
+											<span>{{ 'collections.minimum' | t }}</span>
+											<input
+												type="number"
+												inputmode="decimal"
+												step="0.01"
+												name="{{ filter.min_value.param_name | escape }}"
+												value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+												min="0"
+											>
+										</label>
+										<label>
+											<span>{{ 'collections.maximum' | t }}</span>
+											<input
+												type="number"
+												inputmode="decimal"
+												step="0.01"
+												name="{{ filter.max_value.param_name | escape }}"
+												value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+												min="0"
+											>
+										</label>
+								{%- endcase -%}
+							</div>
+						</details>
+					{%- endfor -%}
+					{%- if search.sort_options.size > 0 -%}
+						<div class="facet__sort">
+							<label for="SearchSortBy">{{ 'search.sort_by' | t }}</label>
+							<select id="SearchSortBy" name="sort_by">
+								{%- for option in search.sort_options -%}
+									<option value="{{ option.value | escape }}"{% if option.value == active_search_sort %} selected{% endif %}>
+										{{ option.name | escape }}
+									</option>
+								{%- endfor -%}
+							</select>
+						</div>
+					{%- endif -%}
+					<button class="button button--secondary" type="submit">{{ 'search.apply' | t }}</button>
+					{%- if search.filters.size > 0 -%}
+						{%- capture clear_search_url -%}
+							{{ routes.search_url }}?q={{ search.terms | url_encode }}&sort_by={{ active_search_sort | url_encode }}&options%5Bprefix%5D=last{% if search.types.size > 0 %}&type={{ search.types | join: ',' | url_encode }}{% endif %}
+						{%- endcapture -%}
+						<a href="{{ clear_search_url | strip | escape }}">{{ 'search.clear_filters' | t }}</a>
+					{%- endif -%}
+				</form>
+			{%- endif -%}
 			{%- if search.results_count > 0 -%}
 				<p class="muted" role="status">{{ 'search.results_count' | t: count: search.results_count }}</p>
 				{%- paginate search.results by section.settings.results_per_page -%}

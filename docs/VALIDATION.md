@@ -203,3 +203,7 @@ The collection section supports Shopify-native `sort_by` options in the existing
 ## Starter navigation and hero links
 
 Verify on a non-production development store at mobile and desktop widths that Search remains reachable in the mobile menu, menu labels and 404 content render in English/German, Escape closes the open menu, the primary hero CTA falls back to the all-products collection without a merchant URL, and an unconfigured secondary CTA does not render an empty link. Repeat navigation with keyboard and screen reader. Static template contracts are not runtime accessibility proof.
+
+## Shopify-native search refinements
+
+Search supports `search.filters`, `search.sort_options`, and a server-rendered GET form that carries the original query, selected result types and Shopify's prefix option. Filters/sorting work without JavaScript, and clear-filters preserves the query and sort. Verify on an unpublished development theme: list, boolean and price filters; decimal price values; EN/DE, zero/many results, pagination after refinements, sorting with no filters configured, and mixed product/article/page results. Shopify filters can remove non-product results, so confirm the merchant experience. Local tests do not verify store behavior.

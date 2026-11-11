@@ -48,7 +48,11 @@
 		"results_count": {
 			"one": "{{ count }} result",
 			"other": "{{ count }} results"
-		}
+		},
+		"refine": "Filter and sort search results",
+		"sort_by": "Sort by",
+		"apply": "Apply",
+		"clear_filters": "Clear filters"
 	},
 	"collections": {
 		"label": "Collection",
