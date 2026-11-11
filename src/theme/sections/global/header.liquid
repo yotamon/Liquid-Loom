@@ -41,7 +41,13 @@
 				>
 			</div>
 		</div>
-		<nav id="MobileMenu" class="mobile-menu" data-menu-panel hidden aria-label="{{ 'accessibility.mobile_navigation' | t | escape }}">
+		<nav
+			id="MobileMenu"
+			class="mobile-menu"
+			data-menu-panel
+			hidden
+			aria-label="{{ 'accessibility.mobile_navigation' | t | escape }}"
+		>
 			{%- for link in section.settings.menu.links -%}
 				<a href="{{ link.url }}">{{ link.title | escape }}</a>
 			{%- endfor -%}
