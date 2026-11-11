@@ -42,7 +42,6 @@ describe("Shopify reference storefront behavior", () => {
 		assert.match(purchase, /this\.setAttribute\('data-product-ready', ''\)/);
 	});
 
-
 	it("restores the last applied option when the section cannot be refreshed", async () => {
 		const components = await registerComponents("src/theme/blocks/product-purchase.liquid");
 		const productForm = new (components.get("product-form"))();
@@ -55,7 +54,6 @@ describe("Shopify reference storefront behavior", () => {
 		assert.equal(productForm.options[0].value, "previous-option");
 		assert.equal(productForm.status.textContent, "Unable to resolve selected option");
 	});
-
 
 	it("prevents purchase submission while the variant request is unresolved", async () => {
 		const components = await registerComponents("src/theme/blocks/product-purchase.liquid");
@@ -183,7 +181,6 @@ describe("Shopify reference storefront behavior", () => {
 		await form.refreshProduct(0);
 		assert.equal(newPlan.value, "plan-2");
 	});
-
 
 	it("offers keyboard navigation in predictive search without removing input focus", async () => {
 		let destination;
