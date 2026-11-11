@@ -1,8 +1,8 @@
 <section class="page-width empty-state">
 	<p class="eyebrow">404</p>
-	<h1 class="heading heading--medium">Page not found</h1>
-	<p class="muted">The page may have moved, or the link may be out of date.</p>
-	<a class="button" href="{{ routes.root_url }}">Return home</a>
+	<h1 class="heading heading--medium">{{ 'errors.not_found.title' | t }}</h1>
+	<p class="muted">{{ 'errors.not_found.description' | t }}</p>
+	<a class="button" href="{{ routes.root_url }}">{{ 'errors.not_found.return_home' | t }}</a>
 </section>
 
 {% schema %}

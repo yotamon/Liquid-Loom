@@ -152,6 +152,30 @@ describe("reference theme capabilities", () => {
 		}
 	});
 
+	it("keeps mobile search reachable and localized without inert starter links", async () => {
+		for (const name of ["global/header", "pages/main-404", "home/hero"]) {
+			const source = await read(`src/theme/sections/${name}.liquid`);
+			const embedded = await read(`packages/create-liquid-loom/template/src/theme/sections/${name}.liquid`);
+			assert.equal(source, embedded);
+		}
+		const header = await read("src/theme/sections/global/header.liquid");
+		assert.match(header, /mobile-menu__search" href="{{ routes\.search_url }}"/);
+		assert.match(header, /accessibility\.mobile_navigation/);
+		assert.match(header, /accessibility\.primary_navigation/);
+		assert.match(header, /accessibility\.menu/);
+		const hero = await read("src/theme/sections/home/hero.liquid");
+		assert.match(hero, /primary_link \| default: routes\.all_products_collection_url/);
+		assert.match(hero, /secondary_label != blank and section\.settings\.secondary_link != blank/);
+		const notFound = await read("src/theme/sections/pages/main-404.liquid");
+		for (const key of ["title", "description", "return_home"])
+			assert.match(notFound, new RegExp(`errors\\.not_found\\.${key}`));
+		for (const language of ["en.default", "de"]) {
+			const locale = JSON.parse(await read(`src/theme/locales/${language}.json`));
+			for (const key of ["primary_navigation", "mobile_navigation", "menu"]) assert.ok(locale.accessibility[key]);
+			for (const key of ["title", "description", "return_home"]) assert.ok(locale.errors.not_found[key]);
+		}
+	});
+
 	it("includes modern discovery, merchandising, and design-token primitives", async () => {
 		assert.match(await read("src/theme/config/settings_schema.json"), /color_palette/);
 		assert.match(await read("src/theme/sections/collections/main-collection.liquid"), /collection\.filters/);

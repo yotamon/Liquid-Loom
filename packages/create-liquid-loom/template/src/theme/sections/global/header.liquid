@@ -1,13 +1,13 @@
 <header class="site-header">
 	<menu-disclosure>
 		<div class="page-width site-header__inner">
-			<nav class="site-header__nav" aria-label="Primary navigation">
+			<nav class="site-header__nav" aria-label="{{ 'accessibility.primary_navigation' | t | escape }}">
 				{%- for link in section.settings.menu.links -%}
 					<a href="{{ link.url }}">{{ link.title | escape }}</a>
 				{%- endfor -%}
 			</nav>
 			<button class="site-header__menu-button" type="button" aria-expanded="false" aria-controls="MobileMenu">
-				<span class="sr-only">Menu</span>
+				<span class="sr-only">{{ 'accessibility.menu' | t }}</span>
 				<svg
 					aria-hidden="true"
 					width="24"
@@ -41,10 +41,17 @@
 				>
 			</div>
 		</div>
-		<nav id="MobileMenu" class="mobile-menu" data-menu-panel hidden aria-label="Mobile navigation">
+		<nav
+			id="MobileMenu"
+			class="mobile-menu"
+			data-menu-panel
+			hidden
+			aria-label="{{ 'accessibility.mobile_navigation' | t | escape }}"
+		>
 			{%- for link in section.settings.menu.links -%}
 				<a href="{{ link.url }}">{{ link.title | escape }}</a>
 			{%- endfor -%}
+			<a class="mobile-menu__search" href="{{ routes.search_url }}">{{ 'actions.search' | t }}</a>
 		</nav>
 	</menu-disclosure>
 </header>

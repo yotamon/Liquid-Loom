@@ -1,6 +1,9 @@
 {
 	"accessibility": {
-		"skip_to_content": "Zum Inhalt springen"
+		"skip_to_content": "Zum Inhalt springen",
+		"primary_navigation": "Hauptnavigation",
+		"mobile_navigation": "Mobile Navigation",
+		"menu": "Menü"
 	},
 	"actions": {
 		"add_to_cart": "In den Warenkorb",
@@ -57,5 +60,12 @@
 		"apply": "Anwenden",
 		"sort_by": "Sortieren nach",
 		"pagination": "Kollektionsseiten"
+	},
+	"errors": {
+		"not_found": {
+			"title": "Seite nicht gefunden",
+			"description": "Die Seite wurde möglicherweise verschoben oder der Link ist nicht mehr aktuell.",
+			"return_home": "Zur Startseite"
+		}
 	}
 }
