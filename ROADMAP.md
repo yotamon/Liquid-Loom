@@ -4,6 +4,8 @@
 
 Liquid Loom favors a small, dependable engineering layer over a broad storefront abstraction. Shopify owns the runtime, Liquid contract, CLI, and platform. Liquid Loom focuses on source architecture, deterministic ownership, safe adoption, diagnostics, and project understanding around those primitives.
 
+Upstream watch: [Shopify platform compatibility monitoring](docs/SHOPIFY_UPSTREAM_WATCH.md) runs weekly against official theme, CLI, and tooling releases. It does not upgrade dependencies automatically; Shopify CLI 5 remains a dedicated migration and validation task.
+
 ## 0.1 - Ship and validate
 
 Completed:
