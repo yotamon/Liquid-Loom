@@ -130,7 +130,7 @@ export async function scaffoldProject({
 		const packageFile = path.join(staging, "package.json");
 		const packageJson = JSON.parse(await readFile(packageFile, "utf8"));
 		packageJson.name = projectName;
-		if (preset !== "native") packageJson.devDependencies.vite = "^8.2.4";
+		if (preset === "vite" || preset === "vite-tailwind") packageJson.devDependencies.vite = "^8.2.4";
 		if (preset === "vite-tailwind") {
 			packageJson.devDependencies.tailwindcss = "^4.3.3";
 			packageJson.devDependencies["@tailwindcss/vite"] = "^4.3.3";
