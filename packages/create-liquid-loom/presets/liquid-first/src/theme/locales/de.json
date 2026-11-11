@@ -1,0 +1,10 @@
+{
+	"preview": {
+		"heading": "Liquid-first-Komposition",
+		"description": "Diese Vorschau-Startseite verwendet direkt zusammengesetzte Theme-Blöcke. Shop-Seiten behalten die stabilen Shopify-JSON-Templates.",
+		"last_rendered": "Letztes Server-Rendering",
+		"refresh": "Serverzeit aktualisieren",
+		"success": "Aktualisiert",
+		"failure": "Aktualisierung fehlgeschlagen. Bitte erneut versuchen."
+	}
+}

@@ -7,7 +7,13 @@
 			</div>
 
 			<div>
-				<h2 class="site-footer__title">{{ section.settings.menu_one.title | default: 'Explore' }}</h2>
+				<h2 class="site-footer__title">
+					{% if section.settings.menu_one.title != blank -%}
+						{{- section.settings.menu_one.title | escape -}}
+					{%- else -%}
+						{{- 'footer.explore' | t -}}
+					{%- endif %}
+				</h2>
 				<ul>
 					{%- for link in section.settings.menu_one.links -%}
 						<li>
@@ -18,7 +24,13 @@
 			</div>
 
 			<div>
-				<h2 class="site-footer__title">{{ section.settings.menu_two.title | default: 'Information' }}</h2>
+				<h2 class="site-footer__title">
+					{% if section.settings.menu_two.title != blank -%}
+						{{- section.settings.menu_two.title | escape -}}
+					{%- else -%}
+						{{- 'footer.information' | t -}}
+					{%- endif %}
+				</h2>
 				<ul>
 					{%- for link in section.settings.menu_two.links -%}
 						<li>

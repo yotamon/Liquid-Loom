@@ -72,3 +72,31 @@ Until then, preview support stays explicit, observable, and reversible.
 
 - [Developer preview: Liquid block and partial tags](https://shopify.dev/changelog/developer-preview-liquid-block-and-partial-tags)
 - [Theme developer preview](https://shopify.dev/docs/storefronts/themes/getting-started/developer-preview)
+
+## Experimental homepage scaffold
+
+The explicit `--preset liquid-first --experimental` scaffold is a **mixed-mode
+developer-preview exercise**, not a replacement for stable Shopify templates.
+Only `templates/index.json` is replaced by `templates/index.liquid`, composed
+with `{% block %}` and demonstrated with `{% partial %}`. Product, collection,
+cart, and other template types remain stable JSON templates and sections.
+
+```bash
+pnpm create liquid-loom@latest preview-test --preset liquid-first --experimental
+cd preview-test
+pnpm build
+pnpm doctor
+pnpm dev
+```
+
+The store **must** be a Shopify July 2026 preview development store. Shopify
+provides `@shopify/partial-rendering` at runtime via an import map on that store.
+It is not an npm dependency, and the JavaScript demo is loaded after
+`content_for_header`. Firefox import-map behavior is being investigated
+upstream; don't label a browser verified without actually running it.
+
+Do not ship this preview scaffold to a production merchant store. It is intended
+to allow developers to inspect and compare the old and new composition styles
+without creating an unsupported local runtime or forcing an existing theme to
+migrate. The `native`, `vite`, `vite-tailwind`, and hybrid adoption paths remain
+on stable Liquid by default.
