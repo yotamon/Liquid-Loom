@@ -38,7 +38,14 @@
 		"products": "Products",
 		"suggestions": "Product suggestions",
 		"no_results_for": "No results for",
-		"no_matching_products": "No matching products."
+		"no_matching_products": "No matching products.",
+		"article": "Article",
+		"page": "Page",
+		"pagination": "Search result pages",
+		"results_count": {
+			"one": "{{ count }} result",
+			"other": "{{ count }} results"
+		}
 	},
 	"collections": {
 		"label": "Collection",

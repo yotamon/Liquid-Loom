@@ -110,6 +110,28 @@ describe("reference theme capabilities", () => {
 		assert.equal(cart, await read("packages/create-liquid-loom/template/src/theme/sections/cart/main-cart.liquid"));
 	});
 
+	it("paginates server-rendered search results and handles products, pages, and articles", async () => {
+		const source = await read("src/theme/sections/search/main-search.liquid");
+		const starter = await read("packages/create-liquid-loom/template/src/theme/sections/search/main-search.liquid");
+		assert.equal(source, starter, "Search must be mirrored in the packaged starter");
+		assert.match(source, /paginate search\.results by section\.settings\.results_per_page/);
+		assert.match(source, /paginate \| default_pagination/);
+		assert.match(source, /search\.results_count > 0/);
+		assert.match(source, /item\.object_type == 'article'/);
+		assert.match(source, /item\.object_type == 'page'/);
+		assert.match(source, /render 'price', product: item/);
+		assert.match(source, /search\.pagination/);
+		const schema = JSON.parse(source.split("{% schema %}")[1].split("{% endschema %}")[0]);
+		const pageSize = schema.settings.find((setting) => setting.id === "results_per_page");
+		assert.ok(pageSize);
+		assert.ok(pageSize.min > 0 && pageSize.max <= 50);
+		for (const language of ["en.default", "de"]) {
+			const locale = JSON.parse(await read(`src/theme/locales/${language}.json`));
+			assert.ok(locale.search.article && locale.search.page && locale.search.pagination);
+			assert.ok(locale.search.results_count.one && locale.search.results_count.other);
+		}
+	});
+
 	it("includes modern discovery, merchandising, and design-token primitives", async () => {
 		assert.match(await read("src/theme/config/settings_schema.json"), /color_palette/);
 		assert.match(await read("src/theme/sections/collections/main-collection.liquid"), /collection\.filters/);
