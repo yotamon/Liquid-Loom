@@ -35,12 +35,6 @@ jobs:
       - name: Validate framework and theme
         run: pnpm validate
 
-      - name: Show exact Prettier patch for updated preview checks (temporary)
-        if: failure()
-        run: |
-          pnpm exec prettier --write build-scripts/lib/doctor.js tests/doctor.test.js tests/package-smoke.js docs/LIQUID_JULY_2026_PREVIEW.md
-          git --no-pager diff -- build-scripts/lib/doctor.js tests/doctor.test.js tests/package-smoke.js docs/LIQUID_JULY_2026_PREVIEW.md
-
   portability:
     name: portability (${{ matrix.os }}, Node ${{ matrix.node }})
     runs-on: ${{ matrix.os }}

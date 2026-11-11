@@ -213,8 +213,7 @@ export async function diagnoseProject(config) {
 		checks.push(previewCheck(model, config.shopifyLiquidMode));
 		const misplacedPreviewTags = model.files.filter(
 			(file) =>
-				(file.preview.blockTag || file.preview.partialTag) &&
-				!/^(?:templates|layout)\/.+\.liquid$/.test(file.output)
+				(file.preview.blockTag || file.preview.partialTag) && !/^(?:templates|layout)\/.+\.liquid$/.test(file.output)
 		);
 		if (misplacedPreviewTags.length) {
 			checks.push(

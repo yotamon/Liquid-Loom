@@ -434,6 +434,8 @@ The current [go-to Shopify theme starter implementation plan](docs/GO_TO_STARTER
 ## Documentation
 
 - [Shopify 2026 platform modernization](docs/SHOPIFY_2026_MODERNIZATION.md) - architecture decisions and acceptance criteria
+- [Shopify upstream compatibility watch](docs/SHOPIFY_UPSTREAM_WATCH.md) - weekly read-only release monitoring and CLI migration signals
+- [Shopify CLI 5 compatibility](docs/SHOPIFY_CLI_5.md) - validated toolchain migration and real-store follow-up gates
 - [Existing-theme adoption](docs/EXISTING_THEME_ADOPTION.md) - zero-migration setup, hybrid source, and safe migration
 - [Project model](docs/PROJECT_MODEL.md) - deterministic architecture queries for developers, agents, and CI
 - [Shopify Liquid July 2026 developer preview](docs/LIQUID_JULY_2026_PREVIEW.md) - explicit preview-mode contract and safety boundaries

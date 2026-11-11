@@ -138,7 +138,10 @@ try {
 		await access(path.join(previewTarget, "dist/theme", ...builtFile.split("/")));
 	}
 	const builtHomepage = await readFile(path.join(previewTarget, "dist/theme/templates/index.liquid"), "utf8");
-	const builtRefreshBlock = await readFile(path.join(previewTarget, "dist/theme/blocks/preview-refresh.liquid"), "utf8");
+	const builtRefreshBlock = await readFile(
+		path.join(previewTarget, "dist/theme/blocks/preview-refresh.liquid"),
+		"utf8"
+	);
 	if (!builtHomepage.includes("{% partial 'preview-time' %}") || builtRefreshBlock.includes("{% partial")) {
 		throw new Error("Packed preview must declare its named partial in the Liquid template, not in a theme block.");
 	}

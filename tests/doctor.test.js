@@ -181,7 +181,10 @@ describe("project doctor", () => {
 		await write(validRoot, "liquid-loom.config.mjs", 'export default { shopifyLiquidMode: "july-2026-preview" };\n');
 		const validResult = await diagnoseProject(await loadProjectConfig(validRoot));
 		assert.equal(validResult.healthy, true);
-		assert.equal(validResult.checks.some((check) => check.code === "LL_PREVIEW_TAG_PLACEMENT"), false);
+		assert.equal(
+			validResult.checks.some((check) => check.code === "LL_PREVIEW_TAG_PLACEMENT"),
+			false
+		);
 	});
 
 	it("fails a hybrid project when native and organized source collide", async () => {
