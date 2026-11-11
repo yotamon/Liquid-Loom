@@ -199,3 +199,7 @@ The search template now paginates `search.results` server-side (default: 16 resu
 ## Collection sorting acceptance
 
 The collection section supports Shopify-native `sort_by` options in the existing GET filter form, including collections without configured filters. The selected sort is server-rendered, with translated form controls, localized pagination landmarks, and a clear-filter link that keeps the active sort. In a development store, verify available sort options, sorting without filters, sorting with multiple active filters and pagination, filter clearing, and EN/DE keyboard interaction. Static tests are not live-store acceptance.
+
+## Starter navigation and hero links
+
+Verify on a non-production development store at mobile and desktop widths that Search remains reachable in the mobile menu, menu labels and 404 content render in English/German, Escape closes the open menu, the primary hero CTA falls back to the all-products collection without a merchant URL, and an unconfigured secondary CTA does not render an empty link. Repeat navigation with keyboard and screen reader. Static template contracts are not runtime accessibility proof.

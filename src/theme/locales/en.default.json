@@ -1,6 +1,9 @@
 {
 	"accessibility": {
-		"skip_to_content": "Skip to content"
+		"skip_to_content": "Skip to content",
+		"primary_navigation": "Primary navigation",
+		"mobile_navigation": "Mobile navigation",
+		"menu": "Menu"
 	},
 	"actions": {
 		"add_to_cart": "Add to cart",
@@ -57,5 +60,12 @@
 		"apply": "Apply",
 		"sort_by": "Sort by",
 		"pagination": "Collection pages"
+	},
+	"errors": {
+		"not_found": {
+			"title": "Page not found",
+			"description": "The page may have moved, or the link may be out of date.",
+			"return_home": "Return home"
+		}
 	}
 }
