@@ -147,7 +147,9 @@ try {
 	if (!previewConfig.includes('shopifyLiquidMode: "july-2026-preview"')) {
 		throw new Error("Packed preview scaffold did not enable explicit Shopify preview mode.");
 	}
-	console.log("✓ Packed experimental Liquid-first preset builds its preview blocks, partial script, and Liquid homepage");
+	console.log(
+		"✓ Packed experimental Liquid-first preset builds its preview blocks, partial script, and Liquid homepage"
+	);
 
 	await mkdir(existingTarget, { recursive: true });
 	await write(
