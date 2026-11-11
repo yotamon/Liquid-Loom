@@ -19,13 +19,8 @@ jobs:
           node-version: 24
       - run: corepack enable
       - name: Resolve CLI 5 dependency graph without modifying repository
-        run: pnpm install --no-frozen-lockfile
-      - name: Export candidate lockfile to reproducible runner logs
-        run: |
-          printf '%s\n' LIQUID_LOOM_LOCK_BEGIN
-          base64 pnpm-lock.yaml
-          printf '%s\n' LIQUID_LOOM_LOCK_END
+        run: pnpm install --frozen-lockfile
       - name: Validate Shopify CLI 5 with the reference theme
         run: |
-          shopify version
+          pnpm exec shopify version
           pnpm validate
