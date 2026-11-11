@@ -120,8 +120,10 @@
 		}
 		onKeyDown(event) {
 			if (event.key === 'Escape') {
-				if (this.input.getAttribute('aria-expanded') === 'true') {
+				if (this.input.getAttribute('aria-expanded') === 'true' || this.controller) {
 					event.preventDefault();
+					clearTimeout(this.timer);
+					this.controller?.abort();
 					this.close();
 				}
 				return;
@@ -130,7 +132,8 @@
 			if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && options.length) {
 				event.preventDefault();
 				const delta = event.key === 'ArrowDown' ? 1 : -1;
-				this.activeIndex = (this.activeIndex + delta + options.length) % options.length;
+				if (this.activeIndex < 0 && delta < 0) this.activeIndex = options.length - 1;
+				else this.activeIndex = (this.activeIndex + delta + options.length) % options.length;
 				options.forEach((option, index) => {
 					option.setAttribute('aria-selected', String(index === this.activeIndex));
 				});
@@ -168,6 +171,8 @@
 					console.error(error);
 					this.close();
 				}
+			} finally {
+				if (this.controller === controller) this.controller = undefined;
 			}
 		}
 	}
