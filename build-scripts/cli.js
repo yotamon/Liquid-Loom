@@ -313,9 +313,7 @@ async function watchProject({ shopify = false } = {}) {
 		scheduleRebuild(event, changedPath);
 	});
 	const targetCount = watchTargets.length + (nativeRootWatcher ? 1 : 0);
-	console.log(
-		`${chalk.green("●")} watching ${targetCount} Liquid Loom source target${targetCount === 1 ? "" : "s"}`
-	);
+	console.log(`${chalk.green("●")} watching ${targetCount} Liquid Loom source target${targetCount === 1 ? "" : "s"}`);
 
 	await new Promise((resolve) => {
 		let shuttingDown = false;
