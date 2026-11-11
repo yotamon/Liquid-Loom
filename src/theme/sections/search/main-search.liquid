@@ -29,7 +29,12 @@
 		{%- if search.performed -%}
 			{%- assign active_search_sort = search.sort_by | default: search.default_sort_by -%}
 			{%- if search.filters.size > 0 or search.sort_options.size > 0 -%}
-				<form class="facets" action="{{ routes.search_url }}" method="get" aria-label="{{ 'search.refine' | t | escape }}">
+				<form
+					class="facets"
+					action="{{ routes.search_url }}"
+					method="get"
+					aria-label="{{ 'search.refine' | t | escape }}"
+				>
 					<input type="hidden" name="q" value="{{ search.terms | escape }}">
 					<input type="hidden" name="options[prefix]" value="last">
 					{%- if search.types.size > 0 -%}
@@ -50,8 +55,12 @@
 													type="checkbox"
 													name="{{ value.param_name | escape }}"
 													value="{{ value.value | escape }}"
-													{% if value.active %}checked{% endif %}
-													{% if value.count == 0 and value.active == false %}disabled{% endif %}
+													{% if value.active %}
+														checked
+													{% endif %}
+													{% if value.count == 0 and value.active == false %}
+														disabled
+													{% endif %}
 												>
 												{{ value.label | escape }} ({{ value.count }})
 											</label>
@@ -88,7 +97,12 @@
 							<label for="SearchSortBy">{{ 'search.sort_by' | t }}</label>
 							<select id="SearchSortBy" name="sort_by">
 								{%- for option in search.sort_options -%}
-									<option value="{{ option.value | escape }}"{% if option.value == active_search_sort %} selected{% endif %}>
+									<option
+										value="{{ option.value | escape }}"
+										{% if option.value == active_search_sort %}
+											selected
+										{% endif %}
+									>
 										{{ option.name | escape }}
 									</option>
 								{%- endfor -%}
