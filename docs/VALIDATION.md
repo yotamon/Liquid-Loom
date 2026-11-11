@@ -161,7 +161,13 @@ Before declaring the storefront production-validated, use a development store wi
 - English/German cart column headings and quantity labels, update and checkout controls, and the subscription plan name on recurring-purchase line items;
 - a combined listing if the store supports one.
 
-Verify option changes update the URL, product form variant ID, price, availability, and selected media together. Intentionally simulate a failed Section Rendering request and confirm the UI does not silently purchase an older variant. Verify cart and search behavior in the actual browser before marking these items complete.
+Verify option changes update the URL, product form variant ID, price, availability, and selected media together. Intentionally simulate a failed Section Rendering request and confirm the UI does not silently purchase an older variant.
+
+For browsers without JavaScript or when the product custom element does not initialize, the reference product form hides inert option dropdowns, identifies the exact server-selected variant, and allows native submission **only for that variant**. Option changes require JavaScript; this is a deliberately limited safe fallback, not a complete no-JavaScript high-variant picker. Verify invalid `option_values` combinations do not enable an old variant purchase and form submission remains blocked during a pending Section Rendering request.
+
+Test subscription-only variants: if `variant.requires_selling_plan` is true, one-time purchase must not appear; only the variant's eligible selling plan allocations may be offered. On variant change, restore the previous selling plan only when available in the new form, otherwise retain Shopify's newly rendered default. Verify the exact `selling_plan` ID and allocated price in the cart and checkout.
+
+Verify cart and search behavior in the actual browser before marking these items complete.
 
 ## Browser smoke
 
@@ -207,3 +213,29 @@ Verify on a non-production development store at mobile and desktop widths that S
 ## Shopify-native search refinements
 
 Search supports `search.filters`, `search.sort_options`, and a server-rendered GET form that carries the original query, selected result types and Shopify's prefix option. Filters/sorting work without JavaScript, and clear-filters preserves the query and sort. Verify on an unpublished development theme: list, boolean and price filters; decimal price values; EN/DE, zero/many results, pagination after refinements, sorting with no filters configured, and mixed product/article/page results. Shopify filters can remove non-product results, so confirm the merchant experience. Local tests do not verify store behavior.
+
+## Shopify 2026 compatibility acceptance
+
+These features are implemented in source, **not production-certified**.
+Use a non-production store with an unpublished compiled theme; record the
+tested commit, browser, fixtures, and outcomes without customer credentials.
+
+**Stable-store matrix:** Verify `shopify:cart:lines-update` after external app
+and standard-action updates, rejected promises, user errors and overlapping
+mutations, including split cart lines after discounts. Test real
+`shopify.disclosure` metaobjects with title, image and rich text, plus products
+without disclosures. Check merchant-edited section settings, translated
+footer fallbacks, merchant menu titles and RTL page direction. Repeat the
+high-variant, subscription and no-JavaScript buyer scenarios in PR #81.
+
+**Developer-preview matrix:** A _separate_ development store must enable
+`liquid_july_26_changes` when created; only one feature preview is allowed.
+Run the opt-in `liquid-first` scaffold, inspect its generated theme, test
+block composition and partial refresh in multiple browsers, and confirm the
+remaining JSON templates continue working. Do not publish preview syntax.
+
+Official references:
+
+- https://shopify.dev/docs/api/storefront-events-and-actions/events/cart-lines-update
+- https://shopify.dev/docs/apps/build/product-merchandising/product-disclosures
+- https://shopify.dev/docs/apps/build/stores/feature-previews
