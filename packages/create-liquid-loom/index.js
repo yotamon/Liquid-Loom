@@ -110,6 +110,14 @@ export async function scaffoldProject({
 				)
 			);
 		}
+		if (preset === "liquid-first") {
+			const guidance = path.join(staging, "src/theme/AGENTS.md");
+			await writeFile(
+				guidance,
+				(await readFile(guidance, "utf8")) +
+					"\n## July 2026 Liquid-first preview exception\n\n- `templates/index.liquid` is the sole homepage root; never add a competing `templates/index.json`.\n- Put executable `{% block %}` calls in templates/layouts. Block files render `{{ content }}` and document arguments with `{% doc %}`.\n- `{% partial %}` and `@shopify/partial-rendering` require the preview-enabled Shopify development store, not ordinary production Shopify.\n- Product, cart and other JSON templates remain stable; do not migrate them without an explicit plan.\n"
+			);
+		}
 		if (preset === "vite" || preset === "vite-tailwind") {
 			await cp(path.join(PRESET_ROOT, "vite"), staging, { recursive: true });
 			if (preset === "vite-tailwind") {

@@ -5,6 +5,8 @@ import path from "node:path";
 import { describe, it } from "node:test";
 
 import { scaffoldProject } from "../packages/create-liquid-loom/index.js";
+import { buildTheme } from "../build-scripts/lib/theme-builder.js";
+import { createProjectModel } from "../build-scripts/lib/project-model.js";
 
 const file = (root, name) => readFile(path.join(root, ...name.split("/")), "utf8");
 
@@ -63,6 +65,29 @@ describe("Liquid July 2026 opt-in experimental scaffold", () => {
 			assert.equal(packageJson.devDependencies.vite, undefined);
 			assert.equal(packageJson.devDependencies["@shopify/partial-rendering"], undefined);
 			assert.match(await file(project, "README.md"), /NOT a production theme preset/);
+			const guide = await file(project, "src/theme/AGENTS.md");
+			assert.match(guide, /sole homepage root/);
+			const sourceRoot = path.join(project, "src");
+			const outputRoot = path.join(project, "dist/theme");
+			await buildTheme({
+				projectRoot: project,
+				sourceRoot,
+				outputRoot,
+				cacheFile: path.join(project, ".cache/manifest.json"),
+				reservedOutputs: []
+			});
+			assert.equal(await file(project, "dist/theme/templates/index.liquid"), homepage);
+			await assert.rejects(access(path.join(outputRoot, "templates/index.json")));
+			assert.match(await file(project, "dist/theme/blocks/preview-refresh.liquid"), /{% partial 'preview-time' %}/);
+			const model = await createProjectModel({
+				projectRoot: project,
+				sourceRoot,
+				shopifyLiquidMode: "july-2026-preview",
+				reservedOutputs: []
+			});
+			assert.ok(model.preview.blockTag.includes("src/theme/templates/index.liquid"));
+			assert.ok(model.preview.partialTag.includes("src/theme/blocks/preview-refresh.liquid"));
+			assert.equal(model.liquidMode, "july-2026-preview");
 			assert.ok(await file(project, "src/theme/templates/product.json"));
 		} finally {
 			await rm(root, { recursive: true, force: true });
