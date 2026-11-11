@@ -1,11 +1,12 @@
 {% doc %}
-  A lightweight Liquid-first preview block that renders a heading and caller content.
-  @param {string} content - Nested content rendered in the calling template's scope.
+	A lightweight Liquid-first preview block that renders a heading and caller content.
+
+	@param {string} content - Nested content rendered in the calling template's scope.
 {% enddoc %}
 <div class="content-stack" {{ block.shopify_attributes }}>
-  <h1 class="heading">{{ 'preview.heading' | t }}</h1>
-  {{ content }}
+	<h1 class="heading">{{ 'preview.heading' | t }}</h1>
+	{{ content }}
 </div>
 {% schema %}
-{"name":"Preview hero","settings":[]}
+{ "name": "Preview hero", "settings": [] }
 {% endschema %}

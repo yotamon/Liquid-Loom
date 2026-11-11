@@ -5,16 +5,27 @@
 			{%- if section.settings.heading != blank -%}
 				<h2 class="heading heading--medium">{{ section.settings.heading | escape }}</h2>
 			{%- endif -%}
-			<details class="product-disclosures__details"{% if section.settings.open_by_default %} open{% endif %}>
+			<details
+				class="product-disclosures__details"
+				{% if section.settings.open_by_default %}
+					open
+				{% endif %}
+			>
 				<summary class="product-disclosures__summary">
 					{%- for disclosure in disclosures -%}
 						<span class="product-disclosures__title">
 							{%- if disclosure.symbol != blank -%}
-								{{ disclosure.symbol.value | image_url: width: 40 | image_tag: width: 20, height: 20, loading: 'lazy', alt: '' }}
+								{{
+									disclosure.symbol.value
+									| image_url: width: 40
+									| image_tag: width: 20, height: 20, loading: 'lazy', alt: ''
+								}}
 							{%- endif -%}
 							{{ disclosure.title.value | escape }}
 						</span>
-						{%- unless forloop.last %}<span aria-hidden="true">&bull;</span>{% endunless -%}
+						{%- unless forloop.last -%}
+							<span aria-hidden="true">&bull;</span>
+						{%- endunless -%}
 					{%- endfor -%}
 				</summary>
 				<div class="product-disclosures__content">
@@ -31,12 +42,35 @@
 {%- endif -%}
 
 {% stylesheet %}
-	.product-disclosures__details { border-block: 1px solid var(--color-border); }
-	.product-disclosures__summary { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding-block: 1rem; cursor: pointer; }
-	.product-disclosures__summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
-	.product-disclosures__title { display: inline-flex; align-items: center; gap: .4rem; }
-	.product-disclosures__content { display: grid; gap: 1.5rem; padding-block: 1.25rem; }
-	.product-disclosures__item { display: grid; gap: .5rem; }
+	.product-disclosures__details {
+		border-block: 1px solid var(--color-border);
+	}
+	.product-disclosures__summary {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		padding-block: 1rem;
+		cursor: pointer;
+	}
+	.product-disclosures__summary:focus-visible {
+		outline: 2px solid currentColor;
+		outline-offset: 3px;
+	}
+	.product-disclosures__title {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+	}
+	.product-disclosures__content {
+		display: grid;
+		gap: 1.5rem;
+		padding-block: 1.25rem;
+	}
+	.product-disclosures__item {
+		display: grid;
+		gap: 0.5rem;
+	}
 {% endstylesheet %}
 
 {% schema %}

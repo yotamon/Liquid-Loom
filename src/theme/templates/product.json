@@ -24,13 +24,7 @@
 					"settings": {}
 				}
 			},
-			"block_order": [
-				"vendor",
-				"title",
-				"price",
-				"purchase",
-				"description"
-			],
+			"block_order": ["vendor", "title", "price", "purchase", "description"],
 			"settings": {}
 		},
 		"disclosures": {
@@ -41,8 +35,5 @@
 			}
 		}
 	},
-	"order": [
-		"main",
-		"disclosures"
-	]
+	"order": ["main", "disclosures"]
 }

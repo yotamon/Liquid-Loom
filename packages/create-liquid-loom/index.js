@@ -95,11 +95,20 @@ export async function scaffoldProject({
 			const configFile = path.join(staging, "liquid-loom.config.ts");
 			const config = await readFile(configFile, "utf8");
 			if (!config.includes("viteConfig: false,")) throw new Error("Preview scaffold expected the native config.");
-			await writeFile(configFile, config.replace("viteConfig: false,", 'viteConfig: false,\n\tshopifyLiquidMode: "july-2026-preview",'));
+			await writeFile(
+				configFile,
+				config.replace("viteConfig: false,", 'viteConfig: false,\n\tshopifyLiquidMode: "july-2026-preview",')
+			);
 			const layoutFile = path.join(staging, "src/theme/layout/theme.liquid");
 			const layout = await readFile(layoutFile, "utf8");
 			if (!layout.includes("</body>")) throw new Error("Preview scaffold expected the native theme layout.");
-			await writeFile(layoutFile, layout.replace("</body>", `<script type="module" src="{{ 'preview-refresh.js' | asset_url }}"></script>\n\t</body>`));
+			await writeFile(
+				layoutFile,
+				layout.replace(
+					"</body>",
+					`<script type="module" src="{{ 'preview-refresh.js' | asset_url }}"></script>\n\t</body>`
+				)
+			);
 		}
 		if (preset === "vite" || preset === "vite-tailwind") {
 			await cp(path.join(PRESET_ROOT, "vite"), staging, { recursive: true });

@@ -50,7 +50,7 @@ describe("Liquid July 2026 opt-in experimental scaffold", () => {
 			assert.match(block, /{% partial 'preview-time' %}/);
 			assert.match(block, /{% doc %}/);
 			const script = await file(project, "src/public/preview-refresh.js");
-			assert.match(script, /from '@shopify\/partial-rendering'/);
+			assert.match(script, /@shopify\/partial-rendering/);
 			const layout = await file(project, "src/theme/layout/theme.liquid");
 			assert.match(layout, /preview-refresh\.js/);
 			assert.ok(layout.indexOf("{{ content_for_header }}") < layout.indexOf("preview-refresh.js"));
