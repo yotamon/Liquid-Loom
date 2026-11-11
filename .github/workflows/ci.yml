@@ -35,6 +35,12 @@ jobs:
       - name: Validate framework and theme
         run: pnpm validate
 
+      - name: Print upstream watcher formatter diff (temporary)
+        if: failure()
+        run: |
+          pnpm exec prettier --write scripts/shopify-upstream-watch.mjs
+          git --no-pager diff -- scripts/shopify-upstream-watch.mjs
+
   portability:
     name: portability (${{ matrix.os }}, Node ${{ matrix.node }})
     runs-on: ${{ matrix.os }}
