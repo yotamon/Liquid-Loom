@@ -4,7 +4,8 @@
 	data-cart-error="{{ 'cart.add_error' | t | escape }}"
 	data-variant-error="{{ 'products.variant_error' | t | escape }}"
 >
-	{%- form 'product', product, id: 'ProductForm-' | append: block.id, novalidate: 'novalidate', data-product-form: '' -%}
+	{%- assign product_form_id = 'ProductForm-' | append: block.id -%}
+	{%- form 'product', product, id: product_form_id, novalidate: 'novalidate', data-product-form: '' -%}
 		<input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
 		{%- unless product.has_only_default_variant -%}
 			{%- for product_option in product.options_with_values -%}
