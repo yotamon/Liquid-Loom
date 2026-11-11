@@ -29,13 +29,54 @@ async function registerComponents(file, environment = {}) {
 }
 
 describe("Shopify reference storefront behavior", () => {
+	it("never exposes inert variant selectors as purchasable choices without JavaScript", async () => {
+		const purchase = await readFile(path.join(root, "src/theme/blocks/product-purchase.liquid"), "utf8");
+		assert.match(purchase, /\.product-form__option-field \{\s*display: none;/);
+		assert.match(purchase, /product-form\[data-product-ready\] \.product-form__option-field/);
+		assert.match(purchase, /unless product\.selected_or_first_available_variant\.requires_selling_plan/);
+		assert.match(purchase, /available_plan_ids contains plan\.id/);
+		assert.match(purchase, /selected_variant\.requires_selling_plan and available_plan_ids\.size == 0/);
+		assert.match(purchase, /class="field product-form__option-field"/);
+		assert.match(purchase, /product-form__option-fallback/);
+		assert.match(purchase, /selected_or_first_available_variant\.title/);
+		assert.match(purchase, /this\.setAttribute\('data-product-ready', ''\)/);
+	});
+
+
+	it("restores the last applied option when the section cannot be refreshed", async () => {
+		const components = await registerComponents("src/theme/blocks/product-purchase.liquid");
+		const productForm = new (components.get("product-form"))();
+		productForm.options = [{ value: "new-option" }];
+		productForm.appliedValues = ["previous-option"];
+		productForm.status = { textContent: "" };
+		productForm.dataset = { variantError: "Unable to resolve selected option" };
+		productForm.closest = () => null;
+		await productForm.refreshProduct(0);
+		assert.equal(productForm.options[0].value, "previous-option");
+		assert.equal(productForm.status.textContent, "Unable to resolve selected option");
+	});
+
+
+	it("prevents purchase submission while the variant request is unresolved", async () => {
+		const components = await registerComponents("src/theme/blocks/product-purchase.liquid");
+		const productForm = new (components.get("product-form"))();
+		productForm.refreshing = true;
+		let prevented = 0;
+		await productForm.submitWithStandardAction({
+			preventDefault: () => {
+				prevented += 1;
+			}
+		});
+		assert.equal(prevented, 1);
+	});
+
 	it("renders a selected product option via Section Rendering API and preserves quantity", async () => {
 		let requestedUrl;
 		let browserUrl;
 		let replaced = false;
 		let focused = false;
 		const newQuantity = { value: "1" };
-		const newPlan = { value: "" };
+		const newPlan = { value: "", options: [{ value: "" }, { value: "plan-1" }] };
 		const replacement = {
 			querySelector: () => ({
 				elements: {
@@ -102,6 +143,47 @@ describe("Shopify reference storefront behavior", () => {
 		assert.equal(browserUrl.searchParams.get("option_values"), "123");
 		assert.equal(browserUrl.searchParams.has("section_id"), false);
 	});
+
+	it("does not reuse a selling plan unavailable for a newly selected variant", async () => {
+		const newPlan = { value: "plan-2", options: [{ value: "plan-2" }] };
+		const replacement = {
+			querySelector: () => ({
+				elements: { namedItem: (name) => (name === "selling_plan" ? newPlan : null) }
+			}),
+			querySelectorAll: () => [{ focus: () => {} }]
+		};
+		const components = await registerComponents("src/theme/blocks/product-purchase.liquid", {
+			window: {
+				location: { href: "https://example.com/products/test", origin: "https://example.com" },
+				history: { state: {}, replaceState: () => {} }
+			},
+			fetch: async () => ({ ok: true, text: async () => "<section data-product-section></section>" }),
+			DOMParser: class {
+				parseFromString() {
+					return { querySelector: () => replacement };
+				}
+			}
+		});
+		const form = new (components.get("product-form"))();
+		form.closest = () => ({
+			dataset: { sectionId: "template--1__main", productUrl: "/products/test" },
+			replaceWith: () => {}
+		});
+		form.options = [{ value: "new", selectedOptions: [{ dataset: { productUrl: "" } }] }];
+		form.appliedValues = ["old"];
+		form.form = {
+			elements: { namedItem: (name) => (name === "selling_plan" ? { value: "plan-1" } : null) }
+		};
+		form.submit = { disabled: false };
+		form.canSubmit = true;
+		form.isConnected = true;
+		form.setAttribute = () => {};
+		form.removeAttribute = () => {};
+
+		await form.refreshProduct(0);
+		assert.equal(newPlan.value, "plan-2");
+	});
+
 
 	it("offers keyboard navigation in predictive search without removing input focus", async () => {
 		let destination;

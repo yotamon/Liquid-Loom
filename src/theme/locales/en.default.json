@@ -33,7 +33,8 @@
 		"increase_quantity": "Increase quantity",
 		"options_require_javascript": "Enable JavaScript to change product options.",
 		"variant_error": "Unable to update this product option. Please try again.",
-		"unavailable": "Unavailable"
+		"unavailable": "Unavailable",
+		"selected_variant": "Selected variant"
 	},
 	"search": {
 		"heading": "Find what you need",
