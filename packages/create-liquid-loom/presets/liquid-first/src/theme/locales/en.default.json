@@ -1,0 +1,10 @@
+{
+	"preview": {
+		"heading": "Liquid-first composition",
+		"description": "This preview homepage uses directly composed theme blocks. Commerce pages retain Shopify's stable JSON templates.",
+		"last_rendered": "Last server render",
+		"refresh": "Refresh server time",
+		"success": "Updated",
+		"failure": "Unable to refresh. Try again."
+	}
+}

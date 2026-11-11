@@ -1,0 +1,12 @@
+{% doc %}
+  Wraps a preview page region in a semantic container.
+  @param {string} [tag] - HTML wrapper tag; defaults to section.
+  @param {string} content - Nested template content rendered in the caller's scope.
+{% enddoc %}
+{%- assign wrapper = tag | default: 'section' -%}
+<{{ wrapper }} class="section" {{ block.shopify_attributes }}>
+  <div class="page-width">{{ content }}</div>
+</{{ wrapper }}>
+{% schema %}
+{"name":"Preview container","settings":[]}
+{% endschema %}

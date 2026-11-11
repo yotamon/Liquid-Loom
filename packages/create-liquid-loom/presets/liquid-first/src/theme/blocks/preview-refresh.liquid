@@ -1,0 +1,25 @@
+{% doc %}
+  Demonstrates a named partial using the preview storefront rendering runtime.
+  @param {string} [content] - Optional nested content from the caller.
+{% enddoc %}
+<div class="content-stack" {{ block.shopify_attributes }}>
+  {% partial 'preview-time' %}
+    <p>{{ 'preview.last_rendered' | t }}:
+      <time datetime="{{ 'now' | date: '%Y-%m-%dT%H:%M:%S%z' }}">{{ 'now' | date: '%H:%M:%S' }}</time>
+    </p>
+  {% endpartial %}
+  <button
+    type="button"
+    class="button"
+    data-preview-refresh
+    data-success="{{ 'preview.success' | t | escape }}"
+    data-failure="{{ 'preview.failure' | t | escape }}"
+  >
+    {{ 'preview.refresh' | t }}
+  </button>
+  <p class="muted" role="status" aria-live="polite" data-preview-status></p>
+  {{ content }}
+</div>
+{% schema %}
+{"name":"Preview partial","settings":[]}
+{% endschema %}
