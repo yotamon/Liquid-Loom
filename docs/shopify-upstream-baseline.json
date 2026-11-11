@@ -1,0 +1,11 @@
+{
+	"observedAt": "2026-11-11",
+	"refs": {
+		"dawn": "v16.1.1",
+		"horizon": "c531fd5bb8904e7f871c308b15c64a7cb0de8e20",
+		"skeleton": "a7a655e79b21e68316c228dc7e437b0b32550888",
+		"cli": "5.0.1",
+		"themeCheck": "@shopify/theme-check-common@4.0.0",
+		"prettier": "@shopify/prettier-plugin-liquid@1.11.4"
+	}
+}

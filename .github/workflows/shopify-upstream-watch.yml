@@ -1,0 +1,27 @@
+name: Shopify upstream compatibility watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "27 6 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shopify-upstream-watch
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Compare official upstream releases to audited baseline
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/shopify-upstream-watch.mjs
