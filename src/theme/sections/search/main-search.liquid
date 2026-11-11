@@ -35,11 +35,19 @@
 							<article class="product-card{% unless item.object_type == 'product' %} search-result--content{% endunless %}">
 								{%- if item.object_type == 'product' and item.featured_image != blank -%}
 									<a class="product-card__media" href="{{ item.url }}">
-										{{ item.featured_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '320, 480, 640, 900', sizes: '(min-width: 900px) 25vw, 50vw' }}
+										{{
+											item.featured_image
+											| image_url: width: 900
+											| image_tag: loading: 'lazy', widths: '320, 480, 640, 900', sizes: '(min-width: 900px) 25vw, 50vw'
+										}}
 									</a>
 								{%- elsif item.object_type == 'article' and item.image != blank -%}
 									<a class="product-card__media" href="{{ item.url }}">
-										{{ item.image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '320, 480, 640, 900', sizes: '(min-width: 900px) 25vw, 50vw' }}
+										{{
+											item.image
+											| image_url: width: 900
+											| image_tag: loading: 'lazy', widths: '320, 480, 640, 900', sizes: '(min-width: 900px) 25vw, 50vw'
+										}}
 									</a>
 								{%- endif -%}
 								<div class="product-card__content">
