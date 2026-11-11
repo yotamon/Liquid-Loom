@@ -191,3 +191,7 @@ First learn whether real teams repeatedly need:
 - machine-readable ownership/build reports.
 
 Expose new framework surface only when repeated use justifies a stable public contract.
+
+## Native search result acceptance
+
+The search template now paginates `search.results` server-side (default: 16 results per page), and renders product prices separately from article/page results. In a **non-production Shopify development store**, seed more than 16 matching products as well as an article and a page, then verify page-2 links retain the query and search options, empty results show the localized message, EN/DE result counts are correct, and keyboard users can navigate the pagination and predictive results. Repository tests and Theme Check are not proof of live search behavior.

@@ -27,24 +27,48 @@
 			</predictive-search>
 		</header>
 		{%- if search.performed -%}
-			<div class="product-grid">
-				{%- for item in search.results -%}
-					<article class="product-card">
-						<a class="product-card__media" href="{{ item.url }}">
-							{%- if item.featured_image -%}
-								{{ item.featured_image | image_url: width: 700 | image_tag: loading: 'lazy' }}
-							{%- endif -%}
-						</a>
-						<div class="product-card__content">
-							<h2 class="product-card__title">
-								<a href="{{ item.url }}">{{ item.title | escape }}</a>
-							</h2>
-						</div>
-					</article>
-				{%- else -%}
-					<p>{{ 'search.no_results_for' | t }} “{{ search.terms | escape }}”.</p>
-				{%- endfor -%}
-			</div>
+			{%- if search.results_count > 0 -%}
+				<p class="muted" role="status">{{ 'search.results_count' | t: count: search.results_count }}</p>
+				{%- paginate search.results by section.settings.results_per_page -%}
+					<div class="product-grid">
+						{%- for item in search.results -%}
+							<article class="product-card{% unless item.object_type == 'product' %} search-result--content{% endunless %}">
+								{%- if item.object_type == 'product' and item.featured_image != blank -%}
+									<a class="product-card__media" href="{{ item.url }}">
+										{{ item.featured_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '320, 480, 640, 900', sizes: '(min-width: 900px) 25vw, 50vw' }}
+									</a>
+								{%- elsif item.object_type == 'article' and item.image != blank -%}
+									<a class="product-card__media" href="{{ item.url }}">
+										{{ item.image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '320, 480, 640, 900', sizes: '(min-width: 900px) 25vw, 50vw' }}
+									</a>
+								{%- endif -%}
+								<div class="product-card__content">
+									<div>
+										{%- if item.object_type == 'article' -%}
+											<p class="eyebrow">{{ 'search.article' | t }}</p>
+										{%- elsif item.object_type == 'page' -%}
+											<p class="eyebrow">{{ 'search.page' | t }}</p>
+										{%- endif -%}
+										<h2 class="product-card__title">
+											<a href="{{ item.url }}">{{ item.title | escape }}</a>
+										</h2>
+									</div>
+									{%- if item.object_type == 'product' -%}
+										{% render 'price', product: item %}
+									{%- endif -%}
+								</div>
+							</article>
+						{%- endfor -%}
+					</div>
+					{%- if paginate.pages > 1 -%}
+						<nav class="section--compact" aria-label="{{ 'search.pagination' | t | escape }}">
+							{{ paginate | default_pagination }}
+						</nav>
+					{%- endif -%}
+				{%- endpaginate -%}
+			{%- else -%}
+				<p class="muted">{{ 'search.no_results_for' | t }} “{{ search.terms | escape }}”.</p>
+			{%- endif -%}
 		{%- endif -%}
 	</div>
 </section>
@@ -66,6 +90,14 @@
 		border-radius: var(--radius-sm);
 		background: var(--color-surface);
 		padding: 0.7rem 0.85rem;
+	}
+	.search-result--content {
+		padding: clamp(1rem, 2.5vw, 1.5rem);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+	}
+	.search-result--content .eyebrow {
+		margin-block: 0 0.7rem;
 	}
 	.predictive-search__results {
 		border: 1px solid var(--color-border);
@@ -179,4 +211,4 @@
 	if (!customElements.get('predictive-search')) customElements.define('predictive-search', PredictiveSearch);
 {% endjavascript %}
 
-{% schema %}{"name":"Main search","settings":[]}{% endschema %}
+{% schema %}{"name":"Main search","settings":[{"type":"range","id":"results_per_page","min":8,"max":32,"step":4,"label":"Results per page","default":16}]}{% endschema %}
