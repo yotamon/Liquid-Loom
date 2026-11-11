@@ -169,7 +169,9 @@ export async function inspectUpstreams({ baseline, manifests, fetchImpl = fetch,
 }
 
 function cell(value) {
-	return String(value ?? "unknown").replaceAll("|", "\\|").replaceAll("\n", " ");
+	return String(value ?? "unknown")
+		.replaceAll("|", "\\|")
+		.replaceAll("\n", " ");
 }
 
 export function formatMarkdown(report) {
