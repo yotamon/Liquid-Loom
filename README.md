@@ -330,6 +330,21 @@ This records project intent for diagnostics and project intelligence. It does no
 
 Read [Shopify Liquid July 2026 developer preview](docs/LIQUID_JULY_2026_PREVIEW.md).
 
+### Experimental Liquid-first homepage
+
+An opt-in preset demonstrates Shopify's July 2026 `{% block %}` and
+`{% partial %}` developer preview without changing the production starter:
+
+```bash
+pnpm create liquid-loom@latest my-preview --preset liquid-first --experimental
+```
+
+Only the homepage is a direct Liquid composition root; commerce pages retain
+stable Shopify JSON templates and sections. A preview-enabled development store
+is mandatory. Shopify supplies `@shopify/partial-rendering` through the storefront
+runtime, **not npm**. This preset is experimental and must not be used for
+production merchant themes. See [the preview guide](docs/LIQUID_JULY_2026_PREVIEW.md).
+
 ## Build guarantees
 
 Liquid Loom keeps the existing engineering guarantees regardless of asset strategy:

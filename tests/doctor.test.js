@@ -163,6 +163,28 @@ describe("project doctor", () => {
 			),
 			true
 		);
+		assert.ok(
+			previewResult.checks.some(
+				(check) =>
+					check.code === "LL_PREVIEW_TAG_PLACEMENT" &&
+					check.status === "warn" &&
+					check.message.includes("src/theme/sections/search/results.liquid") &&
+					check.fix.includes("Liquid template or layout")
+			)
+		);
+
+		const validRoot = await project();
+		await writeHealthyProject(validRoot);
+		await write(validRoot, "src/theme/templates/page.liquid", "{% partial 'results' %}<p>Results</p>{% endpartial %}");
+		await write(validRoot, "src/theme/layout/theme.liquid", "{% block 'container' %}Content{% endblock %}");
+		await write(validRoot, "src/theme/blocks/container.liquid", "<div>{{ content }}</div>");
+		await write(validRoot, "liquid-loom.config.mjs", 'export default { shopifyLiquidMode: "july-2026-preview" };\n');
+		const validResult = await diagnoseProject(await loadProjectConfig(validRoot));
+		assert.equal(validResult.healthy, true);
+		assert.equal(
+			validResult.checks.some((check) => check.code === "LL_PREVIEW_TAG_PLACEMENT"),
+			false
+		);
 	});
 
 	it("fails a hybrid project when native and organized source collide", async () => {

@@ -15,6 +15,7 @@ const { positionals, values } = parseArgs({
 	allowPositionals: true,
 	options: {
 		help: { short: "h", type: "boolean" },
+		experimental: { type: "boolean" },
 		install: { default: true, type: "boolean" },
 		"no-install": { type: "boolean" },
 		"package-manager": { default: "pnpm", type: "string" },
@@ -34,7 +35,7 @@ if (values.help || positionals.length === 0) {
 Options:
   --no-install                 Skip dependency installation
   --package-manager <manager>  pnpm, npm, yarn, or bun (default: pnpm)
-  --preset <preset>           native, vite, or vite-tailwind (default: native)
+  --preset <preset>           native, vite, vite-tailwind, or liquid-first (default: native)\n  --experimental               Explicitly enable preview-only presets
   -h, --help                   Show help
   -v, --version                Show version`);
 	process.exit(values.help ? 0 : 1);
@@ -51,7 +52,8 @@ scaffoldProject({
 	projectName,
 	install: values["no-install"] ? false : values.install,
 	packageManager: values["package-manager"],
-	preset: values.preset
+	preset: values.preset,
+	experimental: values.experimental === true
 })
 	.then(({ targetDirectory: target }) => {
 		console.log(`\n✓ Created ${projectName} at ${target}`);
