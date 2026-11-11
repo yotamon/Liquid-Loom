@@ -1,0 +1,31 @@
+name: Shopify CLI 5 candidate evaluation (temporary)
+
+on:
+  push:
+    branches:
+      - feat/shopify-cli-5-compatibility
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: corepack enable
+      - name: Resolve CLI 5 dependency graph without modifying repository
+        run: pnpm install --no-frozen-lockfile
+      - name: Export candidate lockfile to reproducible runner logs
+        run: |
+          printf '%s\n' LIQUID_LOOM_LOCK_BEGIN
+          base64 pnpm-lock.yaml
+          printf '%s\n' LIQUID_LOOM_LOCK_END
+      - name: Validate Shopify CLI 5 with the reference theme
+        run: |
+          shopify version
+          pnpm validate
