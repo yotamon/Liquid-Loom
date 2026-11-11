@@ -19,7 +19,7 @@ When your `shopifySourceDir` points to a conventional Shopify theme, native root
 
 The ownership model also reports the pair as the `theme-context` feature, available from `liquid-loom explain theme-context --json`.
 
-`liquid-loom watch` and `liquid-loom dev` also watch native root context files **when they exist at startup**. If you add one of these files while watch mode is running, restart watch mode to include it. Other repository-root files are not watched.
+`liquid-loom watch` and `liquid-loom dev` track native root context files even when they are **created or removed during a session**. Newly created native Shopify theme directories also join the watcher automatically. Changes to unrelated repository-root files do not trigger builds.
 
 ## Deployment and round trips
 
