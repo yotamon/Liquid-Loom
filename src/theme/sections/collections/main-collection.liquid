@@ -65,7 +65,12 @@
 						<label for="CollectionSortBy">{{ 'collections.sort_by' | t }}</label>
 						<select id="CollectionSortBy" name="sort_by">
 							{%- for option in collection.sort_options -%}
-								<option value="{{ option.value | escape }}"{% if option.value == active_sort_by %} selected{% endif %}>
+								<option
+									value="{{ option.value | escape }}"
+									{% if option.value == active_sort_by %}
+										selected
+									{% endif %}
+								>
 									{{ option.name | escape }}
 								</option>
 							{%- endfor -%}

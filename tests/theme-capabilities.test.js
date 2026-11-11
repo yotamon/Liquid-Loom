@@ -134,7 +134,9 @@ describe("reference theme capabilities", () => {
 
 	it("offers native Shopify collection sorting with or without filters", async () => {
 		const source = await read("src/theme/sections/collections/main-collection.liquid");
-		const starter = await read("packages/create-liquid-loom/template/src/theme/sections/collections/main-collection.liquid");
+		const starter = await read(
+			"packages/create-liquid-loom/template/src/theme/sections/collections/main-collection.liquid"
+		);
 		assert.equal(source, starter, "Collection section must match the packaged starter");
 		assert.match(source, /collection\.filters\.size > 0 or collection\.sort_options\.size > 0/);
 		assert.match(source, /collection\.sort_by \| default: collection\.default_sort_by/);
